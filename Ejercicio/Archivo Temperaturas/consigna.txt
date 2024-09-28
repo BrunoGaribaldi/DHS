@@ -1,0 +1,12 @@
+El archivo adjunto contiene temperaturas máximas y mínimas de los últimos 365 días para diferentes estaciones meteorológicas del Servicio Meteorológico Nacional (SMN).
+
+Construya un programa en Python que lee los datos del archivo y los coloca en un diccionario cuyas claves son los nombres de las estaciones meteorológicas. 
+El valor asociado a cada clave debe ser otro diccionario con claves "tmax" y "tmin" que mapean con una lista de temperaturas.
+
+Si no se encuentra registrada una temperatura se la almacenará con el valor None.
+
+Una  vez cargados los datos se debe hacer un reporte por estación meteorológica de la temperatura máxima y mínima registrada en el período de 1 año.
+
+Ej.: Si quiero saber la temperatura mínima de Córdoba hace 3 días atrás debo accederla de la siguiente forma
+
+datos["CORDOBA OBSERVATORIO"]["tmin"][3]

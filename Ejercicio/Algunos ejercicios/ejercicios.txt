@@ -1,0 +1,202 @@
+1) Crear un programa que contenga las funciones:
+   a) generarDatos(n) que devuelva una lista de n números enteros aleatorios entre 0 y 100
+   b) guardarDatos(nombre, datos) que guarda los elementos de una lista en un archivo (uno por renglón)
+   
+def generarDatos(n): 
+    l = list()
+    for i in range(n):
+        l.append(r.randrange(0,100))
+    return l
+
+def guardarDatos(nombre, datos):
+    fichero = open(nombre + ".txt","w")
+    for i in datos:
+        fichero.write(str(i) + "\n")
+    fichero.close()
+
+guardarDatos("archivo",generarDatos(10))
+
+2) Crear un programa que contenga las funciones
+   a) leerDatos(nombre) que lee los datos contenidos en un archivo
+   b) convertirDatos(entrada) que transforma los datos leídos del archivo en una lista de enteros
+   c) convertirDatosLambda(entrada) que transforma los datos leídos del archivo en una lista de enteros mediante listas por comprensión
+   d) noRepetidos(datos) que devuelve una lista de los elementos no repetidos (no usar for-in)
+
+   def leerDatos(nombre):
+    archivo = open(nombre + ".txt","r")
+    l = archivo.readlines() #lee las lineas pero acordate que las lee con \n incluido
+    for lin in range(len(l)): #range(len(l)) va a iterar desde el 0 hasta el largo que tenga la lista entendei
+        l[lin] = l[lin].strip() #strip te saca los espacios en blanco y \n. acordate que lin va a ser un numero que proviene del range.
+    return l
+
+    def convertirDatos(entrada):
+        for i in range(len(entrada)):
+            entrada[i] = int(entrada[i])
+        return entrada
+
+    def noRepetidos(datos):
+        conjunto = set(datos)
+        return conjunto
+
+
+3) Crear un programa que contenga las funciones
+   a) leerDocumento(nombre) que lee los datos contenidos en un archivo de texto conformados por palabras
+   b) palabraLongitud(texto) que devuelve un mapa de las palabras distintas y la cantidad de letras que tiene
+   c) contarPalabras(texto) que devuelve el número de palabras
+   d) contarPalabrasDistintas(texto) que devuelve el número de palabras distintas
+   e) promedioLetras(palabras) que devuelve la cantidad promedio de letras entre todas las palabras
+   f) Imprimir en pantalla la cantidad de palabras, cantidad de palabras no repetidas, cantidad de caracteres, cantidad promedio de caracteres por palabra
+
+3) Crear un programa que contenga las funciones
+   a) leerDocumento(nombre) que lee los datos contenidos en un archivo de texto conformados por palabras
+   aca saque varias soluciones.
+
+I)este metodo esta bueno el tema que cada linea te la toma como si fuese una palabra sola.
+# def leerDocumento(nombre):                    
+#     archivo = open(nombre + ".txt","r")
+#     l = archivo.readlines() 
+#     for lin in range(len(l)): 
+#         l[lin] = l[lin].strip() 
+#     return l
+
+II)esta forma tambien esta buena pero requiere de dos bucles for anidados. 
+
+# def leerDocumento(nombre):
+#     p = list()
+#     archivo = open(nombre + ".txt","r")
+#     l = archivo.readlines() #obtengo una lista con todas las lineas
+#     for lin in l: 
+#         palabras = lin.strip().split() #lista de listas con palabras
+#         for pal in palabras:
+#             p.append(pal)   #con esto lo que hago es agregar a una nueva lista p las distintas palabras de las listas
+#     return p
+
+
+III) Una forma mas eficiente todavia es usar el metodo extend(). 
+La función extend() agrega todos los elementos de la lista que se pasa como argumento a la lista original.
+
+# def leerDocumento(nombre):
+#     p = list()
+#     archivo = open(nombre + ".txt","r")
+#     l = archivo.readlines() #obtengo una lista con todas las lineas
+#     for lin in l: 
+#         p.extend(lin.strip().split())
+#     return p
+
+IV) finalmente, la mejor forma de hacerlo todavia es iterar directamente sobre el archivo. Cuando itero sobre un archivo lo que hago es iterar 
+sobre cada linea del archivo
+
+def leerDocumento(nombre):
+    p = list()
+    archivo = open(nombre + ".txt","r")
+    for lin in archivo: 
+        p.extend(lin.strip().split())
+    return p
+
+
+   b) palabraLongitud(texto) que devuelve un mapa de las palabras distintas y la cantidad de letras que tiene
+
+   def palabrasLongitud(texto):      #recibe una lista con palabras.
+    d = dict()  
+    for palabra in texto: 
+        i = len(palabra)
+        if i in d.keys():
+            l = d.get(i)
+            l.append(palabra)
+        else:
+            l = list()
+            l.append(palabra)
+        d[i] = l
+    #voy a agregarle el chiche de que salgan ordenadas las claves.
+    o = sorted(d.keys()) #lista con todas las claves de menor a mayor.
+    diccionario = {}
+    for i in o: 
+        diccionario[i] = d[i]
+    return diccionario #devuelve un diccionario cuya claves son el tamaño de las palabras y los valores son listas que contienen palabras de la misma longitud.
+
+   c) contarPalabras(texto) que devuelve el número de palabras
+   d) contarPalabrasDistintas(texto) que devuelve el número de palabras distintas
+   e) promedioLetras(palabras) que devuelve la cantidad promedio de letras entre todas las palabras
+   f) Imprimir en pantalla la cantidad de palabras, cantidad de palabras no repetidas, cantidad de caracteres, cantidad promedio de caracteres por palabra
+
+def leerDocumento(nombre):
+    archivo = open(nombre + ".txt","r")
+    l = archivo.readlines() 
+    for lin in range(len(l)): 
+        l[lin] = l[lin].strip() 
+    return l
+
+#def palabrasLongitud(texto):       lla intencion es buena pero hay una cosa que te olvidaste. 
+#    l = dict()                     No podes tener valores con la mismas claves. Te conviente hacer un conjunto de listas en todo caso, 
+#    for i in texto:                donde cada lista tenga todas las palabras con la misma longitud
+#        l.append({len(i) : i})
+#    return l
+
+def palabrasLongitud(texto):      
+    d = dict()  
+    for palabra in texto: 
+        i = len(palabra)
+        if i in d.keys():
+            l = d.get(i)
+            l.append(palabra)
+        else:
+            l = list()
+            l.append(palabra)
+        d[i] = l
+    print(d)
+    return d
+
+palabrasLongitud(leerDocumento("archivo"))
+
+
+
+                                                                basicamente aca esta todo el ejercicio 3
+def leerDocumento(nombre):  #retorna una lista de palabras
+    p = list()
+    archivo = open(nombre + ".txt","r")
+    for lin in archivo: 
+        p.extend(lin.strip().split())
+    return p
+
+def palabrasLongitud(texto):  #recibe una lista con palabras y retorna un diccionario donde las claves son el tamaño de las palabras y los valores las listas que contiene con palabras de ese tamaño de palabra
+    d = dict()  
+    for palabra in texto: 
+        i = len(palabra)
+        if i in d.keys():
+            l = d.get(i)
+            l.append(palabra)
+        else:
+            l = list()
+            l.append(palabra)
+        d[i] = l
+    #voy a agregarle el chiche de que salgan ordenadas las claves.
+    o = sorted(d.keys()) #lista con todas las claves de menor a mayor.
+    diccionario = {}
+    for i in o: 
+        diccionario[i] = d[i]
+    return diccionario
+    
+def contarPalabras(texto): #recibe una lista de palabras y cuenta la cantidad de palabras
+    return len(texto)
+
+def contarPalabrasDistintas(texto): #recibe una lista de palabras y cuenta la cantidad de palabras distintas
+    palabras_distintas = set(texto)
+    return len(palabras_distintas)
+
+def promedioLetras(palabras): #recibe lista con palabras, retorna promedio
+    counter = 0
+    for i in palabras: 
+       counter += len(i)
+    return counter / len(palabras) 
+
+def imprimir(nombre): #recibe el nombre de un archivo e imprime toda su información
+    l = leerDocumento(nombre)
+    print("Cantidad de palabras= " + str(contarPalabras(l)) + "\n")
+    print("Cantidad de palabras no repetidas= " + str(contarPalabrasDistintas(l)) + "\n")
+    print("cantidad promedio de caracteres por palabra= " + str(promedioLetras(l)) + "\n")
+    counter = 0
+    for i in l: 
+        counter += len(i)
+    print("cantidad de caracteres= " + str(counter))
+
+imprimir("archivo")
