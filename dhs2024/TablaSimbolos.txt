@@ -1,0 +1,43 @@
+TABLA DE SIMBOLOS
+
+Guarda todos los id que define el usuario con sus caracteristicas. gestiona los contextos.
+
+acciones: 
+1) agregar contexto
+2) borrar contexto
+3) agregar identificador
+4) consultar si existe la variable(identificador), buscar id (global), cuando yo quiero usar una variable la busco en todos lados digamos
+5) buscar id (local), cuando quiero agregar una variable veo si existe o no en el contexto que estoy parado
+
+la tabla de simbolos requiere de la existencia de contexto
+
+contexto va a ser otra clase que basicamente va a ser el diccionario con una string y valor un id
+
+ahora bien, que va a ser un id? las variables y las funciones.
+
+el objeto id es: 
+1) nombre
+2) tipo de dato
+3) si esta usado o no
+4) si esta inicializado
+
+deberia tener todos los getters. pero fijate que este id va particularmente bien con las variables.
+
+para funciones???
+
+funciones: 
+1) nombre
+2) tipo de dato para devolver.
+
+el prototipo significa que la declare a la funcion
+la incializo cuando el compilador encuentra el desarrollo de lafuncion
+y esta usada cuando nosotros llamamos la funcion.
+
+5) lista de argumentos.
+
+
+EN EL PLANTUML 
+ 
+ -> CONECTAR
+ --> CONECTAR PARA ABAJO
+ <|--HEREDARs
