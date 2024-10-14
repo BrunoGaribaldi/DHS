@@ -9,26 +9,40 @@ PC: ')';
 LLA: '{';
 LLC: '}';
 PYC: ';';
-WHILE :'while';
+COMA: ',';
+
 NUMERO : DIGITO+ ;
+
+WHILE :'while';
 INT:'int';
+FLOAT : 'float';
+DOUBLE: 'double';
+CHAR: 'char';
+VOID: 'void';
+BOOLEAN: 'bool';
 FOR: 'for';
+IF: 'if';
+ELSE: 'else';
+
+
 SUMA : '+' ;
 RESTA : '-';
 MULT : '*';
 DIV : '/';
 MOD : '%';
+MAS : '++';
+MEN : '--';
+
 ASIG : '=' ;
+EQ : '==';
+
 MIN : '<' ;
 MINEQ : '<=' ;
 MAY : '>' ;
 MAYEQ : '>=';
-EQ : '==';
 AND : '&&' ; 
 OR : '||' ;
 NOT : '!=' ;
-
-
 
 
 WS : [ \t\n\r] -> skip;
@@ -56,18 +70,40 @@ instrucciones : instruccion instrucciones //es una instruccion con mas instrucci
 instruccion: declaracion
             | iwhile
             | bloque
-//            | ifor
-//            | iif
+            | ifor
+            | iif
+            | prototipofunc
+            | func
             | asignacion PYC
             ;
 
-declaracion: INT ID PYC ;
+tipodato : INT
+         |DOUBLE
+         |FLOAT
+         |BOOLEAN
+         |CHAR
+         ;
 
+declaracion: tipodato ID PYC;
+      
 asignacion : ID ASIG opal; //opal es operacion aritmetca logica
 
-opal : exp log igdis; //completar. Las expresiones (exp) son la parte aritmerica. Me falta la parte logica.
+opal : exp log  //completar. Las expresiones (exp) son la parte aritmerica. Me falta la parte logica.
+     | posincremento
+     | preincremento
+     |
+     ; 
+posincremento : MAS ID 
+              | MEN ID 
+              ;
+
+preincremento : ID MAS
+              | ID MEN
+              ;
+
 
 exp : term e; // por ejemplo 4*10/2 + ..... termino es 4*10/2, e es suma o resta, 
+
 e : SUMA term e
   | RESTA term e  
   |           //hasta que termine
@@ -109,7 +145,30 @@ iwhile : WHILE PA ID PC instruccion ;//llave representa una instruccion compuest
 
 bloque : LLA instrucciones LLC; 
 
-//ifor : FOR PA init PYC cond PYC iter PC instruccion ; //for(init ; cond ; iter) instruccion
-//init : ;
-//cond : ;
-//iter : ;
+iif: IF PA ID PC bloque // suponiendo if(x)
+   | IF PA ID PC bloque ELSE bloque ; //una estructura con if else
+
+ifor : FOR PA init PYC cond PYC iter PC instruccion ; //for(init ; cond ; iter) instruccion
+
+prototipofunc : tipodatof ID PA argumentos PC PYC; 
+
+func : prototipofunc bloque;
+
+tipodatof : INT
+         |DOUBLE
+         |FLOAT
+         |VOID
+         |BOOLEAN
+         |CHAR
+         ;
+
+argumentos : tipodato ID COMA argumentos
+           | tipodato ID
+           | 
+           ;
+
+init : asignacion;
+
+cond : opal;
+
+iter : opal;
