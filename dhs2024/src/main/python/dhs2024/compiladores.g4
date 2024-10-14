@@ -3,7 +3,6 @@ grammar compiladores;
 fragment LETRA : [A-Za-z] ;
 fragment DIGITO : [0-9] ;
 
-//INST : (LETRA | DIGITO | [- ,;{}()+=>] )+ '\n'; es una letra, un digito .. no quiero que exceda el guion 
 PA: '(';
 PC: ')';
 LLA: '{';
@@ -11,72 +10,49 @@ LLC: '}';
 PYC: ';';
 COMA: ',';
 
-NUMERO : DIGITO+ ;
+SUMA : '+' ;
+RESTA : '-';
+MULT : '*';
+DIV : '/';
+MOD : '%';
 
-WHILE :'while';
+MAS : '++';
+MEN : '--';
+ASIG : '=' ;
+
+EQ : '==';
+DISTEQ : '!=';
+MIN : '<';
+MINEQ : '<=';
+MAY : '>';
+MAYEQ : '>=';
+
+AND : '&&'; 
+OR : '||';
+NOT: '!';
+
 INT:'int';
 FLOAT : 'float';
 DOUBLE: 'double';
 CHAR: 'char';
 VOID: 'void';
 BOOLEAN: 'bool';
+
+WHILE :'while';
 FOR: 'for';
 IF: 'if';
 ELSE: 'else';
+DO: 'do';
 
-
-SUMA : '+' ;
-RESTA : '-';
-MULT : '*';
-DIV : '/';
-MOD : '%';
-MAS : '++';
-MEN : '--';
-
-ASIG : '=' ;
-EQ : '==';
-
-MIN : '<' ;
-MINEQ : '<=' ;
-MAY : '>' ;
-MAYEQ : '>=';
-AND : '&&' ; 
-OR : '||' ;
-NOT : '!=' ;
-
-
+NUMERO : DIGITO+ ;
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-/*OTRO : . ;
 
-
-s : ID     {print("ID ->" + $ID.text + "<--") }         s
-  | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
-  | OTRO   {print("Otro ->" + $OTRO.text + "<--") }     s
-  | EOF
-  ;
-  */
-
-//si : s EOF; que comience en un nodo, que sea solo la razi del arbol
-//s: PA s PC s  s permite la anidacion, se cierra un parentesis y se puede abrirotro parentesis. Verifica balance de parentesis
-  //|
-//;
-
+// REGLAS-----------------------------------------------------------------------------------------------------
 programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del archivo
-
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
-instruccion: declaracion
-            | iwhile
-            | bloque
-            | ifor
-            | iif
-            | prototipofunc
-            | func
-            | asignacion PYC
-            ;
-
 tipodato : INT
          |DOUBLE
          |FLOAT
@@ -84,71 +60,96 @@ tipodato : INT
          |CHAR
          ;
 
-declaracion: tipodato ID PYC;
-      
-asignacion : ID ASIG opal; //opal es operacion aritmetca logica
+instruccion: declaracion
+            | asignacion
+            | bloque
+            | ifor
+            | iif
+            | prototipofunc
+            | func
+            | iwhile
+            ;
+// ---------------------------------------------------------------------------------------------------------
 
-opal : exp log  //completar. Las expresiones (exp) son la parte aritmerica. Me falta la parte logica.
-     | posincremento
-     | preincremento
+declaracion: tipodato ID PYC; //int x;
+
+// ---------------------------------------------------------------------------------------------------------
+
+asignacion : ID ASIG opal PYC; //opal(operacion aritmetica logica)
+
+opal : exp log //exp(expresiones aritmeticas) log(expresiones logicas)
      |
      ; 
-posincremento : MAS ID 
-              | MEN ID 
-              ;
 
-preincremento : ID MAS
-              | ID MEN
-              ;
-
-
-exp : term e; // por ejemplo 4*10/2 + ..... termino es 4*10/2, e es suma o resta, 
+//PARTE ARITMETICA -----------------------------------------------------------------------------------------
+exp : term e; 
 
 e : SUMA term e
   | RESTA term e  
-  |           //hasta que termine
+  |           
   ;
 
 term  : factor t; //separo esto para que primero se resuelvan operaciones de * / % y recien ahi despues se suma o resta
+
 t     : MULT factor t
       | DIV factor t
       | MOD factor t
       |
       ;
-
-log : comp
-    |
-    ;
-
-comp: MAY exp
-    | MIN exp
-    | MINEQ exp
-    | MAYEQ exp
-    |
-    ;
-
 factor : NUMERO 
        | ID            //ACORDATE QUE ID ES UNA VARIABLE 
        | PA exp PC    // (expresion eemmplo 4*10-1)
        ;
 
-igdis : igual 
-   |
-   ;
+// PARTE LOGICA------------------------------------------------------------------------------------------
 
-igual: EQ 
-     | NOT
-     | 
-     ;
+log : comp exp
+    | igdis exp //igual o distinto
+    |
+    ;
 
-iwhile : WHILE PA ID PC instruccion ;//llave representa una instruccion compuesta, despues del while viene siempre una instruccion
+comp: MAY 
+    | MIN 
+    | MINEQ 
+    | MAYEQ 
+    ;
+igdis : EQ 
+      | DISTEQ
+      ;
 
-bloque : LLA instrucciones LLC; 
+//-----------------------------------------------------------------------------------------------------------
 
-iif: IF PA ID PC bloque // suponiendo if(x)
-   | IF PA ID PC bloque ELSE bloque ; //una estructura con if else
+bloque : LLA instrucciones LLC; //bloque de codigo
 
-ifor : FOR PA init PYC cond PYC iter PC instruccion ; //for(init ; cond ; iter) instruccion
+//FOR --------------------------------------------------------------------------------------------------------
+
+ifor : FOR PA init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
+init : asignacion;
+cond : opal;
+iter : opal;
+
+//IF---------------------------------------------------------------------------------------------------------
+
+iif: IF PA opal PC bloque // suponiendo if(x)
+   | IF PA opal PC bloque ELSE bloque ; //una estructura con if else
+
+//-----------------------------------------------------------------------------------------------------------
+
+iwhile : WHILE PA ID PC bloque ;
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 prototipofunc : tipodatof ID PA argumentos PC PYC; 
 
@@ -167,8 +168,4 @@ argumentos : tipodato ID COMA argumentos
            | 
            ;
 
-init : asignacion;
 
-cond : opal;
-
-iter : opal;

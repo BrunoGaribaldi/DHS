@@ -1,0 +1,63 @@
+grammar compiladores;
+
+fragment LETRA : [A-Za-z] ;
+fragment DIGITO : [0-9] ;
+
+PA: '(';
+PC: ')';
+LLA: '{';
+LLC: '}';
+PYC: ';';
+COMA: ',';
+
+SUMA : '+' ;
+RESTA : '-';
+MULT : '*';
+DIV : '/';
+MOD : '%';
+
+MAS : '++';
+MEN : '--';
+ASIG : '=' ;
+
+EQ : '==';
+DISTEQ : '!=';
+MIN : '<';
+MINEQ : '<=';
+MAY : '>';
+MAYEQ : '>=';
+
+AND : '&&'; 
+OR : '||';
+NOT: '!';
+WHILE :'while';
+INT:'int';
+FLOAT : 'float';
+DOUBLE: 'double';
+CHAR: 'char';
+VOID: 'void';
+BOOLEAN: 'bool';
+FOR: 'for';
+IF: 'if';
+ELSE: 'else';
+
+NUMERO : DIGITO+ ;
+WS : [ \t\n\r] -> skip;
+ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
+
+
+
+/*OTRO : . ;
+
+
+s : ID     {print("ID ->" + $ID.text + "<--") }         s
+  | NUMERO {print("NUMERO ->" + $NUMERO.text + "<--") } s
+  | OTRO   {print("Otro ->" + $OTRO.text + "<--") }     s
+  | EOF
+  ;
+  */
+
+//si : s EOF; que comience en un nodo, que sea solo la razi del arbol
+//s: PA s PC s  s permite la anidacion, se cierra un parentesis y se puede abrirotro parentesis. Verifica balance de parentesis
+  //|
+//;
