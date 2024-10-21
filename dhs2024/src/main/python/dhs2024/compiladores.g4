@@ -54,7 +54,7 @@ instrucciones : instruccion instrucciones //es una instruccion con mas instrucci
                 |
                 ;
 //todas las sentencias que puede tener el programa
-instruccion: declaracion
+instruccion: declaracion PYC
             | asignacion PYC
             | bloque
             | ifor
@@ -62,6 +62,7 @@ instruccion: declaracion
             | prototipofunc
             | func
             | iwhile
+            | llamadafunc
             ;
 
 //tipos de datos para inicializar variables
@@ -73,16 +74,12 @@ tipodato : INT
          ;
 
 //tipos de datos para los prototipos de las funciones
-tipodatof : INT
-         |DOUBLE
-         |FLOAT
-         |VOID
-         |BOOLEAN
-         |CHAR
-         ;
+tipodatof : tipodato
+          | VOID
+          ;
 
 // ----------------------------------------------------------------------------------------------------------
-declaracion: tipodato ID PYC; //int x;
+declaracion: tipodato ID ; //int x;
 
 // asignacion------------------------------------------------------------------------------------------------
 asignacion : ID ASIG opal; //opal(operacion aritmetica logica)
@@ -139,7 +136,7 @@ bloque : LLA instrucciones LLC; //bloque de codigo
 ifor : FOR PA init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
 init : asignacion;
 cond : opal;
-iter : opal;
+iter : asignacion;
 
 //IF---------------------------------------------------------------------------------------------------------
 iif: IF PA opal PC bloque // suponiendo if(x)
@@ -150,10 +147,11 @@ iwhile : WHILE PA opal PC bloque ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
 prototipofunc : tipodatof ID PA argumentos PC PYC; 
-argumentos : asignacion COMA argumentos
-           | asignacion
+argumentos : declaracion COMA argumentos
+           | declaracion
            | 
            ;
 
 //funciones--------------------------------------------------------------------------------------------------
-func : prototipofunc bloque;
+func :  tipodatof ID PA argumentos PC bloque;
+llamadafunc : ID PA argumentos PC PYC;

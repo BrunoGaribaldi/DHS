@@ -1,1 +1,2 @@
-x = ((3-1+10)*5 > (56)) <  3;
+
+void gola (int i , double j);
