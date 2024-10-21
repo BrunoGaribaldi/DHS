@@ -9,17 +9,22 @@ class TipoDato(Enum):
     CHAR = 5
 
 class ID():
-    def __init__(self, nombre, tipoDato: TipoDato, inicializado, usado):
+    def __init__(self, nombre, tipoDato, inicializado, usado):
         self.nombre = nombre
-        self.tipoDato = tipoDato
         self.inicializado = inicializado
         self.usado = usado
+        if tipoDato == 'int':
+            self.tipoDato = TipoDato.INT
+        elif tipoDato == 'void':
+            self.tipoDato = TipoDato.VOID
+        elif tipoDato == 'float':
+            self.tipoDato = TipoDato.FLOAT
+        elif tipoDato == 'bool':
+            self.tipoDato = TipoDato.BOOLEAN
+        elif tipoDato == 'char':
+            self.tipoDato = TipoDato.CHAR
+        elif tipoDato == 'double':
+            self.tipoDato = TipoDato.DOUBLE
 
-class Funcion(ID):
-    def __init__(self, nombre, tipoDato: TipoDato, inicializado, usado,argumentos: list):
-        super().__init__(nombre, tipoDato, inicializado, usado)
-        self.argumentos = argumentos
-
-class Variable(ID):
-    def __init__(self, nombre, tipoDato: TipoDato, inicializado, usado):
-        super().__init__(nombre, tipoDato, inicializado, usado)
+    def setUsado(self):
+        self.usado = 1

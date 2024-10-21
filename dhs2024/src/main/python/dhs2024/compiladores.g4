@@ -147,8 +147,8 @@ iwhile : WHILE PA opal PC bloque ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
 prototipofunc : tipodatof ID PA argumentos PC PYC; 
-argumentos : declaracion COMA argumentos
-           | declaracion
+argumentos : tipodato ID COMA argumentos
+           | tipodato ID
            | 
            ;
 

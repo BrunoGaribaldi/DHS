@@ -1,2 +1,4 @@
 
-void gola (int i , double j);
+void hola (int i, double j, float runt);
+
+void hola (int i, double j, float runt){}
