@@ -97,7 +97,8 @@ class Escucha (compiladoresListener) :
             if IDfunc.__getattribute__("tipoDato") != tipodeDato or IDfunc.__getattribute__("argumentos") != self.argumentosALista(args):
                 print("los argumentos que tenemos en la declaracion no son los mismos q que los que tenemos en la definicion o el tipo de dato es distinto")
                 self.tablaDeSimbolos.delContexto()
-
+        else: 
+            print("Estas queriendo definir una funcion que no declaraste")
   # def enterBloque(self, ctx:compiladoresParser.BloqueContext): # Entro a contexto
     #     contexto= Contexto()
     #     self.tablaDeSimbolos.addContexto(contexto)

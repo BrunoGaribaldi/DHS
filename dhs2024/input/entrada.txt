@@ -1,4 +1,4 @@
 
 void hola (int i, double j, float runt);
 
-void hola (int i, double j, float runt){}
+void chau (int i, double j, float r){}
