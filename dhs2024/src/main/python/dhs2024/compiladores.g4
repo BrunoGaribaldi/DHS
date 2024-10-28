@@ -91,13 +91,11 @@ parteor: OR opal
        ;
 termino1: termino2 parteand;
 parteand: AND termino1
-        | PA termino1 PC
         | 
         ;
 termino2: termino3 parteigualdad;
 parteigualdad: EQ termino2
              | DISTEQ termino2
-             | PA termino2 PC
              |
              ;
 termino3: termino4 parterelacion;
@@ -105,7 +103,6 @@ parterelacion: MAY termino3
              | MIN termino3
              | MINEQ termino3
              | MAYEQ termino3
-             | PA termino3 PC
              |
              ;
 termino4 : termino5 partesumaresta; 
@@ -119,11 +116,17 @@ partemuldivmod: MULT termino5
               | MOD termino5
               |
               ;
-termino6: factor partepreposincr;
-partepreposincr: MAS termino6
-               | MEN termino6
-               |
+termino6: termino7 partepreincr;
+partepreincr: MAS termino6
+              | MEN termino6
+              |
                ;
+termino7: factor parteposincr;
+parteposincr: termino7 MAS
+              | termino7 MEN
+              |
+              ;
+
 factor : NUMERO 
        | ID         
        | PA termino4 PC    

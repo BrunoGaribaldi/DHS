@@ -28,3 +28,9 @@ class ID():
 
     def setUsado(self):
         self.usado = 1
+
+    def setInicializado(self):
+        self.inicializado = 1
+
+    def setUsado(self): 
+        self.usado = 1

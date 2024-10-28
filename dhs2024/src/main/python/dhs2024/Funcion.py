@@ -15,3 +15,9 @@ class Funcion(ID):
 
     def __getattribute__(self, name: str) -> Any:
         return super().__getattribute__(name)
+
+    def setInicializado(self):
+        return super().setInicializado()
+    
+    def setUsado(self):
+        return super().setUsado()

@@ -22,7 +22,5 @@ class Contexto():
         if self.traerVariable != None:
             return self.tabla.get(nombre) 
     
-
-
     def imprimirTabla(self):
         print(self.tabla)

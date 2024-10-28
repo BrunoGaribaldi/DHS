@@ -10,7 +10,6 @@ class TablaSimbolos():
         contextoGlobal = Contexto()
         self.contextos.append(contextoGlobal)
 
-
     def addContexto(self,contexto):
         self.contextos.append(contexto)
     
@@ -22,11 +21,11 @@ class TablaSimbolos():
         if(tipoID == 0): #variable
             id = Variable(nombre,tipoDato,1,0)
         else:            #funcion
-            id = Funcion(nombre,tipoDato,1,0,argumentos)
+            id = Funcion(nombre,tipoDato,0,0,argumentos)
 
         contexto.tabla.update({nombre:id})
     
-    def buscarLocal(self,nombre): #retorna 0 si se puede usar, 1 sino
+    def buscarLocal(self,nombre): #retorna 0 si se puede usar, 1 si no
         if (self.contextos[-1].traerVariable(nombre)) != None:
             return 1
         else:
@@ -42,6 +41,9 @@ class TablaSimbolos():
         if self.buscarGlobal(nombre):
             return self.contextos[0].traerID(nombre)
 
-
+    def getLocal(self,nombre):
+        if not self.buscarLocal(nombre):
+            return self.contextos[-1].traerID(nombre)
+         
     def getContextos (self):
         return self.contextos   
