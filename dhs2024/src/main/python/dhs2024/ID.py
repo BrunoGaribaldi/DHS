@@ -15,4 +15,7 @@ class ID():
         self.usado = usado
         self.tipoDato = TipoDato(tipoDato)
 
+    def __str__(self):
+        return("ID: \t"+self.nombre+"\t"+str(self.tipoDato)+"\tInicializado:"+str(self.inicializado)+ "\t Usado:"+str(self.usado))
+
 

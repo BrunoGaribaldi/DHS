@@ -17,4 +17,5 @@ class Contexto():
               return None
     
     def imprimirTabla(self):
-        print(self.tabla)
+          for clave,valor in self.tabla.items():
+               print(f"{clave}: {valor}")   
