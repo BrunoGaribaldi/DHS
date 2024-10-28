@@ -7,20 +7,14 @@ class Contexto():
     #print(funcion1.__getattribute__('argumentos'))
     tabla = dict()
 
-
     def __init__(self): 
         self.tabla = {}
     
     def traerVariable(self,nombre):
          if nombre in self.tabla:
-              return nombre
-         
+              return self.tabla[nombre] #esto te retorna lo del diccionario, no literal el nombre
          else:
               return None
-         
-    def traerID(self,nombre):
-        if self.traerVariable != None:
-            return self.tabla.get(nombre) 
     
     def imprimirTabla(self):
         print(self.tabla)

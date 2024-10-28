@@ -7,11 +7,3 @@ class Variable(ID):
         super().__init__(nombre, tipoDato, inicializado, usado)
         self.tipo = "variable"
 
-    def __getattribute__(self, name: str) -> Any:
-        return super().__getattribute__(name)
-    
-    def setInicializado(self):
-        return super().setInicializado()
-    
-    def setUsado(self):
-        return super().setUsado()

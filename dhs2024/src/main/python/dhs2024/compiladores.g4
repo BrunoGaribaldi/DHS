@@ -82,7 +82,9 @@ tipodatof : tipodato
 declaracion: tipodato ID ; //int x;
 
 // asignacion------------------------------------------------------------------------------------------------
-asignacion : ID ASIG opal; //opal(operacion aritmetica logica)
+asignacion : ID ASIG opal
+           | ID ASIG llamadafunc
+           ; //opal(operacion aritmetica logica)
 
 //expresiones aritmeticas-logicas----------------------------------------------------------------------------
 opal : termino1 parteor;
@@ -129,7 +131,7 @@ parteposincr: termino7 MAS
 
 factor : NUMERO 
        | ID         
-       | PA termino4 PC    
+       | PA opal PC    
        ;
 
 //bloque de codigo-------------------------------------------------------------------------------------------
@@ -156,5 +158,7 @@ argumentos : tipodato ID COMA argumentos
            ;
 
 //funciones--------------------------------------------------------------------------------------------------
-func :  tipodatof ID PA argumentos PC bloque;
+func :  tipodatof nombre PA argumentos PC bloque;
 llamadafunc : ID PA argumentos PC PYC;
+
+nombre: ID;

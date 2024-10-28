@@ -25,25 +25,9 @@ class TablaSimbolos():
 
         contexto.tabla.update({nombre:id})
     
-    def buscarLocal(self,nombre): #retorna 0 si se puede usar, 1 si no
-        if (self.contextos[-1].traerVariable(nombre)) != None:
-            return 1
-        else:
-            return 0
+    def buscarLocal(self,nombre): #si no lo encuentra retorna none, sino retorna el objeto, 
+        return self.contextos[-1].traerVariable(nombre)
     
-    def buscarGlobal(self, nombre): #retorna 0 si no existe, 1 si si
-        if (self.contextos[0].traerVariable(nombre)) == None:
-            return 0
-        else: 
-            return 1
-
-    def getGlobal(self, nombre):
-        if self.buscarGlobal(nombre):
-            return self.contextos[0].traerID(nombre)
-
-    def getLocal(self,nombre):
-        if not self.buscarLocal(nombre):
-            return self.contextos[-1].traerID(nombre)
-         
-    def getContextos (self):
-        return self.contextos   
+    def buscarGlobal(self, nombre): #retorna 0 si no existe, objeto si si
+        self.contextos[0].traerVariable(nombre)
+  
