@@ -166,15 +166,15 @@ class Escucha (compiladoresListener) :
 
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         nombreVariable= ctx.getChild(0).getText()
-        busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
+        busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
 
         #buscamos si la variable fue declarada globalmente
-        if busquedaGlobal == None :
+        if busquedaLocal == None :
 
             #no la encontro entonces la busco localmente
-            busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
+            busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
 
-            if busquedaLocal == None :
+            if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
                 print("ERROR:" + nombreVariable + " tenes que declararla primero !\n")
             else :
@@ -202,7 +202,6 @@ class Escucha (compiladoresListener) :
                 if busquedaLocal.inicializado != 1 :
                     #marco a mi nombre de variable como usado
                     print("WARNING: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
-            
             else : 
                 #la busco global
                 print("La variable no existe localmente, la buscamos en el contexto global")
