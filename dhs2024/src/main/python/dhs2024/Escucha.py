@@ -168,6 +168,7 @@ class Escucha (compiladoresListener) :
         nombreVariable= ctx.getChild(0).getText()
         busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
 
+        
         #buscamos si la variable fue declarada globalmente
         if busquedaLocal == None :
 
@@ -176,15 +177,19 @@ class Escucha (compiladoresListener) :
 
             if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
-                print("ERROR:" + nombreVariable + " tenes que declararla primero !\n")
+                print("ERROR: Loco no se que es " + nombreVariable + " tenes que declararla primero !\n")
             else :
-                print("La variable esta inicializada globalmente '" + nombreVariable +"'")
-                busquedaLocal.inicializado = 1
+                print("Se inicializo la variable '" + nombreVariable +"'")
+                busquedaGlobal.inicializado = 1
 
         else :
             #la encontro en el contexto global 
-            print("La variable esta incializada localmente '" + nombreVariable +"'")
-            busquedaGlobal.inicializado = 1           
+            print("Se inicializo la variable '" + nombreVariable +"'")
+            busquedaLocal.inicializado = 1
+        
+
+
+    
                      
     def exitFactor(self, ctx: compiladoresParser.FactorContext):
         #factores pueden tener 3 valores : numero - ID - (opal)
