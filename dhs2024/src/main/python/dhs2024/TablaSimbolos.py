@@ -22,7 +22,6 @@ class TablaSimbolos():
             id = Variable(nombre,tipoDato,1,0)
         else:            #funcion
             id = Funcion(nombre,tipoDato,0,0,argumentos)
-
         contexto.tabla.update({nombre:id})
     
     def buscarLocal(self,nombre): #si no lo encuentra retorna none, sino retorna el objeto, 
