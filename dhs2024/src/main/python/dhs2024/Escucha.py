@@ -11,7 +11,9 @@ from Variable import Variable
 class Escucha (compiladoresListener) :
 
     tablaDeSimbolos = TablaSimbolos()
-    
+
+    #para los argumentos necesitamos que haya una lista auxiliar donde ir agregandolos antes de iniciar el bloque de la funcion
+    auxArgumentos = []
     # def argumentosALista (self, argumentos):
     #     lista = list()
     #     if not argumentos: #la cadena esta vacia, no tiene argumentos
@@ -65,36 +67,56 @@ class Escucha (compiladoresListener) :
     #     elif tipoDato == 'double':
     #         return TipoDato.DOUBLE
 
-    # def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
-    #     print('#### Prototipo de funcion')
+    def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
+        print('#### Prototipo de funcion')
     
-    # def exitPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
-    #     nombreFuncion = ctx.getChild(1).getText()
-    #     print("\n Nombre de la funcion: " + nombreFuncion)
-    #     if nombreFuncion == "main":
-    #         print("no declaramos main")
-    #         return
-    #     busquedaglobal = self.tablaDeSimbolos.buscarGlobal(nombreFuncion)
-    #     if(busquedaglobal != 1):
-    #         tipoDeDato =  ctx.getChild(0).getText()
-    #         argumentos = ctx.getChild(3).getText()
-    #         listaArgumentos = self.argumentosALista(argumentos)
+    def exitPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
+         nombreFuncion = ctx.getChild(1).getText()
+         argumentos = self.auxArgumentos[:]
 
-    #         if listaArgumentos == None:
-    #             print("No podemos agregar la funcion.")
-    #             return
-    #         elif len(listaArgumentos) != 0:
-    #             print("lista argumentos")
-    #             for l in listaArgumentos:
-    #                 print(l)
-    #         else: 
-    #             print("Lista de argumentos vacia")  
+         #ya almacenamos la lista de argumentso, vaciamos la lista auxiliar
+         self.auxArgumentos.clear()
+         print("\n Nombre de la funcion: " + nombreFuncion)
+
+         if nombreFuncion == "main":
+             print("No declaramos main")
+             return
+         
+         #buscamos si este nombre no le corresponde un ID
+         busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreFuncion)
+         if(busquedaGlobal == None):
+             tipoDeDato =  ctx.getChild(0).getText()
+            #  argumentos = ctx.getChild(3).getText()
+            #  listaArgumentos = self.argumentosALista(argumentos)
+
+            #  if listaArgumentos == None:
+            #      print("No podemos agregar la funcion.")
+            #      return
+            #  elif len(listaArgumentos) != 0:
+            #      print("lista argumentos")
+            #      for l in listaArgumentos:
+            #          print(l)
+            #  else: 
+            #      print("Lista de argumentos vacia")  
                 
-    #         self.tablaDeSimbolos.addIdentificador(nombreFuncion,tipoDeDato,1,listaArgumentos)#pongo 1 xq es funcion
-    #         print("\n Agregado!")
-    #     else:
-    #         print("Ya tenes declarada una funcion con ese nombre")
+             self.tablaDeSimbolos.addIdentificador(nombreFuncion,tipoDeDato,1,argumentos)#pongo 1 xq es funcion
+             print("\n Se realizo un prototipo de una funcion:")
+             
+         else:
+             print("ERROR: Ya existe el identificador "+ nombreFuncion + "!")
 
+    
+    def enterDeclargumentos(self, ctx: compiladoresParser.DeclaracionContext):
+        print("@@@ declaracion de argumentos")
+    
+    def exitDeclargumentos(self, ctx:compiladoresParser.DeclaracionContext):
+        tipoDeDato= ctx.getChild(0).getText()
+        nombreVariable= ctx.getChild(1).getText()
+    
+        #creamos esa variable para guardarla en la lista de argumentos
+        argumento = Variable(nombreVariable,tipoDeDato,0,0)
+        self.auxArgumentos.append(argumento)
+        print("Argumento agregado!")    
     # def enterFunc(self, ctx: compiladoresParser.FuncContext):
     #     print("!!!!!!Funcion")
     #     contexto = Contexto()
@@ -225,5 +247,12 @@ class Escucha (compiladoresListener) :
 
 
 
+    def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
+        #
+        print('Fin compilacion\n')
+        print("*" * 50 )
+        print("En el contexto global se encontro lo siguiente:")
+        self.tablaDeSimbolos.contextos[-1].imprimirTabla()
+        print("*" * 50 + "\n")
 
 

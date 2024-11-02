@@ -1,6 +1,1 @@
-int a; 
-a = 5 ;
-{
-    int b;
-    b = a ;
-}
+int hola(int x, double a, char t);

@@ -4,10 +4,13 @@ from Variable import Variable
 from Funcion import Funcion
 class TablaSimbolos(object):
 
-    __instance= None 
+    #para hacerla SINGLETON
+    __instance= None
+     
     contextos=[]   
     
 
+    #para hacerla SINGLETON
     def __new__(cls):
         if TablaSimbolos.__instance is None:
             TablaSimbolos.__instance = object.__new__(cls)

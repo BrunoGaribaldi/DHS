@@ -151,9 +151,10 @@ iif: IF PA opal PC bloque // suponiendo if(x)
 iwhile : WHILE PA opal PC bloque ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
+declargumentos : tipodato ID;
 prototipofunc : tipodatof ID PA argumentos PC PYC; 
-argumentos : tipodato ID COMA argumentos
-           | tipodato ID
+argumentos : declargumentos COMA argumentos
+           | declargumentos
            | 
            ;
 
