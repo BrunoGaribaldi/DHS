@@ -1,1 +1,5 @@
-int hola(int x, double a, char t);
+int hola(int x);
+
+int hola(int x){
+    int x ;
+}

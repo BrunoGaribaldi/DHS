@@ -11,7 +11,7 @@ class Funcion(ID):
         super().__init__(nombre, tipoDato, inicializado, usado)
         self.argumentos = argumentos
 
-        print("Funcion " + self.nombre + " devuelve " + str(self.tipoDato) + " y tiene los siguientes argumentos :\n")
+        print("Funcion '" + self.nombre + "' devuelve " + str(self.tipoDato) + " y tiene los siguientes argumentos :\n")
         for argumento in self.argumentos:
             print(argumento)
         #self.tipo = "funcion"

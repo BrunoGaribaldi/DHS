@@ -86,19 +86,6 @@ class Escucha (compiladoresListener) :
          busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreFuncion)
          if(busquedaGlobal == None):
              tipoDeDato =  ctx.getChild(0).getText()
-            #  argumentos = ctx.getChild(3).getText()
-            #  listaArgumentos = self.argumentosALista(argumentos)
-
-            #  if listaArgumentos == None:
-            #      print("No podemos agregar la funcion.")
-            #      return
-            #  elif len(listaArgumentos) != 0:
-            #      print("lista argumentos")
-            #      for l in listaArgumentos:
-            #          print(l)
-            #  else: 
-            #      print("Lista de argumentos vacia")  
-                
              self.tablaDeSimbolos.addIdentificador(nombreFuncion,tipoDeDato,1,argumentos)#pongo 1 xq es funcion
              print("\n Se realizo un prototipo de una funcion:")
              
@@ -116,11 +103,22 @@ class Escucha (compiladoresListener) :
         #creamos esa variable para guardarla en la lista de argumentos
         argumento = Variable(nombreVariable,tipoDeDato,0,0)
         self.auxArgumentos.append(argumento)
-        print("Argumento agregado!")    
-    # def enterFunc(self, ctx: compiladoresParser.FuncContext):
-    #     print("!!!!!!Funcion")
-    #     contexto = Contexto()
-    #     self.tablaDeSimbolos.addContexto(contexto)
+        print("Argumento agregado!")
+        
+        
+    def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
+        #aca ya se el nombre de la funcion entonces lo uso para buscar sus argumentos
+        funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
+        #creamos el contexto con los argumentos
+        contextoInicializado = Contexto(funcion.argumentos)
+        self.tablaDeSimbolos.addContexto(contextoInicializado)
+        
+        
+    
+    def enterFunc(self, ctx: compiladoresParser.FuncContext):
+         #en las funciones creamos el contexto al definirlas, para poder agregar sus argumentos al contexto
+         print("!!!!!!Inicializacion de una funcion")
+         
    
     # def exitFunc(self, ctx: compiladoresParser.FuncContext):
     #     nombreFuncion = ctx.getChild(1).getText()
@@ -146,7 +144,20 @@ class Escucha (compiladoresListener) :
     
     # def exitArgumentos(self, ctx: compiladoresParser.ArgumentosContext):
        # print()
-    
+    def enterBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
+        print('***Entre a un CONTEXTO***')
+        
+        
+    def exitBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
+        print('***Sali de un CONTEXTO***')
+        #print('Cantidad de hijos: '+ str(ctx.getChildCount()))
+        #print('TOQUENS: '+ ctx.getText())
+        print("*" * 50 )
+        print("En este contexto se encontro lo siguiente:")
+        self.tablaDeSimbolos.contextos[-1].imprimirTabla()
+        print("*" * 50 + "\n")
+        self.tablaDeSimbolos.delContexto()
+
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
         print('***Entre a un CONTEXTO***')
         contexto= Contexto()

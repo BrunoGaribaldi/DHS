@@ -159,7 +159,13 @@ argumentos : declargumentos COMA argumentos
            ;
 
 //funciones--------------------------------------------------------------------------------------------------
-func :  tipodatof nombre PA argumentos PC bloque;
+
+/*se realiza un bloque especial para agregar los argumentos de la funcion al contexto  */
+bloqueespecial : LLA instrucciones LLC;
+
+/*cunado sepa el nombre de la funcion necesito traer sus argumentos para crear el contexto */
+nombrefuncion: ID ;
+func :  tipodatof nombrefuncion PA argumentos PC bloqueespecial;
 llamadafunc : ID PA argumentos PC PYC;
 
 nombre: ID;
