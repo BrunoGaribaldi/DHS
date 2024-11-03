@@ -445,19 +445,19 @@ class Escucha (compiladoresListener) :
                     #no encontro por ningun lado
                     print("ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!")
 
-    # #def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
-    #     #
-    #     print('Fin compilacion\n')
-    #     print("*" * 50 )
+    def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
+  
+        print('Fin compilacion\n')
+        print("*" * 50 )
 
-    #     #buscamos ids que hayan sido inicializados pero no usados
-    #     #recorremos el contexto del cual vamos a salir
-    #     #for id in self.tablaDeSimbolos.contextos[-1].tabla:
-    #     #    variable = self.tablaDeSimbolos.contextos[-1].traerVariable(id)
+         #buscamos ids que hayan sido inicializados pero no usados en el contexto global
+         #recorremos el contexto del cual vamos a salir
+        for id in self.tablaDeSimbolos.contextos[0].tabla:
+            variable = self.tablaDeSimbolos.contextos[0].traerVariable(id)
 
-    #     #agregamos a la lista de variables no
-    #     #    if variable.inicializado==1 and variable.usado==0:
-    #     #        self.idNoUsadosInicializados.append(variable)
+         #agregamos a la lista de variables no
+            if variable.inicializado==1 and variable.usado==0:
+                self.idNoUsadosInicializados.append(variable)
 
         print("En el contexto global se encontro lo siguiente:")
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
