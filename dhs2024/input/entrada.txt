@@ -1,16 +1,13 @@
-double haber();
-float juntion(char a);
+int a ;
+a = 8;
+
+int x ;
+x = 8 ;
+
+int b ;
+b = x ;
 
 {
-    haber();
-    char a;
-    juntion(a);
-}
-
-double haber(){
-    int x;
-}
-
-float juntion(char a){
-
+    char y ;
+    y ="a"
 }
