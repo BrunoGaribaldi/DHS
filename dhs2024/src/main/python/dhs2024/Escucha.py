@@ -22,6 +22,7 @@ class Escucha (compiladoresListener) :
     banderaf = False
     banderap = False
     b = False
+    auxtipoDato = TipoDato("void")
 
     #lista de ID inicializados pero sin ser usados
     idNoUsadosInicializados = []
@@ -81,16 +82,21 @@ class Escucha (compiladoresListener) :
         #en las funciones creamos el contexto al definirlas, para poder agregar sus argumentos al contexto
         print("\nInicializacion funcion")
         self.banderaf = False
-
+    
     def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
         #aca ya se el nombre de la funcion entonces lo uso para buscar sus argumentos
         funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
+        print(funcion.tipoDato)
         if funcion == None:
             print("ERROR: No existe el prototipo de la funcion " + ctx.ID().getText())
             self.banderaf = True
         else: 
             self.auxArgumentosf.clear()
             self.auxNombreFuncion = ctx.ID().getText()
+
+    def exitTipodatofunc(self, ctx: compiladoresParser.TipodatofuncContext):
+        if self.banderaf == False:
+            self.auxtipoDato = TipoDato(ctx.getChild(0).getText())
 
     def exitFuncargumentos(self, ctx: compiladoresParser.FuncargumentosContext):
         if (self.banderaf == True):
@@ -103,29 +109,38 @@ class Escucha (compiladoresListener) :
             self.auxArgumentosf.append(argumento)
       
     def enterBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
-        print('\n***Entre a un CONTEXTO***')
+        if (self.banderaf == True):
+            return
+                    
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
+        if (self.auxtipoDato != funcion.tipoDato):
+            print("ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato))
+            self.banderaf == True
+            return
+        
+        print('\n***Contexo funcion***')
         argumentos = funcion.argumentos
-        comp = True
-        if (len(argumentos) == len(self.auxArgumentosf) and len(argumentos) != 0):
-            i = 0
-            while i<len(argumentos) and comp == True:
-                if(not (argumentos[i].nombre == self.auxArgumentosf[i].nombre and
-                   argumentos[i].tipoDato == self.auxArgumentosf[i].tipoDato)):
-                    comp = False
-                    print("-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo")
-                    self.banderaf = True 
-                    return 
-                i += 1       
-            print("Funcion '" + self.auxNombreFuncion + "' inicializada con exito")
-            funcion.inicializado = 1
-            contextoInicializado = Contexto(argumentos)
-            self.tablaDeSimbolos.addContexto(contextoInicializado)   
-        elif (len(argumentos) == 0):
-            print("Funcion '" + self.auxNombreFuncion + "' inicializada con exito")
-            funcion.inicializado = 1
-            contextoInicializado = Contexto(argumentos)
-            self.tablaDeSimbolos.addContexto(contextoInicializado)
+        if (len(argumentos) == len(self.auxArgumentosf)):
+            if(len(argumentos) != 0):
+                i = 0
+
+                while i<len(argumentos): #comprobamos que los argumentos sean lo mismo y esten en el mismo orden
+                    if(not (argumentos[i].nombre == self.auxArgumentosf[i].nombre and
+                    argumentos[i].tipoDato == self.auxArgumentosf[i].tipoDato)):
+                        print("-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo")
+                        self.banderaf = True 
+                        return 
+                    i += 1   
+
+                print("Funcion '" + self.auxNombreFuncion + "' inicializada con exito")
+                funcion.inicializado = 1
+                contextoInicializado = Contexto(argumentos)
+                self.tablaDeSimbolos.addContexto(contextoInicializado) 
+            else:
+                print("Funcion '" + self.auxNombreFuncion + "' inicializada con exito")
+                funcion.inicializado = 1
+                contextoInicializado = Contexto(argumentos)
+                self.tablaDeSimbolos.addContexto(contextoInicializado)    
         else:
             print("-->ERROR SEMANTICO: Revisar la cantidad de argumentos")
 
@@ -172,7 +187,6 @@ class Escucha (compiladoresListener) :
         if self.b == False: 
             funcion = self.tablaDeSimbolos.buscarGlobal(ctx.getChild(0).getText())
             argumentosf = funcion.argumentos
-            
             if len(argumentosf) == len(self.aux):
                 counter = 0
                 for i in self.aux:
@@ -356,26 +370,26 @@ class Escucha (compiladoresListener) :
                     #no encontro por ningun lado
                     print("ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!")
 
-    def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
-        #
-        print('Fin compilacion\n')
-        print("*" * 50 )
+    # #def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
+    #     #
+    #     print('Fin compilacion\n')
+    #     print("*" * 50 )
 
-        #buscamos ids que hayan sido inicializados pero no usados
-        #recorremos el contexto del cual vamos a salir
-        for id in self.tablaDeSimbolos.contextos[-1].tabla:
-            variable = self.tablaDeSimbolos.contextos[-1].traerVariable(id)
+    #     #buscamos ids que hayan sido inicializados pero no usados
+    #     #recorremos el contexto del cual vamos a salir
+    #     #for id in self.tablaDeSimbolos.contextos[-1].tabla:
+    #     #    variable = self.tablaDeSimbolos.contextos[-1].traerVariable(id)
 
-        #agregamos a la lista de variables no
-            if variable.inicializado==1 and variable.usado==0:
-                self.idNoUsadosInicializados.append(variable)
+    #     #agregamos a la lista de variables no
+    #     #    if variable.inicializado==1 and variable.usado==0:
+    #     #        self.idNoUsadosInicializados.append(variable)
 
-        print("En el contexto global se encontro lo siguiente:")
-        self.tablaDeSimbolos.contextos[-1].imprimirTabla()
-        print("*" * 50 + "\n")
-        print("-**-" * 25 + "\n")
-        print("Identificadores inicializadas pero no usados:")
-        for id in self.idNoUsadosInicializados:
-            print(id)
+    #     print("En el contexto global se encontro lo siguiente:")
+    #     #self.tablaDeSimbolos.contextos[-1].imprimirTabla()
+    #     print("*" * 50 + "\n")
+    #     print("-**-" * 25 + "\n")
+    #     print("Identificadores inicializadas pero no usados:")
+    #     for id in self.idNoUsadosInicializados:
+    #         print(id)
 
 

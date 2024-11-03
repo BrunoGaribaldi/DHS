@@ -172,11 +172,14 @@ bloqueespecial : LLA instrucciones LLC;
 
 /*cunado sepa el nombre de la funcion necesito traer sus argumentos para crear el contexto */
 nombrefuncion: ID ;
-func :  tipodatof nombrefuncion PA argumentosf PC bloqueespecial;
+func :  tipodatofunc nombrefuncion PA argumentosf PC bloqueespecial;
 argumentosf : funcargumentos COMA argumentosf
             | funcargumentos
             | 
             ; 
+            
+tipodatofunc: tipodatof;
+
 funcargumentos : tipodato ID;
 
 llamadafunc : nombre PA argumentosllamada PC PYC;
