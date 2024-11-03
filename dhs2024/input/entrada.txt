@@ -1,5 +1,4 @@
-float funcion(int j , double r);
-
-int a;
-double b;
-funcion(a,b);
+int contar (int x);
+int contar (int a ){
+    int n ;
+}
