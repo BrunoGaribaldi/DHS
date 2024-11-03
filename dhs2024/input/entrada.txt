@@ -1,4 +1,16 @@
-int contar ();
-int contar (){
-    int s ;
+double haber();
+float juntion(char a);
+
+{
+    haber();
+    char a;
+    juntion(a);
+}
+
+double haber(){
+    int x;
+}
+
+float juntion(char a){
+
 }
