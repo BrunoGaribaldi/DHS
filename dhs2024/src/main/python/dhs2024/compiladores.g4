@@ -9,6 +9,7 @@ LLA: '{';
 LLC: '}';
 PYC: ';';
 COMA: ',';
+COMDOBLE: '"';
 
 SUMA : '+' ;
 RESTA : '-';
@@ -83,8 +84,10 @@ tipodatof : tipodato
 declaracion: tipodato ID ; //int x;
 
 // asignacion------------------------------------------------------------------------------------------------
+nom : ID; //para el char
 asignacion : ID ASIG opal
            | ID ASIG llamadafunc
+           | ID ASIG COMDOBLE nom COMDOBLE //para los chars, se reutiliza ID
            ; //opal(operacion aritmetica logica)
 
 //expresiones aritmeticas-logicas----------------------------------------------------------------------------
