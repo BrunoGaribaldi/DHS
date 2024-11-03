@@ -1,4 +1,4 @@
-int contar (int x);
-int contar (int a ){
-    int n ;
+int contar ();
+int contar (){
+    int s ;
 }

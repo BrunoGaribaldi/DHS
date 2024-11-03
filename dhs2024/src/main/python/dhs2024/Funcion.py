@@ -17,4 +17,4 @@ class Funcion(ID):
         #self.tipo = "funcion"
 
     def __str__(self):
-        return("ID: \t"+self.nombre+"\t"+str(self.tipoDato)+"\tInicializado:"+str(self.inicializado)+ "\t Usado:"+str(self.usado))
+        return("ID:"+self.nombre+"\tTipo: Funcion"+str(self.tipoDato)+"\tInicializado:"+str(self.inicializado)+ "\t Usado:"+str(self.usado))

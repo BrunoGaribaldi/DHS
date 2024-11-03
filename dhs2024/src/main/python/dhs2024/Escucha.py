@@ -24,8 +24,8 @@ class Escucha (compiladoresListener) :
     b = False
 
 # main --------------------------------------------------------------------------------------------------
-    def exitFmain(self, ctx: compiladoresParser.FmainContext):
-        print("Funcion main")
+    #def exitFmain(self, ctx: compiladoresParser.FmainContext):
+     #   print("Funcion main")
 
 #prototipo de funciones ----------------------------------------------------------------------------------------------
     def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
@@ -244,15 +244,15 @@ class Escucha (compiladoresListener) :
         busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
     
         if busquedaGlobal == None and busquedaLocal == None :
-            print('"'+nombreVariable+'"'+"Puede utilizar ese nombre de variable")
+            print("El nombre '" + nombreVariable +"' esta muy fachero, lo puedes usar")
             self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None)
 
         else : 
             if busquedaGlobal != None :
-                print('ERROR: "' + nombreVariable +'"La varibale esta siendo usada globalmente \n')
+                print("-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
 
             else:
-                print('ERROR: "' + nombreVariable +'" La varibale esta siendo usada localmete \n')    
+                print("-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")    
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n ### ASIGNACION ###")
@@ -270,7 +270,7 @@ class Escucha (compiladoresListener) :
 
             if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
-                print("ERROR: " + nombreVariable + " Tenes que declararla primero !\n")
+                print("-->ERROR SEMANTICO: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
             else :
                 print("Se inicializo la variable '" + nombreVariable +"'")
                 busquedaGlobal.inicializado = 1
@@ -291,26 +291,30 @@ class Escucha (compiladoresListener) :
             if busquedaLocal != None :
                 #encontre el identificador de variable localmente
                 #tengo que asegurarme si esta variable ya fue inicializada!
-                busquedaLocal.usado = 1 
-                print(factorUsado.getText() + " ha sido  marcado como usado")
-                if busquedaLocal.inicializado != 1 :
+                if busquedaLocal.usado == 0:
+                    busquedaLocal.usado = 1 
+                    print(factorUsado.getText() + " ha sido  marcado como usado")
+
+                if busquedaLocal.inicializado == 0 :
                     #marco a mi nombre de variable como usado
-                    print("WARNING: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
+                    print("-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
             else : 
                 #la busco global
-                print("La variable no existe localmente, la buscamos en el contexto global")
+                #print("La variable no existe localmente, la buscamos en el contexto global")
                 busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(factorUsado.getText())
 
                 if busquedaGlobal != None :
                         #las encontre glbalmente
-                        busquedaGlobal.usado = 1
-                        print(factorUsado.getText() + " ha sido  marcado como usado")
+                        if busquedaGlobal.usado == 0:
+                            busquedaGlobal.usado = 1
+                            print(factorUsado.getText() + " ha sido  marcado como usado")
+
                         if busquedaGlobal.inicializado != 1 :
                             #variable no inicializada
-                            print("WARNING: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
+                            print("-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
                 else :
                     #no encontro por ningun lado
-                    print("ERROR: La variable " + factorUsado.getText() + " no fue declarada!")
+                    print("ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!")
 
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
         #
