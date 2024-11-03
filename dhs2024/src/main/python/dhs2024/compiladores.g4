@@ -43,6 +43,7 @@ FOR: 'for';
 IF: 'if';
 ELSE: 'else';
 DO: 'do';
+MAIN:'main';
 
 NUMERO : DIGITO+ ;
 WS : [ \t\n\r] -> skip;
@@ -139,9 +140,10 @@ bloque : LLA instrucciones LLC; //bloque de codigo
 
 //FOR -------------------------------------------------------------------------------------------------------
 ifor : FOR PA init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
-init : asignacion;
+init : tipodato ID ASIG opal;
 cond : opal;
 iter : asignacion;
+bloquefor : LLA instrucciones LLC; //bloque solo para for para que no cree contexto
 
 //IF---------------------------------------------------------------------------------------------------------
 iif: IF PA opal PC bloque // suponiendo if(x)
@@ -152,7 +154,9 @@ iwhile : WHILE PA opal PC bloque ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
 declargumentos : tipodato ID;
+
 prototipofunc : tipodatof ID PA argumentos PC PYC; 
+
 argumentos : declargumentos COMA argumentos
            | declargumentos
            | 
@@ -165,7 +169,22 @@ bloqueespecial : LLA instrucciones LLC;
 
 /*cunado sepa el nombre de la funcion necesito traer sus argumentos para crear el contexto */
 nombrefuncion: ID ;
-func :  tipodatof nombrefuncion PA argumentos PC bloqueespecial;
-llamadafunc : ID PA argumentos PC PYC;
+func :  tipodatof nombrefuncion PA argumentosf PC bloqueespecial;
+argumentosf : funcargumentos COMA argumentosf
+            | funcargumentos
+            | 
+            ; 
+funcargumentos : tipodato ID;
+
+llamadafunc : nombre PA argumentosllamada PC PYC;
+
+argumentosllamada : llamargumentos COMA argumentosllamada
+                  | llamargumentos
+                  | 
+                  ; 
+
+llamargumentos: ID;
 
 nombre: ID;
+
+fmain : INT MAIN bloque ;

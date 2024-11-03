@@ -1,5 +1,5 @@
-int hola(int x);
+float funcion(int j , double r);
 
-int hola(int x){
-    int x ;
-}
+int a;
+double b;
+funcion(a,b);
