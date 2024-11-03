@@ -1,5 +1,16 @@
-float funcion(int j , double r);
+double haber();
+float juntion(char a);
 
-int a;
-double b;
-funcion(a,b);
+{
+    haber();
+    char a;
+    juntion(a);
+}
+
+double haber(){
+    int x;
+}
+
+float juntion(char a){
+
+}

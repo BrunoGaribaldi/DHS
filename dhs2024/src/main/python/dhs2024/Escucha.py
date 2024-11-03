@@ -77,6 +77,7 @@ class Escucha (compiladoresListener) :
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
         #en las funciones creamos el contexto al definirlas, para poder agregar sus argumentos al contexto
         print("Inicializacion funcion")
+        self.banderaf = False
 
     def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
         #aca ya se el nombre de la funcion entonces lo uso para buscar sus argumentos
@@ -87,7 +88,6 @@ class Escucha (compiladoresListener) :
         else: 
             self.auxArgumentosf.clear()
             self.auxNombreFuncion = ctx.ID().getText()
-            self.banderaf = False
 
     def exitFuncargumentos(self, ctx: compiladoresParser.FuncargumentosContext):
         if (self.banderaf == True):
@@ -111,11 +111,17 @@ class Escucha (compiladoresListener) :
                     comp = False
                     print("ERROR: Argumento funcion no coincide con prototipo")
                     self.banderaf = True 
-                    return        
+                    return 
+                i += 1       
             print("Funcion inicializada con exito")
             funcion.inicializado = 1
             contextoInicializado = Contexto(argumentos)
-            self.tablaDeSimbolos.addContexto(contextoInicializado)    
+            self.tablaDeSimbolos.addContexto(contextoInicializado)   
+        elif (len(argumentos) == 0):
+            print("Funcion inicializada con exito")
+            funcion.inicializado = 1
+            contextoInicializado = Contexto(argumentos)
+            self.tablaDeSimbolos.addContexto(contextoInicializado)
         else:
             print("ERROR: Revisar la cantidad de argumentos")
 
