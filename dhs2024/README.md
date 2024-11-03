@@ -56,5 +56,7 @@ A continuación se presentan algunos de los mensajes que el programa muestra en 
 
 - **ERROR: Estas queriendo pasar un <tipodedato> cuando la funcion recibe un <tipodedato>.**: "Sucede cuando en la llamada queres pasar un tipo de dato (por ejemplo un entero) y en el prototipo de la funcion recibis otro (un double por ejemplo)."
 
+- **ERROR: Se esperaba un tipo de dato: <TipoDato> y queres inicializar: <TipoDato> .**: "Sucede cuando en la inicializacion de la funcion, ponemos un tipo de dato de retorno distinto al que hemos puesto en el prototipo"
+
 ## Uso
 Para usar el programa, escribir un programa en C en "entrada.txt"
