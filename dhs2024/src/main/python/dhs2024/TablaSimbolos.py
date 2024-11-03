@@ -42,6 +42,19 @@ class TablaSimbolos(object):
     
     def buscarGlobal(self, nombre):
         return self.contextos[0].traerVariable(nombre)
+    
+    #en ocasiones solo quiero buscar el identificador, sin saber donde esta
+    def buscarGeneral(self,nombre):
+        resultadoLocal = self.buscarLocal(nombre)
+
+        if resultadoLocal != None:
+            return resultadoLocal
+        else:
+            if self.buscarGlobal(nombre) != None:
+                return self.buscarGlobal(nombre)
+            else :
+                #no lo encontro en ningun lado:
+                return None
         
     
 

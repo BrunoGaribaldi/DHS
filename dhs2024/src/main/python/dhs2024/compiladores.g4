@@ -47,8 +47,10 @@ DO: 'do';
 MAIN:'main';
 
 NUMERO : DIGITO+ ;
+NUMEROFLOAT: DIGITO.DIGITO ;
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
+LET : LETRA+ ;
 
 // REGLAS----------------------------------------------------------------------------------------------------
 programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del archivo
@@ -84,10 +86,10 @@ tipodatof : tipodato
 declaracion: tipodato ID ; //int x;
 
 // asignacion------------------------------------------------------------------------------------------------
-nom : ID; //para el char
+ //para el char USAMOS LET
 asignacion : ID ASIG opal
            | ID ASIG llamadafunc
-           | ID ASIG COMDOBLE nom COMDOBLE //para los chars, se reutiliza ID
+           | ID ASIG COMDOBLE LET COMDOBLE //para los chars, se reutiliza ID
            ; //opal(operacion aritmetica logica)
 
 //expresiones aritmeticas-logicas----------------------------------------------------------------------------
@@ -133,7 +135,8 @@ parteposincr: termino7 MAS
               |
               ;
 
-factor : NUMERO 
+factor : NUMERO
+       | NUMEROFLOAT
        | ID         
        | PA opal PC    
        ;

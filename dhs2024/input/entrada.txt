@@ -1,13 +1,8 @@
-int a ;
-a = 8;
-
 int x ;
-x = 8 ;
+x =  7.5;
 
-int b ;
-b = x ;
+float a ;
+a = 3.3;
 
-{
-    char y ;
-    y ="a";
-}
+int b;
+b = a ;

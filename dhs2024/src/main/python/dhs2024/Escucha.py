@@ -8,6 +8,14 @@ from Funcion import Funcion
 from Variable import Variable
 
 
+#funcion auxiliar para comprobar tipos de datos
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
+
 class Escucha (compiladoresListener) :
 
     tablaDeSimbolos = TablaSimbolos()
@@ -302,7 +310,7 @@ class Escucha (compiladoresListener) :
         busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
 
         
-        #buscamos si la variable fue declarada globalmente
+        #buscamos si la variable fue declarada localmente
         if busquedaLocal == None :
 
             #no la encontro entonces la busco localmente
@@ -312,11 +320,78 @@ class Escucha (compiladoresListener) :
                 #entonces no la encontro en ningun lado
                 print("-->ERROR SEMANTICO: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
             else :
+                #verificamos si todos los tipos de datos son correctos
+                tipoDatoVariable = busquedaGlobal.tipoDato.value
+                listaID = []
+                cadenaTokens = ctx.getChild(2).getText()
+                for simbolos in ['+', '-', '/', '*', '||', '&&']:
+                    cadenaTokens = cadenaTokens.replace(simbolos, ' ')
+        
+                factores = cadenaTokens.split()  # Dividir por espacios
+                #aca separamos en dos listas, uno para los numeros otro para los ID
+                for f in factores:
+                    #is digit devuelve verdadero a un entero
+                    if f.isdigit():          
+                        if tipoDatoVariable == 'float':
+                            if not isfloat(f):
+                                print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante" )
+                    
+                    
+                    elif f.isalpha():
+                        listaID.append(f)
+                
+                    elif isfloat(f):
+                        if tipoDatoVariable == 'int':
+                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero" )
+
+            #verificacion de tipos de datos de IDS
+                for id in listaID:
+                    variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
+                    if variableEncontrada != None:
+                        if variableEncontrada.tipoDato.value != tipoDatoVariable:
+                        #tipos de variable no coinciden
+                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable)
+            
                 print("Se inicializo la variable '" + nombreVariable +"'")
                 busquedaGlobal.inicializado = 1
 
         else :
-            #la encontro en el contexto global 
+            #la encontro en el contexto local 
+            tipoDatoVariable = busquedaLocal.tipoDato.value
+            listaID = []
+            cadenaTokens = ctx.getChild(2).getText()
+            for simbolos in ['+', '-', '/', '*', '||', '&&']:
+                cadenaTokens = cadenaTokens.replace(simbolos, ' ')
+        
+            factores = cadenaTokens.split()  # Dividir por espacios
+            #aca separamos en dos listas, uno para los numeros otro para los ID
+            for f in factores:
+                #is digit devuelve verdadero a un entero
+                if f.isdigit():          
+                    if tipoDatoVariable == 'float':
+                        if not isfloat(f):
+                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante" )
+                    
+                    
+                elif f.isalpha():
+                    listaID.append(f)
+                
+                elif isfloat(f):
+                    if tipoDatoVariable == 'int':
+                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero" )
+
+
+
+
+            #verificacion de tipos de datos de IDS
+            for id in listaID:
+                variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
+                if variableEncontrada != None:
+                    if variableEncontrada.tipoDato.value != tipoDatoVariable:
+                        #tipos de variable no coinciden
+                        print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable)
+                
+          
             print("Se inicializo la variable '" + nombreVariable +"'")
             busquedaLocal.inicializado = 1
                              
@@ -377,5 +452,3 @@ class Escucha (compiladoresListener) :
         print("Identificadores inicializadas pero no usados:")
         for id in self.idNoUsadosInicializados:
             print(id)
-
-
