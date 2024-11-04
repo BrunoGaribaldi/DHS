@@ -66,8 +66,11 @@ A continuación se presentan algunos de los mensajes que el programa muestra en 
 
 - **-->->ERROR SEMANTICO en la asignacion de <variable> no es un entero**: Queremos asignarle un valor distinto de entero a una variable declarada como entera.
 
+- **>ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n"**: Asignamos una variable el valor de otra que no tiene el mismo tipo de dato.
+
+
 -->WARNING SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante
->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n"
+
 
 ## Uso
 Para usar el programa, escribir un programa en C en "entrada.txt"
