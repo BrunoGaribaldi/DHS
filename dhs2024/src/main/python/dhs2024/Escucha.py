@@ -126,7 +126,7 @@ class Escucha (compiladoresListener) :
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
         if (self.auxtipoDato != funcion.tipoDato):
             print("\n-->ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato) + "\n")
-            self.banderaf == True
+            self.banderaf = True
             return
         
         print('\n--- Contexto funcion ---')
