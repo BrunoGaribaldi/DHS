@@ -152,7 +152,8 @@ class Escucha (compiladoresListener) :
                 contextoInicializado = Contexto(argumentos)
                 self.tablaDeSimbolos.addContexto(contextoInicializado)    
         else:
-            print("\n-->ERROR SEMANTICO: Revisar la cantidad de argumentos\n")
+            print("-->ERROR SEMANTICO: Revisar la cantidad de argumentos")
+            self.banderaf = True
 
     def exitBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
         if (self.banderaf == True):
