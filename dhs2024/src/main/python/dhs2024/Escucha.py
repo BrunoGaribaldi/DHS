@@ -9,9 +9,9 @@ from Variable import Variable
 
 
 #funcion auxiliar para comprobar tipos de datos
-def isfloat(num):
+def isint(num):
     try:
-        float(num)
+        int(num)
         return True
     except ValueError:
         return False
@@ -65,7 +65,7 @@ class Escucha (compiladoresListener) :
                 self.auxArgumentos.append(argumento)
 
     def exitPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
-         if (self.banderap == False):
+        if (self.banderap == False):
             nombreFuncion = ctx.getChild(1).getText()
             argumentos = self.auxArgumentos[:]
 
@@ -86,6 +86,13 @@ class Escucha (compiladoresListener) :
                 
             else:
                 print("\n-->ERROR SEMANTICO: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
+
+        #chequeo de sintaxis
+        if ctx.PYC() == None:
+            print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
+        if ctx.PA() == None:
+            print("\n-->ERROR SINTACTICO: Te olvidaste el parentesis de apertura!\n")
+
     
 # definicion de funciones y bloque ------------------------------------------------------------------------------------------------------------    
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
@@ -233,6 +240,11 @@ class Escucha (compiladoresListener) :
                 funcion.usado = 1
                 print("LLamada a funcion '" + ctx.getChild(0).getText() + "' realizada con exito")
 
+        #chequeo de sintaxis 
+        if ctx.PYC() == None:
+            print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
+        
+
 # for -----------------------------------------------------------------------------------------------
     def enterIfor(self, ctx: compiladoresParser.IforContext):
         print("\nSe detecto un bloque FOR")
@@ -349,19 +361,18 @@ class Escucha (compiladoresListener) :
                 factores = cadenaTokens.split()  # Dividir por espacios
                 #aca separamos en dos listas, uno para los numeros otro para los ID
                 for f in factores:
-                    #is digit devuelve verdadero a un entero
-                    if f.isdigit():          
-                        if tipoDatoVariable == 'float':
-                            if not isfloat(f):
-                                print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante\n" )
-                    
+                
+                    #si la variable es un entero y le llega un flotante
+                    if tipoDatoVariable == 'int' and not isint(f):
+                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+
+                    #si la variable espera un flotante y le llega un enrero
+                    elif tipoDatoVariable == 'float' and isint(f):
+                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+
                     
                     elif f.isalpha():
                         listaID.append(f)
-                
-                    elif isfloat(f):
-                        if tipoDatoVariable == 'int':
-                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
             #verificacion de tipos de datos de IDS
                 for id in listaID:
@@ -385,20 +396,20 @@ class Escucha (compiladoresListener) :
             factores = cadenaTokens.split()  # Dividir por espacios
             #aca separamos en dos listas, uno para los numeros otro para los ID
             for f in factores:
-                #is digit devuelve verdadero a un entero
-                if f.isdigit():          
-                    if tipoDatoVariable == 'float':
-                        if not isfloat(f):
-                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante\n" )
-                    
+                
+                #si la variable es un entero y le llega un flotante
+                if tipoDatoVariable == 'int' and not isint(f):
+                    print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+
+                #si la variable espera un flotante y le llega un enrero
+                elif tipoDatoVariable == 'float' and isint(f):
+                    print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+
                     
                 elif f.isalpha():
                     listaID.append(f)
                 
-                elif isfloat(f):
-                    if tipoDatoVariable == 'int':
-                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
-
+            
 
 
 
@@ -454,13 +465,23 @@ class Escucha (compiladoresListener) :
 
 #-----------------------------------------------------------------------------------------------------------
 #chequeo de sintaxis
-    # def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
-    #     if ctx.declaracion()!= None:
-    #         print("hola")
+    def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
+        if ctx.declaracion()!= None or ctx.asignacion()!= None:
+            if ctx.PYC() == None:
+                print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
 
-    # def exitIfor(self, ctx: compiladoresParser.IforContext):
-    #     if ctx.PC() == None:
-    #         print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de cierre del for\n")
+    def exitIfor(self, ctx: compiladoresParser.IforContext):
+        if ctx.PA() == None:
+            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura del for\n")
+
+    def exitIif(self, ctx: compiladoresParser.IifContext):
+        if ctx.PA() == None:
+            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura del if\n")
+    
+    def exitFunc(self, ctx: compiladoresParser.FuncContext):
+        if ctx.PA() == None:
+            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura de la funcion\n")
+    
     
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
   

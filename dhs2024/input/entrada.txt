@@ -1,4 +1,5 @@
-int contar(int a);
-int contar(int a){
-    int a ;
-}
+ float x ;
+ x = 2 ;
+
+ int a ;
+ a  = 7.8 ;

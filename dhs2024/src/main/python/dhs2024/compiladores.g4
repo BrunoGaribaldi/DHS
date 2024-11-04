@@ -59,8 +59,8 @@ instrucciones : instruccion instrucciones //es una instruccion con mas instrucci
                 |
                 ;
 //todas las sentencias que puede tener el programa
-instruccion: declaracion PYC
-            | asignacion PYC
+instruccion: declaracion (PYC | ) //hacemos esto para que el programa lo tome como valido a la sentencia para poder controlar nosotros este error
+            | asignacion (PYC | ) // el | y el espacio significa que puede no estar el punto y coma
             | bloque
             | ifor
             | iif
@@ -146,15 +146,15 @@ factor : NUMERO
 bloque : LLA instrucciones LLC; //bloque de codigo
 
 //FOR -------------------------------------------------------------------------------------------------------
-ifor : FOR PA init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
+ifor : FOR (PA | ) init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
 init : tipodato ID ASIG opal;
 cond : opal;
 iter : asignacion;
 bloquefor : LLA instrucciones LLC; //bloque solo para for para que no cree contexto
 
 //IF---------------------------------------------------------------------------------------------------------
-iif: IF PA opal PC bloque // suponiendo if(x)
-   | IF PA opal PC bloque ELSE bloque ; //una estructura con if else
+iif: IF (PA | ) opal PC bloque // suponiendo if(x)
+   | IF (PA | ) opal PC bloque ELSE bloque ; //una estructura con if else
 
 //WHILE------------------------------------------------------------------------------------------------------
 iwhile : WHILE PA opal PC bloque ;
@@ -162,7 +162,7 @@ iwhile : WHILE PA opal PC bloque ;
 //Prototipo de funcion---------------------------------------------------------------------------------------
 declargumentos : tipodato ID;
 
-prototipofunc : tipodatof ID PA argumentos PC PYC; 
+prototipofunc : tipodatof ID (PA | ) argumentos PC (PYC | ); 
 
 argumentos : declargumentos COMA argumentos
            | declargumentos
@@ -176,7 +176,7 @@ bloqueespecial : LLA instrucciones LLC;
 
 /*cunado sepa el nombre de la funcion necesito traer sus argumentos para crear el contexto */
 nombrefuncion: ID ;
-func :  tipodatofunc nombrefuncion PA argumentosf PC bloqueespecial;
+func :  tipodatofunc nombrefuncion (PA | ) argumentosf PC bloqueespecial;
 argumentosf : funcargumentos COMA argumentosf
             | funcargumentos
             | 
@@ -186,7 +186,7 @@ tipodatofunc: tipodatof;
 
 funcargumentos : tipodato ID;
 
-llamadafunc : nombre PA argumentosllamada PC PYC;
+llamadafunc : nombre PA argumentosllamada PC (PYC | );
 
 argumentosllamada : llamargumentos COMA argumentosllamada
                   | llamargumentos
