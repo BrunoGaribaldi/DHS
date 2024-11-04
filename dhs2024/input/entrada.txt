@@ -31,6 +31,12 @@ float func(){
 
 int hola(double x){
     int x;
+    int var;
+    while(var){
+        if(var){
+            int var;
+        }
+    }
 }
 
 

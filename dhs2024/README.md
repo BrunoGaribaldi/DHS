@@ -70,6 +70,8 @@ A continuación se presentan algunos de los mensajes que el programa muestra en 
 
 - **>ERROR SEMANTICO, No puedes asignar un STRING a un CHAR**: Ocurre cuando queremos inicializar un char con una string.
 
+- **>En esta version del compilador no se hacen warnings de asignacion de variables con tipo de dato DOUBLE**
+
 
 ## Uso
 Para usar el programa, escribir un programa en C en "entrada.txt"
