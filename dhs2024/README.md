@@ -58,5 +58,16 @@ A continuación se presentan algunos de los mensajes que el programa muestra en 
 
 - **ERROR: Se esperaba un tipo de dato: <TipoDato> y queres inicializar: <TipoDato> .**: "Sucede cuando en la inicializacion de la funcion, ponemos un tipo de dato de retorno distinto al que hemos puesto en el prototipo"
 
+- **El bloque FOR solo acepta <i = i +- valor> en iter**
+
+- **El nombre <variable> esta muy fachero, lo puedes usar**: Sucede cuando declaramos una variable y no existe ni local ni globalmente.
+
+- **-->ERROR SEMANTICO: Se desconoce el valor de <variable> debes declararlo primero !**: Sucede cuando inicializamos una variable que no esta declarada.
+
+- **-->->ERROR SEMANTICO en la asignacion de <variable> no es un entero**: Queremos asignarle un valor distinto de entero a una variable declarada como entera.
+
+-->WARNING SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante
+>ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n"
+
 ## Uso
 Para usar el programa, escribir un programa en C en "entrada.txt"
