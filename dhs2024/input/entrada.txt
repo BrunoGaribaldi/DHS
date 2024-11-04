@@ -1,5 +1,2 @@
-int contar (int x );
-int contar (int x){
-    int a ;
-    a = x
-}
+char x ;
+x = 's' ;

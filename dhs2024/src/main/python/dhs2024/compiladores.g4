@@ -9,7 +9,7 @@ LLA: '{';
 LLC: '}';
 PYC: ';';
 COMA: ',';
-COMDOBLE: '"';
+COMSIMPLE: '\'';
 
 SUMA : '+' ;
 RESTA : '-';
@@ -50,7 +50,6 @@ NUMERO : DIGITO+ ;
 NUMEROFLOAT: DIGITO.DIGITO ;
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
-LET : LETRA+ ;
 
 // REGLAS----------------------------------------------------------------------------------------------------
 programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del archivo
@@ -77,7 +76,7 @@ declaracion: tipodato ID ; //int x;
  //para el char USAMOS LET
 asignacion : ID ASIG opal
            | ID ASIG llamadafunc
-           | ID ASIG COMDOBLE LET COMDOBLE //para los chars, se reutiliza ID
+           | ID ASIG COMSIMPLE ID COMSIMPLE //para los chars, se reutiliza ID
            ; //opal(operacion aritmetica logica)
 
 //tipos de datos para inicializar variables

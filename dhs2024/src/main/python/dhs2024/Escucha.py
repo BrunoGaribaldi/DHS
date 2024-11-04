@@ -39,11 +39,11 @@ class Escucha (compiladoresListener) :
      #   print("Funcion main")
 
     def enterPrograma(self, ctx: compiladoresParser.ProgramaContext):
-        print("Comienza la compilacion\n")
+        print("\n" + "*" * 30 + "COMIENZA LA COMPILACION" + "*" * 30 + "\n" )
 
 #prototipo de funciones ----------------------------------------------------------------------------------------------
     def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
-        print('\n#### Prototipo de funcion')
+        print('\n --- Prototipo de funcion ---')
         self.banderap = False
     
     def exitDeclargumentos(self, ctx:compiladoresParser.DeclaracionContext):
@@ -92,7 +92,7 @@ class Escucha (compiladoresListener) :
 # definicion de funciones y bloque ------------------------------------------------------------------------------------------------------------    
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
         #en las funciones creamos el contexto al definirlas, para poder agregar sus argumentos al contexto
-        print("\nInicializacion funcion")
+        print("\n--- Inicializacion funcion ---")
         self.banderaf = False
     
     def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
@@ -129,7 +129,7 @@ class Escucha (compiladoresListener) :
             self.banderaf == True
             return
         
-        print('\n***Contexto funcion***')
+        print('\n--- Contexto funcion ---')
         argumentos = funcion.argumentos
         if (len(argumentos) == len(self.auxArgumentosf)):
             if(len(argumentos) != 0):
@@ -159,7 +159,7 @@ class Escucha (compiladoresListener) :
     def exitBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
         if (self.banderaf == True):
             return 
-        print('***Sali de un CONTEXTO de funcion***')
+        print('\n--- Sali de un CONTEXTO de funcion ---')
         #print('Cantidad de hijos: '+ str(ctx.getChildCount()))
         #print('TOQUENS: '+ ctx.getText())
         print("*" * 50 )
@@ -180,7 +180,7 @@ class Escucha (compiladoresListener) :
 
 # llamada a funcion ---------------------------------------------------------------------------------
     def enterLlamadafunc(self, ctx: compiladoresParser.LlamadafuncContext):
-        print("Llamada a funcion")
+        print("--- Llamada a funcion ---")
         self.aux.clear()
         self.b = False
 
@@ -240,14 +240,14 @@ class Escucha (compiladoresListener) :
 
 # for -----------------------------------------------------------------------------------------------
     def enterIfor(self, ctx: compiladoresParser.IforContext):
-        print("\nSe detecto un bloque FOR")
+        print("\n--- Bloque for ---")
     #iniciacion en el for
 
     def exitInit(self, ctx: compiladoresParser.InitContext):
         nombreVariable= ctx.getChild(1).getText()
         tipoDato= ctx.getChild(0).getText()
         variableInit = Variable(nombreVariable,tipoDato,1,0)
-        print("variable init:" + str(variableInit))
+        #print("variable init:" + str(variableInit))
         #por como esta definido la iniciacion de un contexto, el primer argumento es si son lista de  args de funcion
         # su segundo argumento esta destinado a una sola variable
         self.tablaDeSimbolos.contextos[-1].tabla.update({variableInit.nombre:variableInit})
@@ -279,12 +279,12 @@ class Escucha (compiladoresListener) :
 
 #---------------------------------------------------------------------------------------------------------
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
-        print('\n\n***Entre a un CONTEXTO***')
+        print('\n--- Entre a un CONTEXTO ---')
         contexto= Contexto()
         self.tablaDeSimbolos.addContexto(contexto)
         
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
-        print('\n***Sali de un CONTEXTO***')
+        print('\n--- Sali de un CONTEXTO ---')
         #print('Cantidad de hijos: '+ str(ctx.getChildCount()))
         #print('TOQUENS: '+ ctx.getText())
         print("*" * 50 )
@@ -304,7 +304,7 @@ class Escucha (compiladoresListener) :
         self.tablaDeSimbolos.delContexto()
 
     def enterDeclaracion(self, ctx: compiladoresParser.DeclaracionContext):
-        print("\n@@@ Declaracion")
+        print("\n--- Declaracion ---")
     
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
         tipoDeDato= ctx.getChild(0).getText()
@@ -327,9 +327,18 @@ class Escucha (compiladoresListener) :
         
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
-        print("\n ### ASIGNACION ###")
+        print("\n--- Asignacion ---")
 
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
+
+        #quiero ver si asigno un CHAR
+        if "'" == ctx.getChild(2).getText():
+            #estqmos en un char
+            if len(ctx.getChild(3).getText()) > 1:
+                print(ctx.getText() + "-->ERROR SEMANTICO, No puedes asignar un STRING a un CHAR")
+                return 
+                
+
         nombreVariable= ctx.getChild(0).getText()
         busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
 
@@ -397,10 +406,12 @@ class Escucha (compiladoresListener) :
                 if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
                     
                     print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                    return
 
                 #si la variable espera un flotante y le llega un enrero
                 elif tipoDatoVariable == 'float' and isint(f):
                     print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                    return 
 
                     
                 elif f.isalpha():
@@ -419,6 +430,7 @@ class Escucha (compiladoresListener) :
                     if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
                         print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                        return
                 
           
             print("Se inicializo la variable '" + nombreVariable +"'")
@@ -467,8 +479,8 @@ class Escucha (compiladoresListener) :
     
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
   
-        print('Fin compilacion\n')
-        print("*" * 50 )
+        print("\n" + "*" * 30 + "FIN DE LA COMPILACION" + "*" * 30 + "\n" )
+
 
          #buscamos ids que hayan sido inicializados pero no usados en el contexto global
          #recorremos el contexto del cual vamos a salir
@@ -482,7 +494,7 @@ class Escucha (compiladoresListener) :
         print("En el contexto global se encontro lo siguiente:")
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
         print("*" * 50 + "\n")
-        print("-**-" * 25 + "")
+        print("--" * 25)
         print("Identificadores inicializadas pero no usados:")
         for id in self.idNoUsadosInicializados:
             print(id)
