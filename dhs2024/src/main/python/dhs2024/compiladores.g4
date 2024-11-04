@@ -197,4 +197,5 @@ llamargumentos: ID;
 
 nombre: ID;
 
-fmain : INT MAIN PA PC bloque;
+fmain : tipodatomain MAIN PA PC bloque;
+tipodatomain: INT;

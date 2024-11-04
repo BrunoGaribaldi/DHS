@@ -22,7 +22,7 @@ class Escucha (compiladoresListener) :
 
 #funciones ----------------------------------------------------------------------------------------------
 
-    #para los argumentos necesitamos que haya una lista auxiliar donde ir agregandolos antes de iniciar el bloque de la funcion
+    #algunos auxiliares necesarios
     auxArgumentos = []
     auxArgumentosf = []
     aux = []
@@ -31,7 +31,6 @@ class Escucha (compiladoresListener) :
     banderap = False
     b = False
     auxtipoDato = TipoDato("void")
-
     #lista de ID inicializados pero sin ser usados
     idNoUsadosInicializados = []
 
@@ -41,6 +40,7 @@ class Escucha (compiladoresListener) :
 
     def enterPrograma(self, ctx: compiladoresParser.ProgramaContext):
         print("Comienza la compilacion\n")
+
 #prototipo de funciones ----------------------------------------------------------------------------------------------
     def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
         print('\n#### Prototipo de funcion')
@@ -58,10 +58,10 @@ class Escucha (compiladoresListener) :
                         self.auxArgumentos.clear()
                         return
                 #creamos esa variable para guardarla en la lista de argumentos
-                argumento = Variable(nombreVariable,tipoDeDato,0,0)
+                argumento = Variable(nombreVariable,tipoDeDato,1,0)
                 self.auxArgumentos.append(argumento)
             else: 
-                argumento = Variable(nombreVariable,tipoDeDato,0,0)
+                argumento = Variable(nombreVariable,tipoDeDato,1,0)
                 self.auxArgumentos.append(argumento)
 
     def exitPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
@@ -103,7 +103,6 @@ class Escucha (compiladoresListener) :
     def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
         #aca ya se el nombre de la funcion entonces lo uso para buscar sus argumentos
         funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
-        print(funcion.tipoDato)
         if funcion == None:
             print("\n-->ERROR: No existe el prototipo de la funcion " + ctx.ID().getText()+ "\n")
             self.banderaf = True
@@ -224,12 +223,14 @@ class Escucha (compiladoresListener) :
                                 print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
                                 self.b = True
                                 break
+                            gobal.usado = 1
                     else:        
                         tipodedato = local.tipoDato
                         if(tipodedato != tdf): 
                                 print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
                                 self.b = True
                                 break
+                        local.usado = 1
             else: 
                 print("\n-->ERROR SEMANTICO: Estas pasando mas o menos argumentos de los debidos.\n")
                 self.b = True
@@ -330,8 +331,6 @@ class Escucha (compiladoresListener) :
 
             else:
                 print("\n-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
-
-           
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n ### ASIGNACION ###")
@@ -504,3 +503,16 @@ class Escucha (compiladoresListener) :
         print("Identificadores inicializadas pero no usados:")
         for id in self.idNoUsadosInicializados:
             print(id)
+
+
+#-----------------------------------------------------------------------------------------------------------
+#chequeo de sintaxis
+    # def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
+    #     if ctx.declaracion()!= None:
+    #         print("hola")
+
+    # def exitIfor(self, ctx: compiladoresParser.IforContext):
+    #     if ctx.PC() == None:
+    #         print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de cierre del for\n")
+    
+    
