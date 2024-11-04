@@ -1,1 +1,13 @@
-int 2a ;
+int contar(int x);
+
+{
+     int w ;
+     {
+        double w ;
+     }
+
+}
+
+int contar(int x){
+    int a ;
+}

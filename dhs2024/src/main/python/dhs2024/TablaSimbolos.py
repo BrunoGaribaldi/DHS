@@ -37,9 +37,27 @@ class TablaSimbolos(object):
 
 
     def buscarLocal(self, nombre):
-        return self.contextos[-1].traerVariable(nombre)
-        
-    
+
+        #return self.contextos[-1].traerVariable(nombre)
+        #arranco a buscar desde el ultimo
+         numContexto = len(self.contextos)
+         contador = numContexto - 1 
+         #si esto da 1 tengo solamente el contexto global
+         if numContexto == 1:
+             return None
+         else:
+             #lo recorremos la reves
+             for contexto in self.contextos[::-1]:
+                 retorno = contexto.traerVariable(nombre)
+
+                 if retorno != None :
+                     return retorno
+                
+                 contador = contador - 1
+                 if contador == 0:
+                     return None
+                
+                      
     def buscarGlobal(self, nombre):
         return self.contextos[0].traerVariable(nombre)
     
