@@ -1,43 +1,8 @@
-void func();
-int hola(double x);
+int x;
+x = a ;
+x = 7.8 ;
+char w = 'ss' ;
 
-{
-
-double j;
-float var;
-var = 2.5;
-
-for (int i = 0 ; i < 10 ; i = i + 1){
-    int i;
-    int x; 
-    x = var;
-    int r;
-    x = 2
-    r = x
-}
-
-{
-    int var;
-    hola(j);
-}
-func();
-
-}
-
-float func(){
-
-
-}
-
-int hola(double x){
-    int x;
-    int var;
-    while(var){
-        if(var){
-            int var;
-        }
-    }
-}
-
-
-
+float p; 
+p = 8.8;
+x = p ;

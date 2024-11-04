@@ -58,8 +58,8 @@ instrucciones : instruccion instrucciones //es una instruccion con mas instrucci
                 |
                 ;
 //todas las sentencias que puede tener el programa
-instruccion: declaracion (PYC | ) //hacemos esto para que el programa lo tome como valido a la sentencia para poder controlar nosotros este error
-            | asignacion (PYC | ) // el | y el espacio significa que puede no estar el punto y coma
+instruccion: declaracion PYC  //hacemos esto para que el programa lo tome como valido a la sentencia para poder controlar nosotros este error
+            | asignacion PYC // el | y el espacio significa que puede no estar el punto y coma
             | bloque
             | ifor
             | iif
@@ -145,18 +145,18 @@ factor : NUMERO
 bloque : LLA instrucciones LLC; //bloque de codigo
 
 //FOR -------------------------------------------------------------------------------------------------------
-ifor : FOR PA init PYC cond PYC iter PC bloque; //for(init ; cond ; iter) instruccion
-init : tipodato ID ASIG opal;
+ifor : FOR PA asignacion PYC cond PYC iter PC instruccion; //for(init ; cond ; iter) instruccion
+init : asignacion;
 cond : opal;
 iter : asignacion;
 bloquefor : LLA instrucciones LLC; //bloque solo para for para que no cree contexto
 
 //IF---------------------------------------------------------------------------------------------------------
-iif: IF PA opal PC bloque // suponiendo if(x)
-   | IF PA opal PC bloque ELSE bloque ; //una estructura con if else
+iif: IF PA opal PC instruccion // suponiendo if(x)
+   | IF PA opal PC instruccion ELSE instruccion ; //una estructura con if else
 
 //WHILE------------------------------------------------------------------------------------------------------
-iwhile : WHILE PA opal PC bloque ;
+iwhile : WHILE PA opal PC instruccion ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
 declargumentos : tipodato ID;

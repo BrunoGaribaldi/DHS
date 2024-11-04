@@ -6,7 +6,7 @@ from Contexto import Contexto
 from ID import ID,TipoDato
 from Funcion import Funcion
 from Variable import Variable
-
+from ErrorSemantico import ErrorSemantico
 
 #funcion auxiliar para comprobar tipos de datos
 def isint(num):
@@ -34,6 +34,9 @@ class Escucha (compiladoresListener) :
     #lista de ID inicializados pero sin ser usados
     idNoUsadosInicializados = []
 
+    #lista de errores semanticos
+    erroresSemanticos = []
+
 # main --------------------------------------------------------------------------------------------------
     #def exitFmain(self, ctx: compiladoresParser.FmainContext):
      #   print("Funcion main")
@@ -53,7 +56,9 @@ class Escucha (compiladoresListener) :
             if (len(self.auxArgumentos) != 0):
                 for i in self.auxArgumentos:
                     if i.nombre == nombreVariable:
-                        print("\n-->ERROR SEMANTICO: Estas definiendo argumentos con el mismo nombre\n")
+                        #print("\n-->ERROR SEMANTICO: Estas definiendo argumentos con el mismo nombre\n")
+                        #error argumentos con mismo nombre
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Argumentos repetidos","Estas definiendo argumentos con el mismo nombre"))
                         self.banderap = True
                         self.auxArgumentos.clear()
                         return
@@ -85,7 +90,9 @@ class Escucha (compiladoresListener) :
                 print("\nPrototipo de funcion '" +nombreFuncion + "' guardado con exito")
                 
             else:
-                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
+                #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Doble declaracion del mismo identificador","Ya existe el prototipo de funcion con el nombre" + nombreFuncion))
+
 
         
     
@@ -125,7 +132,9 @@ class Escucha (compiladoresListener) :
                     
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
         if (self.auxtipoDato != funcion.tipoDato):
-            print("\n-->ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato) + "\n")
+            #print("\n-->ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato) + "\n")
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error de tipo de dato","Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato)))
+
             self.banderaf = True
             return
         
@@ -138,7 +147,9 @@ class Escucha (compiladoresListener) :
                 while i<len(argumentos): #comprobamos que los argumentos sean lo mismo y esten en el mismo orden
                     if(not (argumentos[i].nombre == self.auxArgumentosf[i].nombre and
                     argumentos[i].tipoDato == self.auxArgumentosf[i].tipoDato)):
-                        print("\n-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo\n")
+                        #print("\n-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo\n")
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Argumentos de la funcion no coinciden","Se esperaba un tipo de dato: " + "Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo"))
+
                         self.banderaf = True 
                         return 
                     i += 1   
@@ -153,7 +164,9 @@ class Escucha (compiladoresListener) :
                 contextoInicializado = Contexto(argumentos)
                 self.tablaDeSimbolos.addContexto(contextoInicializado)    
         else:
-            print("-->ERROR SEMANTICO: Revisar la cantidad de argumentos")
+            #print("-->ERROR SEMANTICO: Revisar la cantidad de argumentos")
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Cantidad de argumentos","Revisar la cantidad de argumentos"))
+
             self.banderaf = True
 
     def exitBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
@@ -189,6 +202,7 @@ class Escucha (compiladoresListener) :
         funcion = self.tablaDeSimbolos.buscarGlobal(nombre)
         if (funcion == None):
             print("\n-->ERROR SEMANTICO: No existe el prototitpo de la funcion '" + nombre + "'\n")
+            
             self.b = True
         
     def exitLlamargumentos(self, ctx: compiladoresParser.LlamargumentosContext):
@@ -305,7 +319,7 @@ class Escucha (compiladoresListener) :
 
     def enterDeclaracion(self, ctx: compiladoresParser.DeclaracionContext):
         print("\n--- Declaracion ---")
-    
+            
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
         tipoDeDato= ctx.getChild(0).getText()
         nombreVariable= ctx.getChild(1).getText()
@@ -319,10 +333,14 @@ class Escucha (compiladoresListener) :
 
         else : 
             if busquedaGlobal != None :
-                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
+                #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto global"))
+
 
             else:
-                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+                #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
+
 
         
 
@@ -336,6 +354,8 @@ class Escucha (compiladoresListener) :
             #estqmos en un char
             if len(ctx.getChild(3).getText()) > 1:
                 print(ctx.getText() + "-->ERROR SEMANTICO, No puedes asignar un STRING a un CHAR")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Incorrecta asignacion de un char","No puedes asignar un STRING a un CHAR"))
+
                 return 
                 
 
@@ -351,7 +371,9 @@ class Escucha (compiladoresListener) :
 
             if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
-                print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
+                #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de un identificador sin inicializar","Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero"))
+
             else :
                 #verificamos si todos los tipos de datos son correctos
                 tipoDatoVariable = busquedaGlobal.tipoDato.value
@@ -366,11 +388,14 @@ class Escucha (compiladoresListener) :
                 
                     #si la variable es un entero y le llega un flotante
                     if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
-                        print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                        #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero"))
+
 
                     #si la variable espera un flotante y le llega un enrero
                     elif tipoDatoVariable == 'float' and isint(f):
-                        print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                        #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante"))
 
                     
                     elif f.isalpha():
@@ -384,8 +409,10 @@ class Escucha (compiladoresListener) :
                     if variableEncontrada != None:
                         if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                            print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
-            
+                            #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable))
+    
+
                 print("Se inicializo la variable '" + nombreVariable +"'")
                 busquedaGlobal.inicializado = 1
 
@@ -405,12 +432,16 @@ class Escucha (compiladoresListener) :
                 #si la variable es un entero y le llega un flotante
                 if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
                     
-                    print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                    #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero"))
+
                     return
 
                 #si la variable espera un flotante y le llega un enrero
                 elif tipoDatoVariable == 'float' and isint(f):
                     print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante"))
+
                     return 
 
                     
@@ -429,7 +460,9 @@ class Escucha (compiladoresListener) :
                     #print("variable " + variableEncontrada.nombre + "tipo de dato: " +variableEncontrada.tipoDato.value)
                     if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                        print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                        #print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable))
+
                         return
                 
           
@@ -453,7 +486,9 @@ class Escucha (compiladoresListener) :
 
                 if busquedaLocal.inicializado == 0 :
                     #marco a mi nombre de variable como usado
-                    print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                    #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin inicializar","Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero "))
+
             else : 
                 #la busco global
                 #print("La variable no existe localmente, la buscamos en el contexto global")
@@ -467,10 +502,14 @@ class Escucha (compiladoresListener) :
 
                         if busquedaGlobal.inicializado != 1 :
                             #variable no inicializada
-                            print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                            #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin inicializar","Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero "))
+
                 else :
                     #no encontro por ningun lado
                     print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR NO DECLARADO: La variable " + factorUsado.getText() + " no fue declarada!\n")
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin declarar","La variable " + factorUsado.getText() + " no fue declarada"))
+
 
 
 
@@ -498,6 +537,16 @@ class Escucha (compiladoresListener) :
         print("Identificadores inicializadas pero no usados:")
         for id in self.idNoUsadosInicializados:
             print(id)
+
+        #impresion de errores en archivo
+        archivo = open("./output/erroresSemanticos.txt", "w")
+        archivo.write("\n--- Errores semanticos ---\n")
+        if len(self.erroresSemanticos) > 0:
+            for error in self.erroresSemanticos:
+                archivo.write("-" * 50 + "\n")
+                archivo.write(str(error))
+
+
 
 
 #-----------------------------------------------------------------------------------------------------------
