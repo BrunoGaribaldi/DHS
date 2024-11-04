@@ -454,13 +454,13 @@ class Escucha (compiladoresListener) :
 
 #-----------------------------------------------------------------------------------------------------------
 #chequeo de sintaxis
-    def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
-        if ctx.declaracion()!= None:
-            print("hola")
+    # def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
+    #     if ctx.declaracion()!= None:
+    #         print("hola")
 
-    def exitIfor(self, ctx: compiladoresParser.IforContext):
-        if ctx.PC() == None:
-            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de cierre del for\n")
+    # def exitIfor(self, ctx: compiladoresParser.IforContext):
+    #     if ctx.PC() == None:
+    #         print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de cierre del for\n")
     
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
   
