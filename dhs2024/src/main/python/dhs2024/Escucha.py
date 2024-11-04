@@ -39,6 +39,8 @@ class Escucha (compiladoresListener) :
     #def exitFmain(self, ctx: compiladoresParser.FmainContext):
      #   print("Funcion main")
 
+    def enterPrograma(self, ctx: compiladoresParser.ProgramaContext):
+        print("Comienza la compilacion\n")
 #prototipo de funciones ----------------------------------------------------------------------------------------------
     def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
         print('\n#### Prototipo de funcion')
@@ -51,7 +53,7 @@ class Escucha (compiladoresListener) :
             if (len(self.auxArgumentos) != 0):
                 for i in self.auxArgumentos:
                     if i.nombre == nombreVariable:
-                        print("-->ERROR SEMANTICO: Estas definiendo argumentos con el mismo nombre")
+                        print("\n-->ERROR SEMANTICO: Estas definiendo argumentos con el mismo nombre\n")
                         self.banderap = True
                         self.auxArgumentos.clear()
                         return
@@ -83,7 +85,7 @@ class Escucha (compiladoresListener) :
                 print("\nPrototipo de funcion '" +nombreFuncion + "' guardado con exito")
                 
             else:
-                print("-->ERROR SEMANTICO: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!")
+                print("\n-->ERROR SEMANTICO: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
     
 # definicion de funciones y bloque ------------------------------------------------------------------------------------------------------------    
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
@@ -96,7 +98,7 @@ class Escucha (compiladoresListener) :
         funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
         print(funcion.tipoDato)
         if funcion == None:
-            print("ERROR: No existe el prototipo de la funcion " + ctx.ID().getText())
+            print("\n-->ERROR: No existe el prototipo de la funcion " + ctx.ID().getText()+ "\n")
             self.banderaf = True
         else: 
             self.auxArgumentosf.clear()
@@ -122,11 +124,11 @@ class Escucha (compiladoresListener) :
                     
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
         if (self.auxtipoDato != funcion.tipoDato):
-            print("ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato))
+            print("\n-->ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato) + "\n")
             self.banderaf == True
             return
         
-        print('\n***Contexo funcion***')
+        print('\n***Contexto funcion***')
         argumentos = funcion.argumentos
         if (len(argumentos) == len(self.auxArgumentosf)):
             if(len(argumentos) != 0):
@@ -135,7 +137,7 @@ class Escucha (compiladoresListener) :
                 while i<len(argumentos): #comprobamos que los argumentos sean lo mismo y esten en el mismo orden
                     if(not (argumentos[i].nombre == self.auxArgumentosf[i].nombre and
                     argumentos[i].tipoDato == self.auxArgumentosf[i].tipoDato)):
-                        print("-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo")
+                        print("\n-->ERROR SEMANTICO: Argumento de la funcion '" + self.auxNombreFuncion + "' no coincide con prototipo\n")
                         self.banderaf = True 
                         return 
                     i += 1   
@@ -150,7 +152,7 @@ class Escucha (compiladoresListener) :
                 contextoInicializado = Contexto(argumentos)
                 self.tablaDeSimbolos.addContexto(contextoInicializado)    
         else:
-            print("-->ERROR SEMANTICO: Revisar la cantidad de argumentos")
+            print("\n-->ERROR SEMANTICO: Revisar la cantidad de argumentos\n")
 
     def exitBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
         if (self.banderaf == True):
@@ -184,7 +186,7 @@ class Escucha (compiladoresListener) :
         nombre = ctx.getChild(0).getText()
         funcion = self.tablaDeSimbolos.buscarGlobal(nombre)
         if (funcion == None):
-            print("-->ERROR SEMANTICO: No existe el prototitpo de la funcion '" + nombre + "'")
+            print("\n-->ERROR SEMANTICO: No existe el prototitpo de la funcion '" + nombre + "'\n")
             self.b = True
         
     def exitLlamargumentos(self, ctx: compiladoresParser.LlamargumentosContext):
@@ -205,23 +207,23 @@ class Escucha (compiladoresListener) :
                     if local == None:
                         gobal = self.tablaDeSimbolos.buscarGlobal(i)
                         if gobal == None:
-                            print("-->ERROR SEMANTICO: Estas queriendo pasar como argumento un ID no declarado")
+                            print("\n-->ERROR SEMANTICO: Estas queriendo pasar como argumento un ID no declarado\n")
                             self.b = True
                             break
                         else:
                             tipodedato = gobal.tipoDato
                             if(tipodedato != tdf): 
-                                print("-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf))
+                                print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
                                 self.b = True
                                 break
                     else:        
                         tipodedato = local.tipoDato
                         if(tipodedato != tdf): 
-                                print("-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf))
+                                print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
                                 self.b = True
                                 break
             else: 
-                print("-->ERROR SEMANTICO: Estas pasando mas o menos argumentos de los debidos.")
+                print("\n-->ERROR SEMANTICO: Estas pasando mas o menos argumentos de los debidos.\n")
                 self.b = True
 
             if self.b == True:
@@ -247,10 +249,10 @@ class Escucha (compiladoresListener) :
 
     #bloques de for
     def enterBloquefor(self, ctx: compiladoresParser.BloqueforContext):
-        print('\n***Entre a un CONTEXTO FOR***')
+        print('\n\n***Entre a un CONTEXTO FOR***')
 
     def exitBloquefor(self, ctx:compiladoresParser.BloqueforContext):
-        print('***Sali de un CONTEXTO***')
+        print('\n***Sali de un CONTEXTO***')
         #print('Cantidad de hijos: '+ str(ctx.getChildCount()))
         #print('TOQUENS: '+ ctx.getText())
         print("*" * 50 )
@@ -271,12 +273,12 @@ class Escucha (compiladoresListener) :
 
 #---------------------------------------------------------------------------------------------------------
     def enterBloque(self, ctx:compiladoresParser.BloqueContext):
-        print('\n***Entre a un CONTEXTO***')
+        print('\n\n***Entre a un CONTEXTO***')
         contexto= Contexto()
         self.tablaDeSimbolos.addContexto(contexto)
         
     def exitBloque(self, ctx:compiladoresParser.BloqueContext):
-        print('***Sali de un CONTEXTO***')
+        print('\n***Sali de un CONTEXTO***')
         #print('Cantidad de hijos: '+ str(ctx.getChildCount()))
         #print('TOQUENS: '+ ctx.getText())
         print("*" * 50 )
@@ -296,7 +298,7 @@ class Escucha (compiladoresListener) :
         self.tablaDeSimbolos.delContexto()
 
     def enterDeclaracion(self, ctx: compiladoresParser.DeclaracionContext):
-        print("@@@ Declaracion")
+        print("\n@@@ Declaracion")
     
     def exitDeclaracion(self, ctx:compiladoresParser.DeclaracionContext):
         tipoDeDato= ctx.getChild(0).getText()
@@ -311,10 +313,12 @@ class Escucha (compiladoresListener) :
 
         else : 
             if busquedaGlobal != None :
-                print("-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
+                print("\n-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
 
             else:
-                print("-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")    
+                print("\n-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+
+           
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n ### ASIGNACION ###")
@@ -332,7 +336,7 @@ class Escucha (compiladoresListener) :
 
             if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
-                print("-->ERROR SEMANTICO: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
+                print("\n-->ERROR SEMANTICO: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
             else :
                 #verificamos si todos los tipos de datos son correctos
                 tipoDatoVariable = busquedaGlobal.tipoDato.value
@@ -348,7 +352,7 @@ class Escucha (compiladoresListener) :
                     if f.isdigit():          
                         if tipoDatoVariable == 'float':
                             if not isfloat(f):
-                                print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante" )
+                                print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante\n" )
                     
                     
                     elif f.isalpha():
@@ -356,7 +360,7 @@ class Escucha (compiladoresListener) :
                 
                     elif isfloat(f):
                         if tipoDatoVariable == 'int':
-                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero" )
+                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
             #verificacion de tipos de datos de IDS
                 for id in listaID:
@@ -364,7 +368,7 @@ class Escucha (compiladoresListener) :
                     if variableEncontrada != None:
                         if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable)
+                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
             
                 print("Se inicializo la variable '" + nombreVariable +"'")
                 busquedaGlobal.inicializado = 1
@@ -384,7 +388,7 @@ class Escucha (compiladoresListener) :
                 if f.isdigit():          
                     if tipoDatoVariable == 'float':
                         if not isfloat(f):
-                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante" )
+                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante\n" )
                     
                     
                 elif f.isalpha():
@@ -392,7 +396,7 @@ class Escucha (compiladoresListener) :
                 
                 elif isfloat(f):
                     if tipoDatoVariable == 'int':
-                            print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero" )
+                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
 
 
@@ -403,7 +407,7 @@ class Escucha (compiladoresListener) :
                 if variableEncontrada != None:
                     if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                        print("-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable)
+                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
                 
           
             print("Se inicializo la variable '" + nombreVariable +"'")
@@ -426,7 +430,7 @@ class Escucha (compiladoresListener) :
 
                 if busquedaLocal.inicializado == 0 :
                     #marco a mi nombre de variable como usado
-                    print("-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
+                    print("\n-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
             else : 
                 #la busco global
                 #print("La variable no existe localmente, la buscamos en el contexto global")
@@ -440,11 +444,23 @@ class Escucha (compiladoresListener) :
 
                         if busquedaGlobal.inicializado != 1 :
                             #variable no inicializada
-                            print("-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !")
+                            print("\n-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
                 else :
                     #no encontro por ningun lado
-                    print("ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!")
+                    print("\n-->ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!\n")
 
+
+
+#-----------------------------------------------------------------------------------------------------------
+#chequeo de sintaxis
+    def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
+        if ctx.declaracion()!= None:
+            print("hola")
+
+    def exitIfor(self, ctx: compiladoresParser.IforContext):
+        if ctx.PC() == None:
+            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de cierre del for\n")
+    
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
   
         print('Fin compilacion\n')
@@ -462,7 +478,7 @@ class Escucha (compiladoresListener) :
         print("En el contexto global se encontro lo siguiente:")
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
         print("*" * 50 + "\n")
-        print("-**-" * 25 + "\n")
+        print("-**-" * 25 + "")
         print("Identificadores inicializadas pero no usados:")
         for id in self.idNoUsadosInicializados:
             print(id)

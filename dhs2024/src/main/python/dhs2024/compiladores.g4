@@ -54,6 +54,7 @@ LET : LETRA+ ;
 
 // REGLAS----------------------------------------------------------------------------------------------------
 programa : instrucciones EOF ; //secuencia de instrucciones hasta el final del archivo
+
 instrucciones : instruccion instrucciones //es una instruccion con mas instrucciones 
                 |
                 ;
@@ -69,6 +70,16 @@ instruccion: declaracion PYC
             | llamadafunc
             ;
 
+// ----------------------------------------------------------------------------------------------------------
+declaracion: tipodato ID ; //int x;
+
+// asignacion------------------------------------------------------------------------------------------------
+ //para el char USAMOS LET
+asignacion : ID ASIG opal
+           | ID ASIG llamadafunc
+           | ID ASIG COMDOBLE LET COMDOBLE //para los chars, se reutiliza ID
+           ; //opal(operacion aritmetica logica)
+
 //tipos de datos para inicializar variables
 tipodato : INT
          |DOUBLE
@@ -81,16 +92,6 @@ tipodato : INT
 tipodatof : tipodato
           | VOID
           ;
-
-// ----------------------------------------------------------------------------------------------------------
-declaracion: tipodato ID ; //int x;
-
-// asignacion------------------------------------------------------------------------------------------------
- //para el char USAMOS LET
-asignacion : ID ASIG opal
-           | ID ASIG llamadafunc
-           | ID ASIG COMDOBLE LET COMDOBLE //para los chars, se reutiliza ID
-           ; //opal(operacion aritmetica logica)
 
 //expresiones aritmeticas-logicas----------------------------------------------------------------------------
 opal : termino1 parteor;

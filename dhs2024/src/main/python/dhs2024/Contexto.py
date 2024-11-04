@@ -6,12 +6,15 @@ class Contexto():
     #funcion1 = Funcion('func' , TipoDatoFuncion.INT.name, True , True, [1,2,3])
     #print(funcion1.__getattribute__('argumentos'))
 
-    def __init__(self, argumentos = None): 
+    def __init__(self, argumentos = None, variables = None): 
         self.tabla = {}
         #si hay argumentos estoy creando un contexto de una funcion
         if argumentos != None :
           for argumento in argumentos:
             self.tabla.update({argumento.nombre:argumento})
+
+        if variables != None :
+            self.tabla.update({variables.nombre:variables})
 
 
     def traerVariable(self,nombre):
