@@ -68,8 +68,7 @@ A continuación se presentan algunos de los mensajes que el programa muestra en 
 
 - **>ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n"**: Asignamos una variable el valor de otra que no tiene el mismo tipo de dato.
 
-
--->WARNING SEMANTICO en la asignacion de '" + nombreVariable + "':" + f + " no es un flotante
+- **>ERROR SEMANTICO, No puedes asignar un STRING a un CHAR**: Ocurre cuando queremos inicializar un char con una string.
 
 
 ## Uso
