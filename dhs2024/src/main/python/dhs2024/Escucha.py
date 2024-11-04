@@ -87,13 +87,7 @@ class Escucha (compiladoresListener) :
             else:
                 print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
 
-        #chequeo de sintaxis
-        if ctx.PYC() == None:
-
-            print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
-        if ctx.PA() == None:
-            print("\n-->ERROR SINTACTICO, FALTA DE APERTURA DE PARENTESIS: Te olvidaste el parentesis de apertura!\n")
-
+        
     
 # definicion de funciones y bloque ------------------------------------------------------------------------------------------------------------    
     def enterFunc(self, ctx: compiladoresParser.FuncContext):
@@ -242,9 +236,6 @@ class Escucha (compiladoresListener) :
                 funcion.usado = 1
                 print("LLamada a funcion '" + ctx.getChild(0).getText() + "' realizada con exito")
 
-        #chequeo de sintaxis 
-        if ctx.PYC() == None:
-            print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
         
 
 # for -----------------------------------------------------------------------------------------------
@@ -256,10 +247,10 @@ class Escucha (compiladoresListener) :
         nombreVariable= ctx.getChild(1).getText()
         tipoDato= ctx.getChild(0).getText()
         variableInit = Variable(nombreVariable,tipoDato,1,0)
+        print("variable init:" + str(variableInit))
         #por como esta definido la iniciacion de un contexto, el primer argumento es si son lista de  args de funcion
         # su segundo argumento esta destinado a una sola variable
-        contextoInicializado = Contexto(None, variableInit)
-        self.tablaDeSimbolos.addContexto(contextoInicializado)
+        self.tablaDeSimbolos.contextos[-1].tabla.update({variableInit.nombre:variableInit})
         print("Se agrego la variable '" + nombreVariable + "'al contexto del bloque FOR")
 
     #bloques de for
@@ -333,10 +324,7 @@ class Escucha (compiladoresListener) :
             else:
                 print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
 
-        #errores de sintaxis
-        if ctx.getChild(1) == ctx.NUMERO():
-            print(ctx.getText()+"-->ERROR SINTACTICO, FORMATO INCORRECTO EN LA LISTA DE DECLARACION DE VARIABLES: formato incorrecto del nombre de variable")
-
+        
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n ### ASIGNACION ###")
@@ -368,7 +356,7 @@ class Escucha (compiladoresListener) :
                 for f in factores:
                 
                     #si la variable es un entero y le llega un flotante
-                    if tipoDatoVariable == 'int' and not isint(f):
+                    if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
                         print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
                     #si la variable espera un flotante y le llega un enrero
@@ -382,6 +370,8 @@ class Escucha (compiladoresListener) :
             #verificacion de tipos de datos de IDS
                 for id in listaID:
                     variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
+                    #print("variable " + variableEncontrada.nombre + "tipo de dato: " +variableEncontrada.tipoDato.value)
+
                     if variableEncontrada != None:
                         if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
@@ -399,11 +389,13 @@ class Escucha (compiladoresListener) :
                 cadenaTokens = cadenaTokens.replace(simbolos, ' ')
         
             factores = cadenaTokens.split()  # Dividir por espacios
+            #print(factores)
             #aca separamos en dos listas, uno para los numeros otro para los ID
             for f in factores:
                 
                 #si la variable es un entero y le llega un flotante
-                if tipoDatoVariable == 'int' and not isint(f):
+                if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
+                    
                     print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
                 #si la variable espera un flotante y le llega un enrero
@@ -412,9 +404,10 @@ class Escucha (compiladoresListener) :
 
                     
                 elif f.isalpha():
+                    
                     listaID.append(f)
                 
-            
+           # print(listaID)
 
 
 
@@ -422,6 +415,7 @@ class Escucha (compiladoresListener) :
             for id in listaID:
                 variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
                 if variableEncontrada != None:
+                    #print("variable " + variableEncontrada.nombre + "tipo de dato: " +variableEncontrada.tipoDato.value)
                     if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
                         print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
@@ -469,28 +463,7 @@ class Escucha (compiladoresListener) :
 
 
 #-----------------------------------------------------------------------------------------------------------
-#chequeo de sintaxis
-    def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
-        if ctx.declaracion()!= None or ctx.asignacion()!= None:
-            if ctx.PYC() == None:
-                print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
 
-    def exitIfor(self, ctx: compiladoresParser.IforContext):
-        if ctx.PA() == None:
-            print("\n-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura del for\n")
-
-    def exitIif(self, ctx: compiladoresParser.IifContext):
-        if ctx.PA() == None:
-            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura del if\n")
-    
-    def exitFunc(self, ctx: compiladoresParser.FuncContext):
-        if ctx.PA() == None:
-            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura de la funcion\n")
-    
-    def exitIwhile(self, ctx: compiladoresParser.IwhileContext):
-        if ctx.PA() == None:
-            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura de while\n")
-    
     
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):
   

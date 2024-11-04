@@ -1,13 +1,3 @@
-int contar(int x);
-
-{
-     int w ;
-     {
-        double w ;
-     }
-
-}
-
-int contar(int x){
-    int a ;
+for ( int i = 0 ; i< 8 ; i = i + 1){
+    int i ;
 }
