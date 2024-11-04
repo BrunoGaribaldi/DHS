@@ -71,7 +71,7 @@ instruccion: declaracion (PYC | ) //hacemos esto para que el programa lo tome co
             ;
 
 // ----------------------------------------------------------------------------------------------------------
-declaracion: tipodato ID ; //int x;
+declaracion: tipodato (ID | NUMERO) ; //int x;
 
 // asignacion------------------------------------------------------------------------------------------------
  //para el char USAMOS LET
@@ -157,7 +157,7 @@ iif: IF (PA | ) opal PC bloque // suponiendo if(x)
    | IF (PA | ) opal PC bloque ELSE bloque ; //una estructura con if else
 
 //WHILE------------------------------------------------------------------------------------------------------
-iwhile : WHILE PA opal PC bloque ;
+iwhile : WHILE (PA | ) opal PC bloque ;
       
 //Prototipo de funcion---------------------------------------------------------------------------------------
 declargumentos : tipodato ID;

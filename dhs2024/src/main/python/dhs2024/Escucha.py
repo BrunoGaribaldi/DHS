@@ -85,13 +85,14 @@ class Escucha (compiladoresListener) :
                 print("\nPrototipo de funcion '" +nombreFuncion + "' guardado con exito")
                 
             else:
-                print("\n-->ERROR SEMANTICO: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
+                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
 
         #chequeo de sintaxis
         if ctx.PYC() == None:
-            print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
+
+            print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
         if ctx.PA() == None:
-            print("\n-->ERROR SINTACTICO: Te olvidaste el parentesis de apertura!\n")
+            print("\n-->ERROR SINTACTICO, FALTA DE APERTURA DE PARENTESIS: Te olvidaste el parentesis de apertura!\n")
 
     
 # definicion de funciones y bloque ------------------------------------------------------------------------------------------------------------    
@@ -243,7 +244,7 @@ class Escucha (compiladoresListener) :
 
         #chequeo de sintaxis 
         if ctx.PYC() == None:
-            print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
+            print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
         
 
 # for -----------------------------------------------------------------------------------------------
@@ -327,10 +328,15 @@ class Escucha (compiladoresListener) :
 
         else : 
             if busquedaGlobal != None :
-                print("\n-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
+                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
 
             else:
-                print("\n-->ERROR SEMANTICO: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+                print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+
+        #errores de sintaxis
+        if ctx.getChild(1) == ctx.NUMERO():
+            print(ctx.getText()+"-->ERROR SINTACTICO, FORMATO INCORRECTO EN LA LISTA DE DECLARACION DE VARIABLES: formato incorrecto del nombre de variable")
+
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n ### ASIGNACION ###")
@@ -348,7 +354,7 @@ class Escucha (compiladoresListener) :
 
             if busquedaGlobal == None :
                 #entonces no la encontro en ningun lado
-                print("\n-->ERROR SEMANTICO: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
+                print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
             else :
                 #verificamos si todos los tipos de datos son correctos
                 tipoDatoVariable = busquedaGlobal.tipoDato.value
@@ -363,11 +369,11 @@ class Escucha (compiladoresListener) :
                 
                     #si la variable es un entero y le llega un flotante
                     if tipoDatoVariable == 'int' and not isint(f):
-                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                        print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
                     #si la variable espera un flotante y le llega un enrero
                     elif tipoDatoVariable == 'float' and isint(f):
-                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                        print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
 
                     
                     elif f.isalpha():
@@ -379,7 +385,7 @@ class Escucha (compiladoresListener) :
                     if variableEncontrada != None:
                         if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                            print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                            print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
             
                 print("Se inicializo la variable '" + nombreVariable +"'")
                 busquedaGlobal.inicializado = 1
@@ -398,11 +404,11 @@ class Escucha (compiladoresListener) :
                 
                 #si la variable es un entero y le llega un flotante
                 if tipoDatoVariable == 'int' and not isint(f):
-                    print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
+                    print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
 
                 #si la variable espera un flotante y le llega un enrero
                 elif tipoDatoVariable == 'float' and isint(f):
-                    print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
+                    print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
 
                     
                 elif f.isalpha():
@@ -418,7 +424,7 @@ class Escucha (compiladoresListener) :
                 if variableEncontrada != None:
                     if variableEncontrada.tipoDato.value != tipoDatoVariable:
                         #tipos de variable no coinciden
-                        print("\n-->ERROR SEMANTICO en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
+                        print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
                 
           
             print("Se inicializo la variable '" + nombreVariable +"'")
@@ -441,7 +447,7 @@ class Escucha (compiladoresListener) :
 
                 if busquedaLocal.inicializado == 0 :
                     #marco a mi nombre de variable como usado
-                    print("\n-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                    print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
             else : 
                 #la busco global
                 #print("La variable no existe localmente, la buscamos en el contexto global")
@@ -455,10 +461,10 @@ class Escucha (compiladoresListener) :
 
                         if busquedaGlobal.inicializado != 1 :
                             #variable no inicializada
-                            print("\n-->ERROR SEMANTICO: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
+                            print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
                 else :
                     #no encontro por ningun lado
-                    print("\n-->ERROR SEMANTICO: La variable " + factorUsado.getText() + " no fue declarada!\n")
+                    print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR NO DECLARADO: La variable " + factorUsado.getText() + " no fue declarada!\n")
 
 
 
@@ -467,19 +473,23 @@ class Escucha (compiladoresListener) :
     def exitInstruccion(self, ctx: compiladoresParser.InstruccionContext):
         if ctx.declaracion()!= None or ctx.asignacion()!= None:
             if ctx.PYC() == None:
-                print("\n-->ERROR SINTACTICO: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
+                print("\n" + ctx.getText() + "-->ERROR SINTACTICO, FALTA DE UN PUNTO Y COMA: Te olvidaste un punto y coma, no te preocupes, suele pasar!\n")
 
     def exitIfor(self, ctx: compiladoresParser.IforContext):
         if ctx.PA() == None:
-            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura del for\n")
+            print("\n-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura del for\n")
 
     def exitIif(self, ctx: compiladoresParser.IifContext):
         if ctx.PA() == None:
-            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura del if\n")
+            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura del if\n")
     
     def exitFunc(self, ctx: compiladoresParser.FuncContext):
         if ctx.PA() == None:
-            print("\n-->ERROR DE SINTAXIS: No se ha encontrado el parentesis de apertura de la funcion\n")
+            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura de la funcion\n")
+    
+    def exitIwhile(self, ctx: compiladoresParser.IwhileContext):
+        if ctx.PA() == None:
+            print("\n" + ctx.getText() + "-->ERROR DE SINTAXIS, FALTA DE APERTURA DE PARENTESIS: No se ha encontrado el parentesis de apertura de while\n")
     
     
     def exitPrograma(self, ctx:compiladoresParser.ProgramaContext):

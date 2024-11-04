@@ -7,6 +7,7 @@ class TipoDato(Enum):
     BOOLEAN = "bool" 
     DOUBLE = "double"
     CHAR = "char"
+    
 
 class ID():
     def __init__(self, nombre, tipoDato, inicializado, usado):
