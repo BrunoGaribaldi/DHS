@@ -42,6 +42,9 @@ class Escucha (compiladoresListener) :
     listaIdAsinacion = []
     listanumerosAsignacion = []
 
+    #tipo de dato para lista de declaracion + asignaciones
+    tipoDatoDeclasignacion = 0
+
     #archivos donde mostramos las salidas
     archivoErroresSemanticos = open("./output/erroresSemanticos.txt", "w")
     archivoSalida = open("./output/salida.txt", "w")
@@ -377,32 +380,16 @@ class Escucha (compiladoresListener) :
 
         #lo hablamos con el profe y para la declaracion solamente se mira al contexto en el que estamos
         #es decir, se puede declarar en un contexto una variable la cual fue declarada en otro contexto
-        # busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
-        # busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
-    
-        # if busquedaGlobal == None and busquedaLocal == None :
-        #     print("El nombre '" + nombreVariable +"' esta muy fachero, lo puedes usar")
-        #     self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None)
-
-        # else : 
-        #     if busquedaGlobal != None :
-        #         #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
-        #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto global"))
-
-
-        #     else:
-        #         #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
-        #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
-
-
+       
 
     def exitDeclid(self, ctx: compiladoresParser.DeclidContext):
         #chequeo que declid no sea landa
+        #declid es el prima de declaraciones
         if ctx.getChildCount() > 0 :
                 self.listaCrearVariablesAux.append(ctx.getChild(1).getText())
 
     def exitDeclaraciones(self, ctx: compiladoresParser.DeclaracionesContext):
-        print(ctx.declaracion().ID().getText())
+        #print(ctx.declaracion().ID().getText())
         #extraemos el tipo de dato
         tipoDato = ctx.declaracion().tipodato().getText()
         
@@ -417,11 +404,100 @@ class Escucha (compiladoresListener) :
         self.listaCrearVariablesAux.clear()
 
 
+    def exitDeclasignaciontipo(self, ctx: compiladoresParser.DeclasignaciontipoContext):
+        self.tipoDatoDeclasignacion = ctx.getChild(0).getText()
 
-    def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
-        #por si se uso factor en algun lado vaciamos la lista
+
+    def exitDeclasignaciones(self, ctx: compiladoresParser.DeclasignacionesContext):
+        self.tipoDatoDeclasignacion = 0
+
+    def exitDasignacion(self, ctx: compiladoresParser.DasignacionContext):
+         #creacion de variable
+        tipoDeDato= self.tipoDatoDeclasignacion
+        nombreVariable= ctx.getChild(0).getText()
+    
+        busquedaContexto = self.tablaDeSimbolos.buscarEnMiContexto(nombreVariable)
+
+        if busquedaContexto == None:
+            self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None,1)
+        
+        else:
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
+
+        #chequeo los id tengan el mismo dato
+        for id in self.listaIdAsinacion:
+            #todos los id que traigo ya existen, debido a que si no lo hubiese enocntrado ya hubiese tirado un error en factor
+            if id.tipoDato.value != tipoDeDato :
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + id.nombre + "'(" + id.tipoDato.value + ") no es un " + tipoDeDato))
+            
+            #chequeo de los numeros
+        for numero in self.listanumerosAsignacion:
+                
+            if tipoDeDato == 'int' and not isint(numero):
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un entero"))
+
+            elif tipoDeDato == 'float' and isint(numero):
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un flotante"))
+
+            elif tipoDeDato == 'char' and numero.isdigit():
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un char"))
+
         self.listaIdAsinacion.clear()
         self.listanumerosAsignacion.clear()
+        
+
+    
+        
+
+    def exitDeclasign(self, ctx: compiladoresParser.DeclasignContext):
+        #creacion de variable
+        tipoDeDato= ctx.getChild(0).getText()
+        nombreVariable= ctx.getChild(1).getText()
+    
+        busquedaContexto = self.tablaDeSimbolos.buscarEnMiContexto(nombreVariable)
+
+        if busquedaContexto == None:
+            self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None,1)
+        
+        else:
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
+
+        
+        # #asignacion
+        # if "'" == ctx.getChild(3).getText():
+        #     #estqmos en un char
+        #     if len(ctx.getChild(4).getText()) > 1:
+        #         #print(ctx.getText() + "-->ERROR SEMANTICO, No puedes asignar un STRING a un CHAR")
+        #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Incorrecta asignacion de un char","No puedes asignar un STRING a un CHAR"))
+        #         return 
+            
+          
+        #chequeo los id tengan el mismo dato
+        
+        for id in self.listaIdAsinacion:
+            #todos los id que traigo ya existen, debido a que si no lo hubiese enocntrado ya hubiese tirado un error en factor
+            if id.tipoDato.value != tipoDeDato :
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + id.nombre + "'(" + id.tipoDato.value + ") no es un " + tipoDeDato))
+            
+            #chequeo de los numeros
+        for numero in self.listanumerosAsignacion:
+                
+            if tipoDeDato == 'int' and not isint(numero):
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un entero"))
+
+            elif tipoDeDato == 'float' and isint(numero):
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un flotante"))
+
+            elif tipoDeDato == 'char' and numero.isdigit():
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un char"))
+
+        self.listaIdAsinacion.clear()
+        self.listanumerosAsignacion.clear()
+        
+
+
+
+    def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n--- Asignacion ---")
 
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
@@ -434,11 +510,10 @@ class Escucha (compiladoresListener) :
                 return 
             
           
-
         nombreVariable= ctx.getChild(0).getText()
         #busqueda general busca desde local hacia global
         busqueda = self.tablaDeSimbolos.buscarGeneral(nombreVariable)
-        
+
         if busqueda == None:
             #no la encontro en ningun lado
             self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de un identificador sin inicializar","Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero"))
@@ -505,7 +580,18 @@ class Escucha (compiladoresListener) :
         
 
 
+#---- cuando se usa opal, los factores se agregan a la lista auxiliar, si se llama a opal de algun lado que no sea para asignacion, hay que vaciar esta lista
+    def exitIfor(self, ctx: compiladoresParser.IforContext):
+        self.listaIdAsinacion.clear()
+        self.listanumerosAsignacion.clear()
+        
+    def exitIwhile(self, ctx: compiladoresParser.IwhileContext):
+        self.listaIdAsinacion.clear()
+        self.listanumerosAsignacion.clear()
 
+    def exitIif(self, ctx: compiladoresParser.IifContext):
+        self.listaIdAsinacion.clear()
+        self.listanumerosAsignacion.clear()
 
 #-----------------------------------------------------------------------------------------------------------
 
@@ -541,7 +627,7 @@ class Escucha (compiladoresListener) :
         self.archivoSalida.write("\n" + "--" * 25 + "\n")
         self.archivoSalida.write("Identificadores inicializadas pero no usados:\n")
         for id in self.idNoUsadosInicializados:
-            self.archivoSalida.write(str(id))
+            self.archivoSalida.write(str(id) + "\n")
 
         #impresion de errores en archivo
         self.archivoErroresSemanticos.write("\n--- Errores semanticos ---\n")

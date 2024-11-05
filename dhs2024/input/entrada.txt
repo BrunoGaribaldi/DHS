@@ -1,9 +1,3 @@
-int x,e,d,g;
-float q,p ;
-char w ;
-w = 'ss' ;
-p = 7.9 ;
-q = 8 ;
-g = 0 ;
-e = 9.9 ;
-x = e + p ;
+int i = 0, w = 7;
+for(i = 0 ; i < 8 + w ; i = i + 1)
+    int p = w + 7.9;

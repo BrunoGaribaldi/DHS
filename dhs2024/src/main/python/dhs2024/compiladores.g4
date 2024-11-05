@@ -47,7 +47,7 @@ DO: 'do';
 
 
 NUMERO : DIGITO+ ;
-NUMEROFLOAT: DIGITO.DIGITO ;
+NUMEROFLOAT: DIGITO+'.'DIGITO+ ;
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
@@ -68,6 +68,8 @@ instruccion: declaracion PYC  //hacemos esto para que el programa lo tome como v
             | iwhile
             | llamadafunc
             | declaraciones PYC
+            | declasign PYC
+            | declasignaciones PYC
             ;
 
 // ----------------------------------------------------------------------------------------------------------
@@ -77,8 +79,21 @@ declid : COMA ID declid
        ; 
 declaraciones: declaracion COMA ID declid ; //int x, b ,c
 
-// asignacion------------------------------------------------------------------------------------------------
- //para el char USAMOS LET
+// declaracion + asignacion------------------------------------------------------------------------------------------------
+
+declasign : tipodato ID ASIG opal
+       | CHAR ID ASIG COMSIMPLE ID COMSIMPLE ; // int x = 8
+
+declas : COMA dasignacion 
+       |
+       ;
+ 
+
+declasignaciontipo : tipodato;
+dasignacion : ID ASIG opal ; 
+declasignaciones: declasignaciontipo dasignacion COMA dasignacion declas ;
+
+ // asignacion------------------------------------------------------------------------------------------------
 asignacion : ID ASIG opal
            | ID ASIG llamadafunc
            | ID ASIG COMSIMPLE ID COMSIMPLE //para los chars, se reutiliza ID

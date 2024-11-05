@@ -26,10 +26,10 @@ class TablaSimbolos(object):
     def delContexto(self):
         self.contextos.pop()
 
-    def addIdentificador(self,nombre,tipoDato,tipoID,argumentos):
+    def addIdentificador(self,nombre,tipoDato,tipoID,argumentos, inicializado = 0):
         contexto=self.contextos[-1]
         if(tipoID == 0): #variable
-            id = Variable(nombre,tipoDato,0,0)
+            id = Variable(nombre,tipoDato,inicializado,0)
         else:            #funcion
             id = Funcion(nombre,tipoDato,0,0,argumentos)
                     

@@ -1,14 +1,10 @@
 
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:
-x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-g: ID:g	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-d: ID:d	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
-e: ID:e	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
-q: ID:q	Tipo:Variable 	TipoDato.FLOAT	Inicializado:1	 Usado:0
-p: ID:p	Tipo:Variable 	TipoDato.FLOAT	Inicializado:1	 Usado:1
-w: ID:w	Tipo:Variable 	TipoDato.CHAR	Inicializado:0	 Usado:0
+i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+w: ID:w	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+p: ID:p	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 
 --------------------------------------------------
 Identificadores inicializadas pero no usados:
-ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0ID:g	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0ID:q	Tipo:Variable 	TipoDato.FLOAT	Inicializado:1	 Usado:0
+ID:p	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
