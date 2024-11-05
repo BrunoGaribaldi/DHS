@@ -44,7 +44,7 @@ FOR: 'for';
 IF: 'if';
 ELSE: 'else';
 DO: 'do';
-MAIN:'main';
+
 
 NUMERO : DIGITO+ ;
 NUMEROFLOAT: DIGITO.DIGITO ;
@@ -201,5 +201,3 @@ llamargumentos: ID;
 
 nombre: ID;
 
-fmain : tipodatomain MAIN PA PC bloque;
-tipodatomain: INT;
