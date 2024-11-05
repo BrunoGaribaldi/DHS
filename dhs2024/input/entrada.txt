@@ -1,3 +1,1 @@
-int i = 0, w = 7;
-for(i = 0 ; i < 8 + w ; i = i + 1)
-    int p = w + 7.9;
+int x =0,s=2,w=9,a=5;
