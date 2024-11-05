@@ -58,6 +58,7 @@ class Escucha (compiladoresListener) :
     def enterPrototipofunc(self, ctx: compiladoresParser.PrototipofuncContext):
         print('\n --- Prototipo de funcion ---')
         self.banderap = False
+        self.auxArgumentos.clear()
     
     def exitDeclargumentos(self, ctx:compiladoresParser.DeclaracionContext):
         if(self.banderap == False):
@@ -89,7 +90,7 @@ class Escucha (compiladoresListener) :
             #print("Nombre de la funcion: " + nombreFuncion)
 
             if nombreFuncion == "main":
-                print("ERROR: No declaramos main")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"ERROR: Semantico", "No declaramos main" + nombreFuncion))
                 return
             
             #buscamos si este nombre no le corresponde un ID
@@ -114,6 +115,11 @@ class Escucha (compiladoresListener) :
     
     def exitNombrefuncion(self, ctx: compiladoresParser.NombrefuncionContext):
         #aca ya se el nombre de la funcion entonces lo uso para buscar sus argumentos
+        if (str(ctx.ID()) == 'main'):
+            self.auxArgumentosf.clear()
+            self.auxNombreFuncion = ctx.ID().getText()
+            return
+        
         funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
         if funcion == None:
             print("\n-->ERROR: No existe el prototipo de la funcion " + ctx.ID().getText()+ "\n")
@@ -139,12 +145,26 @@ class Escucha (compiladoresListener) :
     def enterBloqueespecial(self, ctx:compiladoresParser.BloqueContext):
         if (self.banderaf == True):
             return
-                    
+        if self.auxNombreFuncion == 'main':
+            if self.auxtipoDato == TipoDato('int'):
+                if len(self.auxArgumentosf) == 0: #vamos a suponer que main no recibe argumentos
+                    self.tablaDeSimbolos.addIdentificador('main',self.auxtipoDato,1,self.auxArgumentosf)
+                    contextoInicializado = Contexto(self.auxArgumentosf)
+                    self.tablaDeSimbolos.addContexto(contextoInicializado)
+                    return
+                else: 
+                    print('NO le pasamos argumentos al main')
+                    self.banderaf = True
+                    return
+            else:
+                print('Solo puede retornar un tipo de dato int')
+                self.banderaf = True
+                return
+            
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
         if (self.auxtipoDato != funcion.tipoDato):
             #print("\n-->ERROR: Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato) + "\n")
             self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error de tipo de dato","Se esperaba un tipo de dato: " + str(funcion.tipoDato) + " y queres inicializar: " + str(self.auxtipoDato)))
-
             self.banderaf = True
             return
         
