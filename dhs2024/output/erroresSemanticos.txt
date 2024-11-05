@@ -1,3 +1,18 @@
 
 --- Errores semanticos ---
-Tu codigo no tiene errores semanticos!
+--------------------------------------------------
+Numero de linea: 4
+Tipo de error: Incorrecta asignacion de un char
+Mensaje: No puedes asignar un STRING a un CHAR
+--------------------------------------------------
+Numero de linea: 6
+Tipo de error: Tipos de datos incompatibles en la asignacion
+Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'q':8 no es un flotante
+--------------------------------------------------
+Numero de linea: 8
+Tipo de error: Tipos de datos incompatibles en la asignacion
+Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'e':9.9 no es un entero
+--------------------------------------------------
+Numero de linea: 9
+Tipo de error: Tipos de datos incompatibles en la asignacion
+Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x': La variable 'p'(float) no es un int

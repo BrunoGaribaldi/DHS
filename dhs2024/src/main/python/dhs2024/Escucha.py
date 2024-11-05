@@ -10,11 +10,9 @@ from ErrorSemantico import ErrorSemantico
 
 #funcion auxiliar para comprobar tipos de datos
 def isint(num):
-    try:
-        int(num)
-        return True
-    except ValueError:
-        return False
+    numero = float(num)
+    return str(numero).endswith('.0')
+
 
 class Escucha (compiladoresListener) :
 
@@ -40,6 +38,9 @@ class Escucha (compiladoresListener) :
     #para la declaracion continua de variables por coma
     listaCrearVariablesAux = []
 
+    #lista para asignacion
+    listaIdAsinacion = []
+    listanumerosAsignacion = []
 
     #archivos donde mostramos las salidas
     archivoErroresSemanticos = open("./output/erroresSemanticos.txt", "w")
@@ -384,7 +385,7 @@ class Escucha (compiladoresListener) :
         print(ctx.declaracion().ID().getText())
         #extraemos el tipo de dato
         tipoDato = ctx.declaracion().tipodato().getText()
-        print("tipo de dato " + tipoDato )
+        
         #por defecto ya hay dos variables a crear: la primera y la segunda
         self.listaCrearVariablesAux.append(ctx.declaracion().getChild(1).getText())
         self.listaCrearVariablesAux.append(ctx.ID().getText())
@@ -392,174 +393,96 @@ class Escucha (compiladoresListener) :
         for nombre in self.listaCrearVariablesAux:
                 #print(nombre)
                 self.tablaDeSimbolos.addIdentificador(nombre,tipoDato,0,None)
+        
+        self.listaCrearVariablesAux.clear()
 
 
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
+        #por si se uso factor en algun lado vaciamos la lista
+        self.listaIdAsinacion.clear()
+        self.listanumerosAsignacion.clear()
         print("\n--- Asignacion ---")
 
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
-
         #quiero ver si asigno un CHAR
         if "'" == ctx.getChild(2).getText():
             #estqmos en un char
             if len(ctx.getChild(3).getText()) > 1:
-                print(ctx.getText() + "-->ERROR SEMANTICO, No puedes asignar un STRING a un CHAR")
+                #print(ctx.getText() + "-->ERROR SEMANTICO, No puedes asignar un STRING a un CHAR")
                 self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Incorrecta asignacion de un char","No puedes asignar un STRING a un CHAR"))
-
                 return 
-                
+            
+          
 
         nombreVariable= ctx.getChild(0).getText()
-        busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
-
+        #busqueda general busca desde local hacia global
+        busqueda = self.tablaDeSimbolos.buscarGeneral(nombreVariable)
         
-        #buscamos si la variable fue declarada localmente
-        if busquedaLocal == None :
-
-            #no la encontro entonces la busco localmente
-            busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
-
-            if busquedaGlobal == None :
-                #entonces no la encontro en ningun lado
-                #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero !\n")
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de un identificador sin inicializar","Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero"))
-
-            else :
-                #verificamos si todos los tipos de datos son correctos
-                tipoDatoVariable = busquedaGlobal.tipoDato.value
-                listaID = []
-                cadenaTokens = ctx.getChild(2).getText()
-                for simbolos in ['+', '-', '/', '*', '||', '&&']:
-                    cadenaTokens = cadenaTokens.replace(simbolos, ' ')
-        
-                factores = cadenaTokens.split()  # Dividir por espacios
-                #aca separamos en dos listas, uno para los numeros otro para los ID
-                for f in factores:
+        if busqueda == None:
+            #no la encontro en ningun lado
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de un identificador sin inicializar","Se desconoce el valor de '" + nombreVariable + "', debes declararlo primero"))
+            pass
+            
+        else:
+            tipoDato = busqueda.tipoDato.value
+            #chequeo los id tengan el mismo dato
+            for id in self.listaIdAsinacion:
+                #todos los id que traigo ya existen, debido a que si no lo hubiese enocntrado ya hubiese tirado un error en factor
+                if id.tipoDato.value != tipoDato :
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + id.nombre + "'(" + id.tipoDato.value + ") no es un " + tipoDato))
+            
+            #chequeo de los numeros
+            for numero in self.listanumerosAsignacion:
                 
-                    #si la variable es un entero y le llega un flotante
-                    if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
-                        #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
-                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero"))
+                if tipoDato == 'int' and not isint(numero):
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un entero"))
 
+                elif tipoDato == 'float' and isint(numero):
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un flotante"))
 
-                    #si la variable espera un flotante y le llega un enrero
-                    elif tipoDatoVariable == 'float' and isint(f):
-                        #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
-                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante"))
+                elif tipoDato == 'char' and numero.isdigit():
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ numero + " no es un char"))
 
-                    
-                    elif f.isalpha():
-                        listaID.append(f)
-
-            #verificacion de tipos de datos de IDS
-                for id in listaID:
-                    variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
-                    #print("variable " + variableEncontrada.nombre + "tipo de dato: " +variableEncontrada.tipoDato.value)
-
-                    if variableEncontrada != None:
-                        if variableEncontrada.tipoDato.value != tipoDatoVariable:
-                        #tipos de variable no coinciden
-                            #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
-                            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable))
-    
-
-                print("Se inicializo la variable '" + nombreVariable +"'")
-                busquedaGlobal.inicializado = 1
-
-        else :
-            #la encontro en el contexto local 
-            tipoDatoVariable = busquedaLocal.tipoDato.value
-            listaID = []
-            cadenaTokens = ctx.getChild(2).getText()
-            for simbolos in ['+', '-', '/', '*', '||', '&&']:
-                cadenaTokens = cadenaTokens.replace(simbolos, ' ')
-        
-            factores = cadenaTokens.split()  # Dividir por espacios
-            #print(factores)
-            #aca separamos en dos listas, uno para los numeros otro para los ID
-            for f in factores:
-                
-                #si la variable es un entero y le llega un flotante
-                if tipoDatoVariable == 'int' and not isint(f) and not f.isalpha():
-                    
-                    #print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero\n" )
-                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un entero"))
-
-                    return
-
-                #si la variable espera un flotante y le llega un enrero
-                elif tipoDatoVariable == 'float' and isint(f):
-                    print("\n-->ERROR SEMANTICO: TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante\n" )
-                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "':"+ f + " no es un flotante"))
-
-                    return 
-
-                    
-                elif f.isalpha():
-                    
-                    listaID.append(f)
-                
-           # print(listaID)
-
-
-
-            #verificacion de tipos de datos de IDS
-            for id in listaID:
-                variableEncontrada = self.tablaDeSimbolos.buscarGeneral(id)
-                if variableEncontrada != None:
-                    #print("variable " + variableEncontrada.nombre + "tipo de dato: " +variableEncontrada.tipoDato.value)
-                    if variableEncontrada.tipoDato.value != tipoDatoVariable:
-                        #tipos de variable no coinciden
-                        #print("\n-->ERROR SEMANTICO:TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable+ "\n")
-                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Tipos de datos incompatibles en la asignacion","TIPOS DE DATOS INCOMPATIBLES en la asignacion de '" + nombreVariable + "': La variable '" + variableEncontrada.nombre + "'(" + variableEncontrada.tipoDato.value + ") no es un " + tipoDatoVariable))
-
-                        return
-                
-          
-            print("Se inicializo la variable '" + nombreVariable +"'")
-            busquedaLocal.inicializado = 1
+            busqueda.inicializado = 1
+            self.listaIdAsinacion.clear()
+            self.listanumerosAsignacion.clear()
                              
     def exitFactor(self, ctx: compiladoresParser.FactorContext):
+        
         #factores pueden tener 3 valores : numero - ID - (opal)
         #al hacer ctx.ID() solo traes ID , son los que me interesan para marcar su uso
         factorUsado = ctx.ID()
         if factorUsado != None :
             #significa que ingrese un identificador
-            busquedaLocal = self.tablaDeSimbolos.buscarLocal(factorUsado.getText())
+            busqueda = self.tablaDeSimbolos.buscarGeneral(factorUsado.getText())
 
-            if busquedaLocal != None :
-                #encontre el identificador de variable localmente
-                #tengo que asegurarme si esta variable ya fue inicializada!
-                if busquedaLocal.usado == 0:
-                    busquedaLocal.usado = 1 
-                    print(factorUsado.getText() + " ha sido  marcado como usado")
+            if busqueda == None:
+                #busqueda general busca desde local hacia global
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin declarar","La variable " + factorUsado.getText() + " no fue declarada"))
+                return
 
-                if busquedaLocal.inicializado == 0 :
+            else:
+                self.listaIdAsinacion.append(busqueda)
+
+                if busqueda.inicializado == 0 :
                     #marco a mi nombre de variable como usado
                     #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
                     self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin inicializar","Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero "))
 
-            else : 
-                #la busco global
-                #print("La variable no existe localmente, la buscamos en el contexto global")
-                busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(factorUsado.getText())
-
-                if busquedaGlobal != None :
-                        #las encontre glbalmente
-                        if busquedaGlobal.usado == 0:
-                            busquedaGlobal.usado = 1
-                            print(factorUsado.getText() + " ha sido  marcado como usado")
-
-                        if busquedaGlobal.inicializado != 1 :
-                            #variable no inicializada
-                            #print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR SIN INICIALIZAR: Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero !\n")
-                            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin inicializar","Estas queriendo usar una variable la cual no conozco el valor, debes inicializarla primero "))
-
-                else :
-                    #no encontro por ningun lado
-                    print("\n-->ERROR SEMANTICO, USO DE UN IDENTIFICADOR NO DECLARADO: La variable " + factorUsado.getText() + " no fue declarada!\n")
-                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Uso de identificador sin declarar","La variable " + factorUsado.getText() + " no fue declarada"))
+                elif busqueda.usado == 0:
+                    busqueda.usado = 1 
+                    print(factorUsado.getText() + " ha sido  marcado como usado")
+    
+            
+        if ctx.NUMERO() != None:
+            self.listanumerosAsignacion.append(ctx.NUMERO().getText())
+        
+        if ctx.NUMEROFLOAT() != None:
+            self.listanumerosAsignacion.append(ctx.NUMEROFLOAT().getText())
+        
+      
+        
 
 
 
