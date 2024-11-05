@@ -44,10 +44,12 @@ FOR: 'for';
 IF: 'if';
 ELSE: 'else';
 DO: 'do';
+RETURN: 'return'; 
 
 
 NUMERO : DIGITO+ ;
 NUMEROFLOAT: DIGITO+'.'DIGITO+ ;
+LETRACHAR: '\'' LETRA '\'';
 WS : [ \t\n\r] -> skip;
 ID : (LETRA | '_')(LETRA | DIGITO | '_')* ;
 
@@ -66,10 +68,11 @@ instruccion: declaracion PYC  //hacemos esto para que el programa lo tome como v
             | prototipofunc
             | func
             | iwhile
-            | llamadafunc
+            | llamadafunc PYC
             | declaraciones PYC
             | declasign PYC
             | declasignaciones PYC
+            | return PYC
             ;
 
 // ----------------------------------------------------------------------------------------------------------
@@ -205,7 +208,7 @@ tipodatofunc: tipodatof;
 
 funcargumentos : tipodato ID;
 
-llamadafunc : nombre PA argumentosllamada PC PYC;
+llamadafunc : nombre PA argumentosllamada PC;
 
 argumentosllamada : llamargumentos COMA argumentosllamada
                   | llamargumentos
@@ -216,3 +219,4 @@ llamargumentos: ID;
 
 nombre: ID;
 
+return: RETURN ID | RETURN NUMERO | RETURN NUMEROFLOAT | RETURN LETRACHAR;

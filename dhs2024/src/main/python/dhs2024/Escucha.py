@@ -29,6 +29,7 @@ class Escucha (compiladoresListener) :
     banderap = False
     b = False
     auxtipoDato = TipoDato("void")
+    auxreturn = ''
     #lista de ID inicializados pero sin ser usados
     idNoUsadosInicializados = []
 
@@ -289,7 +290,34 @@ class Escucha (compiladoresListener) :
                 funcion.usado = 1
                 print("LLamada a funcion '" + ctx.getChild(0).getText() + "' realizada con exito")
 
+# return funciones -----------------------------------------------------------------------------------
+    def exitReturn(self, ctx: compiladoresParser.ReturnContext):
+
+        funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
+
+        if (funcion == None):
+            print("ERROR: Estoy llamando a un return fuera del contexto de una funcion")
+            return
+        tipodeDato = funcion.tipoDato
+        if (ctx.ID() != None):
+            variable = self.tablaDeSimbolos.buscarLocal(ctx.ID().getText())
+            if variable == None: 
+                print("ERROR: No podemos retornar una variable no declarada")
+            else: 
+                if tipodeDato != variable.tipoDato:
+                    print("ERROR: El tipo de dato de la variable y de la funcion deben ser el mismo")    
+
+        if (ctx.NUMERO() != None):
+            if tipodeDato != TipoDato('int'):
+                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")
+
+        if (ctx.NUMEROFLOAT() != None):
+            if tipodeDato != TipoDato('float'):
+                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")
         
+        if (ctx.LETRACHAR() != None):
+            if tipodeDato != TipoDato('char'):
+                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")        
 
 # for -----------------------------------------------------------------------------------------------
     def enterIfor(self, ctx: compiladoresParser.IforContext):
@@ -502,6 +530,27 @@ class Escucha (compiladoresListener) :
 
     def exitAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         #quiero ver si asigno un CHAR
+        llamada = ctx.llamadafunc()
+        if (llamada != None):
+            nombre = llamada.nombre().getText()
+            funcion = self.tablaDeSimbolos.buscarGlobal(nombre)
+            if (funcion != None):
+                tipodeDato = funcion.tipoDato
+                var = ctx.getChild(0).getText()
+                var = self.tablaDeSimbolos.buscarGeneral(var)
+                if var != None: 
+                    tipodatovar = var.tipoDato
+                    if (tipodatovar != tipodeDato):
+                        print('ERROR: El tipo de dato que retorna la funcion es distinto al tipo de dato de la variable')
+                        return
+                    else:
+                        print("inicializacion correcta con prototipo")
+                        var.inicializado = 1
+                        return
+            else:
+                print('ERROR: No existe prototipo de funcion, no podemos inicializar')
+                return
+
         if "'" == ctx.getChild(2).getText():
             #estqmos en un char
             if len(ctx.getChild(3).getText()) > 1:
