@@ -1,8 +1,8 @@
-int x;
-x = a ;
-x = 7.8 ;
-char w = 'ss' ;
-
-float p; 
-p = 8.8;
-x = p ;
+int x ;
+{
+    int x ;
+    x = 7 ;
+    int a ;
+    a =  x;
+    
+}

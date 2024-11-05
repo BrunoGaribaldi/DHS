@@ -37,6 +37,11 @@ class Escucha (compiladoresListener) :
     #lista de errores semanticos
     erroresSemanticos = []
 
+    #archivos donde mostramos las salidas
+    archivoErroresSemanticos = open("./output/erroresSemanticos.txt", "w")
+    archivoSalida = open("./output/salida.txt", "w")
+
+
 # main --------------------------------------------------------------------------------------------------
     #def exitFmain(self, ctx: compiladoresParser.FmainContext):
      #   print("Funcion main")
@@ -189,6 +194,12 @@ class Escucha (compiladoresListener) :
         print("En este contexto se encontro lo siguiente:")
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
         print("*" * 50 + "\n")
+
+        #impresion en archivo
+        self.archivoSalida.write("-" * 50 + "\n")
+        self.archivoSalida.write("En el contexto iniciado en la linea " + str(ctx.start.line) +" se encontro lo siguiente:\n")
+        self.tablaDeSimbolos.contextos[-1].imprimirTablaArchivo(self.archivoSalida)
+
         self.tablaDeSimbolos.delContexto()
 
 # llamada a funcion ---------------------------------------------------------------------------------
@@ -315,6 +326,13 @@ class Escucha (compiladoresListener) :
 
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
         print("*" * 50 + "\n")
+
+
+        #impresion en archivo
+        self.archivoSalida.write("-" * 50 + "\n")
+        self.archivoSalida.write("En el contexto iniciado en la linea " + str(ctx.start.line) +" se encontro lo siguiente:\n")
+        self.tablaDeSimbolos.contextos[-1].imprimirTablaArchivo(self.archivoSalida)
+
         self.tablaDeSimbolos.delContexto()
 
     def enterDeclaracion(self, ctx: compiladoresParser.DeclaracionContext):
@@ -324,22 +342,32 @@ class Escucha (compiladoresListener) :
         tipoDeDato= ctx.getChild(0).getText()
         nombreVariable= ctx.getChild(1).getText()
     
-        busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
-        busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
-    
-        if busquedaGlobal == None and busquedaLocal == None :
-            print("El nombre '" + nombreVariable +"' esta muy fachero, lo puedes usar")
+        busquedaContexto = self.tablaDeSimbolos.buscarEnMiContexto(nombreVariable)
+
+        if busquedaContexto == None:
             self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None)
+        
+        else:
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
 
-        else : 
-            if busquedaGlobal != None :
-                #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto global"))
+        #lo hablamos con el profe y para la declaracion solamente se mira al contexto en el que estamos
+        #es decir, se puede declarar en un contexto una variable la cual fue declarada en otro contexto
+        # busquedaGlobal = self.tablaDeSimbolos.buscarGlobal(nombreVariable)
+        # busquedaLocal = self.tablaDeSimbolos.buscarLocal(nombreVariable)
+    
+        # if busquedaGlobal == None and busquedaLocal == None :
+        #     print("El nombre '" + nombreVariable +"' esta muy fachero, lo puedes usar")
+        #     self.tablaDeSimbolos.addIdentificador(nombreVariable,tipoDeDato,0,None)
+
+        # else : 
+        #     if busquedaGlobal != None :
+        #         #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto global \n")
+        #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto global"))
 
 
-            else:
-                #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
+        #     else:
+        #         #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: La variable '" + nombreVariable + "' ya fue declarada en el contexto local \n")
+        #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
 
 
         
@@ -538,13 +566,27 @@ class Escucha (compiladoresListener) :
         for id in self.idNoUsadosInicializados:
             print(id)
 
+        #impresion en archivo de variables en contexto
+        self.archivoSalida.write("\n" + "-" * 50 + "\n")
+        self.archivoSalida.write("En el contexto global se encontro lo siguiente:\n")
+        self.tablaDeSimbolos.contextos[-1].imprimirTablaArchivo(self.archivoSalida)
+
+        #impresion de variables no usadas pero inicializadas
+        self.archivoSalida.write("\n" + "--" * 25 + "\n")
+        self.archivoSalida.write("Identificadores inicializadas pero no usados:\n")
+        for id in self.idNoUsadosInicializados:
+            self.archivoSalida.write(str(id))
+
         #impresion de errores en archivo
-        archivo = open("./output/erroresSemanticos.txt", "w")
-        archivo.write("\n--- Errores semanticos ---\n")
+        self.archivoErroresSemanticos.write("\n--- Errores semanticos ---\n")
         if len(self.erroresSemanticos) > 0:
             for error in self.erroresSemanticos:
-                archivo.write("-" * 50 + "\n")
-                archivo.write(str(error))
+                self.archivoErroresSemanticos.write("-" * 50 + "\n")
+                self.archivoErroresSemanticos.write(str(error))
+        
+        else :
+            self.archivoErroresSemanticos.write("Tu codigo no tiene errores semanticos!")
+
 
 
 

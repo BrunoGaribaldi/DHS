@@ -1,18 +1,3 @@
 
 --- Errores semanticos ---
---------------------------------------------------
-Numero de linea: 2
-Tipo de error: Uso de identificador sin declarar
-Mensaje: La variable a no fue declarada
---------------------------------------------------
-Numero de linea: 3
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x':7.8 no es un entero
---------------------------------------------------
-Numero de linea: 4
-Tipo de error: Incorrecta asignacion de un char
-Mensaje: No puedes asignar un STRING a un CHAR
---------------------------------------------------
-Numero de linea: 8
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x': La variable 'p'(float) no es un int
+Tu codigo no tiene errores semanticos!

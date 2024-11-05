@@ -17,6 +17,8 @@ class Contexto():
             self.tabla.update({variables.nombre:variables})
 
 
+    
+
     def traerVariable(self,nombre):
          if nombre in self.tabla:
               return self.tabla[nombre] #esto te retorna lo del diccionario, no literal el nombre
@@ -26,3 +28,8 @@ class Contexto():
     def imprimirTabla(self):
           for clave,valor in self.tabla.items():
                print(f"{clave}: {valor}")   
+
+    def imprimirTablaArchivo(self,nombreArchivo ):
+          for clave,valor in self.tabla.items():
+               nombreArchivo.write(f"{clave}: {valor}\n")  
+     

@@ -40,24 +40,28 @@ class TablaSimbolos(object):
 
         #return self.contextos[-1].traerVariable(nombre)
         #arranco a buscar desde el ultimo
-         numContexto = len(self.contextos)
-         contador = numContexto - 1 
+        numContexto = len(self.contextos)
+        contador = numContexto - 1 
          #si esto da 1 tengo solamente el contexto global
-         if numContexto == 1:
-             return None
-         else:
+        if numContexto == 1:
+            return None
+        else:
              #lo recorremos la reves
-             for contexto in self.contextos[::-1]:
-                 retorno = contexto.traerVariable(nombre)
+             #range(start,stop(sin incluir), salto)
+            for i in range(contador, 0, -1 ):
+                retorno = self.contextos[i].traerVariable(nombre)
+                 #encontro algo
+                if retorno != None:
+                    return retorno
+            
+            #si llego aca noo retorno nada:
+            return None
+            
+        
 
-                 if retorno != None :
-                     return retorno
-                
-                 contador = contador - 1
-                 if contador == 0:
-                     return None
-                
-                      
+    def buscarEnMiContexto(self,nombre):
+        return self.contextos[-1].traerVariable(nombre)
+                          
     def buscarGlobal(self, nombre):
         return self.contextos[0].traerVariable(nombre)
     
