@@ -67,10 +67,15 @@ instruccion: declaracion PYC  //hacemos esto para que el programa lo tome como v
             | func
             | iwhile
             | llamadafunc
+            | declaraciones PYC
             ;
 
 // ----------------------------------------------------------------------------------------------------------
 declaracion: tipodato ID ; //int x;
+declid : COMA ID declid
+       |
+       ; 
+declaraciones: declaracion COMA ID declid ; //int x, b ,c
 
 // asignacion------------------------------------------------------------------------------------------------
  //para el char USAMOS LET

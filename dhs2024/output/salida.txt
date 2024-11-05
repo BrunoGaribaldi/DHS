@@ -1,12 +1,9 @@
---------------------------------------------------
-En el contexto iniciado en la linea 2 se encontro lo siguiente:
-x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
-a: ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:
-x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
+i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
+<missing ID>: ID:<missing ID>	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
+o: ID:o	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
 
 --------------------------------------------------
 Identificadores inicializadas pero no usados:
-ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0

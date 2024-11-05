@@ -1,8 +1,1 @@
-int x ;
-{
-    int x ;
-    x = 7 ;
-    int a ;
-    a =  x;
-    
-}
+int i, o , ;

@@ -37,6 +37,10 @@ class Escucha (compiladoresListener) :
     #lista de errores semanticos
     erroresSemanticos = []
 
+    #para la declaracion continua de variables por coma
+    listaCrearVariablesAux = []
+
+
     #archivos donde mostramos las salidas
     archivoErroresSemanticos = open("./output/erroresSemanticos.txt", "w")
     archivoSalida = open("./output/salida.txt", "w")
@@ -370,7 +374,26 @@ class Escucha (compiladoresListener) :
         #         self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Declaracion del mismo identificador","La variable '" + nombreVariable + "' ya fue declarada en el contexto local"))
 
 
-        
+
+    def exitDeclid(self, ctx: compiladoresParser.DeclidContext):
+        #chequeo que declid no sea landa
+        if ctx.getChildCount() > 0 :
+                self.listaCrearVariablesAux.append(ctx.getChild(1).getText())
+
+    def exitDeclaraciones(self, ctx: compiladoresParser.DeclaracionesContext):
+        print(ctx.declaracion().ID().getText())
+        #extraemos el tipo de dato
+        tipoDato = ctx.declaracion().tipodato().getText()
+        print("tipo de dato " + tipoDato )
+        #por defecto ya hay dos variables a crear: la primera y la segunda
+        self.listaCrearVariablesAux.append(ctx.declaracion().getChild(1).getText())
+        self.listaCrearVariablesAux.append(ctx.ID().getText())
+
+        for nombre in self.listaCrearVariablesAux:
+                #print(nombre)
+                self.tablaDeSimbolos.addIdentificador(nombre,tipoDato,0,None)
+
+
 
     def enterAsignacion(self, ctx: compiladoresParser.AsignacionContext):
         print("\n--- Asignacion ---")
