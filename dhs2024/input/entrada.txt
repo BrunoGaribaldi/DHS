@@ -1,1 +1,14 @@
-int x =0,s=2,w=9,a=5;
+
+int funcion (int a, int b, int z);
+  
+int y = funcion(a,b,c);
+
+
+int funcion (int a, int b, int z) {
+    int x;
+    a = 3;
+    b = 7 ;
+    z = a + b;
+    return z;
+}
+

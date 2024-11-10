@@ -1,25 +1,17 @@
 --------------------------------------------------
-En el contexto iniciado en la linea 3 se encontro lo siguiente:
-j: ID:j	Tipo:Variable 	TipoDato.FLOAT	Inicializado:0	 Usado:0
+En el contexto iniciado en la linea 7 se encontro lo siguiente:
+a: ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+b: ID:b	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+z: ID:z	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
 
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:
-<<<<<<< HEAD
-x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-s: ID:s	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-w: ID:w	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-a: ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+funcion: ID:funcion	Tipo: FuncionTipoDato.INT	Inicializado:1	 Usado:0
+y: ID:y	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 
 --------------------------------------------------
 Identificadores inicializadas pero no usados:
-ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-ID:s	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-ID:w	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-=======
-a: ID:a	Tipo: FuncionTipoDato.INT	Inicializado:1	 Usado:0
-
---------------------------------------------------
-Identificadores inicializadas pero no usados:
-ID:a	Tipo: FuncionTipoDato.INT	Inicializado:1	 Usado:0
->>>>>>> 77318ea (return y asignacion con llamada de funciones added)
+ID:z	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+ID:funcion	Tipo: FuncionTipoDato.INT	Inicializado:1	 Usado:0
+ID:y	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0

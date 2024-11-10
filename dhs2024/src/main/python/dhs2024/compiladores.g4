@@ -85,6 +85,7 @@ declaraciones: declaracion COMA ID declid ; //int x, b ,c
 // declaracion + asignacion------------------------------------------------------------------------------------------------
 
 declasign : tipodato ID ASIG opal
+       | tipodato ID ASIG llamadafunc
        | CHAR ID ASIG COMSIMPLE ID COMSIMPLE ; // int x = 8
 
 declas : COMA dasignacion declas
