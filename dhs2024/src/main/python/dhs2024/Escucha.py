@@ -126,7 +126,7 @@ class Escucha (compiladoresListener) :
         
         funcion = self.tablaDeSimbolos.buscarGlobal(str(ctx.ID()))
         if funcion == None:
-            print("\n-->ERROR: No existe el prototipo de la funcion " + ctx.ID().getText()+ "\n")
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"No existe el prototipo de la funcion",ctx.ID().getText()))
             self.banderaf = True
         else: 
             self.auxArgumentosf.clear()
@@ -241,8 +241,7 @@ class Escucha (compiladoresListener) :
         nombre = ctx.getChild(0).getText()
         funcion = self.tablaDeSimbolos.buscarGlobal(nombre)
         if (funcion == None):
-            print("\n-->ERROR SEMANTICO: No existe el prototitpo de la funcion '" + nombre + "'\n")
-            
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error","No existe el prototitpo de la funcion '" + nombre ))           
             self.b = True
         
     def exitLlamargumentos(self, ctx: compiladoresParser.LlamargumentosContext):
@@ -263,25 +262,25 @@ class Escucha (compiladoresListener) :
                     if local == None:
                         gobal = self.tablaDeSimbolos.buscarGlobal(i)
                         if gobal == None:
-                            print("\n-->ERROR SEMANTICO: Estas queriendo pasar como argumento un ID no declarado\n")
+                            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "Estas queriendo pasar como argumento un ID no declarado" ))
                             self.b = True
                             break
                         else:
                             tipodedato = gobal.tipoDato
                             if(tipodedato != tdf): 
-                                print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
+                                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) ))
                                 self.b = True
                                 break
                             gobal.usado = 1
                     else:        
                         tipodedato = local.tipoDato
                         if(tipodedato != tdf): 
-                                print("\n-->ERROR SEMANTICO: Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) + "\n")
+                                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "Estas queriendo pasar un " + str(tipodedato) + " cuando la funcion recibe un " + str(tdf) ))
                                 self.b = True
                                 break
                         local.usado = 1
             else: 
-                print("\n-->ERROR SEMANTICO: Estas pasando mas o menos argumentos de los debidos.\n")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "Estas pasando mas o menos argumentos de los debidos" ))
                 self.b = True
 
             if self.b == True:
@@ -296,28 +295,28 @@ class Escucha (compiladoresListener) :
         funcion = self.tablaDeSimbolos.buscarGlobal(self.auxNombreFuncion)
 
         if (funcion == None):
-            print("ERROR: Estoy llamando a un return fuera del contexto de una funcion")
+            self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "Estoy llamando a un return fuera del contexto de una funcion" ))
             return
         tipodeDato = funcion.tipoDato
         if (ctx.ID() != None):
             variable = self.tablaDeSimbolos.buscarLocal(ctx.ID().getText())
             if variable == None: 
-                print("ERROR: No podemos retornar una variable no declarada")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "No podemos retornar una variable no declarada" ))
             else: 
                 if tipodeDato != variable.tipoDato:
-                    print("ERROR: El tipo de dato de la variable y de la funcion deben ser el mismo")    
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "El tipo de dato de la variable y de la funcion deben ser el mismo" ))   
 
         if (ctx.NUMERO() != None):
             if tipodeDato != TipoDato('int'):
-                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "El tipo de dato del numero y de la funcion deben ser el mismo" ))   
 
         if (ctx.NUMEROFLOAT() != None):
             if tipodeDato != TipoDato('float'):
-                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "El tipo de dato del numero y de la funcion deben ser el mismo" ))
         
         if (ctx.LETRACHAR() != None):
             if tipodeDato != TipoDato('char'):
-                print("ERROR: El tipo de dato del numero y de la funcion deben ser el mismo")        
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "El tipo de dato del numero y de la funcion deben ser el mismo" ))        
 
 # for -----------------------------------------------------------------------------------------------
     def enterIfor(self, ctx: compiladoresParser.IforContext):
