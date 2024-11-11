@@ -86,7 +86,7 @@ declaraciones: declaracion COMA ID declid ; //int x, b ,c
 
 declasign : tipodato ID ASIG opal
        | tipodato ID ASIG llamadafunc
-       | CHAR ID ASIG COMSIMPLE ID COMSIMPLE ; // int x = 8
+       | CHAR ID ASIG LETRACHAR ; // int x = 8
 
 declas : COMA dasignacion declas
        |
@@ -100,7 +100,7 @@ declasignaciones: declasignaciontipo dasignacion COMA dasignacion declas ;
  // asignacion------------------------------------------------------------------------------------------------
 asignacion : ID ASIG opal
            | ID ASIG llamadafunc
-           | ID ASIG COMSIMPLE ID COMSIMPLE //para los chars, se reutiliza ID
+           | ID ASIG LETRACHAR //para los chars, se reutiliza ID
            ; //opal(operacion aritmetica logica)
 
 //tipos de datos para inicializar variables
