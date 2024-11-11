@@ -1,0 +1,64 @@
+int hola(int a, float a);
+int main();
+float hola(float a);
+int hola();
+int func (int a);
+int func2 (int a, int b);
+int funcionabien(int a);
+return;
+
+int main(double a){
+
+
+}
+
+int main(){
+
+chau();
+
+int a;
+a = 4;
+float c;
+c = 2.5;
+funcionabien(a);
+funcionabien(b);
+funcionabien(c);
+funcionabien(a,c);
+
+double j;
+j = funcionabien(a)
+
+j = noexiste();
+
+
+
+
+
+
+}
+int chau() {
+return b;
+
+}
+
+
+double hola (float a){
+
+
+}
+
+int func (double a){
+return 2.5;
+
+}
+
+int func2 (int a){
+return 'a';
+}
+
+int funcionabien(int a){
+float b ;
+b = 3.5;
+return b;
+
+}

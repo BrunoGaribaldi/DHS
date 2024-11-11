@@ -94,7 +94,7 @@ class Escucha (compiladoresListener) :
             #print("Nombre de la funcion: " + nombreFuncion)
 
             if nombreFuncion == "main":
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"ERROR: Semantico", "No declaramos main" + nombreFuncion))
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"ERROR: Semantico", "No declaramos main"))
                 return
             
             #buscamos si este nombre no le corresponde un ID
@@ -106,7 +106,7 @@ class Escucha (compiladoresListener) :
                 
             else:
                 #print("\n-->ERROR SEMANTICO, DOBLE DECLARACION DEL MISMO IDENTIFICADOR: Ya existe el prototipo de funcion con el nombre "+ nombreFuncion + "!\n")
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Doble declaracion del mismo identificador","Ya existe el prototipo de funcion con el nombre" + nombreFuncion))
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Doble declaracion del mismo identificador","Ya existe el prototipo de funcion con el nombre " + nombreFuncion))
 
 
         
@@ -157,11 +157,11 @@ class Escucha (compiladoresListener) :
                     self.tablaDeSimbolos.addContexto(contextoInicializado)
                     return
                 else: 
-                    print('NO le pasamos argumentos al main')
+                    self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error main","NO le pasamos argumentos al main "))
                     self.banderaf = True
                     return
             else:
-                print('Solo puede retornar un tipo de dato int')
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error main","Solo puede retornar un tipo de dato int "))
                 self.banderaf = True
                 return
             
@@ -316,7 +316,7 @@ class Escucha (compiladoresListener) :
         
         if (ctx.LETRACHAR() != None):
             if tipodeDato != TipoDato('char'):
-                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "El tipo de dato del numero y de la funcion deben ser el mismo" ))        
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error", "la funcion no retorna char" ))        
 
 # for -----------------------------------------------------------------------------------------------
     def enterIfor(self, ctx: compiladoresParser.IforContext):
@@ -540,14 +540,14 @@ class Escucha (compiladoresListener) :
                 if var != None: 
                     tipodatovar = var.tipoDato
                     if (tipodatovar != tipodeDato):
-                        print('ERROR: El tipo de dato que retorna la funcion es distinto al tipo de dato de la variable')
+                        self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error","El tipo de dato que retorna la funcion es distinto al tipo de dato de la variable"))
                         return
                     else:
                         print("inicializacion correcta con prototipo")
                         var.inicializado = 1
                         return
             else:
-                print('ERROR: No existe prototipo de funcion, no podemos inicializar')
+                self.erroresSemanticos.append(ErrorSemantico(ctx.start.line,"Error prototipo","No existe prototipo de funcion, no podemos inicializar"))
                 return
 
         if "'" == ctx.getChild(2).getText():
