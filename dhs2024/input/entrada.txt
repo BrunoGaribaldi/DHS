@@ -1,18 +1,2 @@
-int x,y,z;
-x = 4;
-y = 2 ;
-{
-    int x = 5, y = 6, z = 7;
-}
-{
-    int a,b,c ;
-    int a;
-
-    b = 1 ;
-    c = 2;
-
-    float x = b + c + 5;
-    {
-        b = x + 2 + 0.7;
-    }
-}
+int x,z,y ;
+x = 7, y = 9, z = 7 ;

@@ -16,9 +16,15 @@ def main(argv):
     escucha = Escucha()
     parser.addParseListener(escucha)
     tree = parser.programa()
-    #print(tree.toStringTree(recog=parser))
-    #caminante = Walker()
-    #caminante.visitPrograma(tree)
+    #print(tree.toStringTree())
+    
+    if(len(escucha.erroresSemanticos) == 0): 
+        print('\nTu codigo no presenta errores semanticos, realizando el codigo intermedio ...\n')
+        caminante = Walker()
+        caminante.visitPrograma(tree)
+
+    else:
+        print('\nTu codigo presenta errores semanticos, no es posible realizar el codigo intermedio\n')
 
 if __name__ == '__main__':
     main(sys.argv)

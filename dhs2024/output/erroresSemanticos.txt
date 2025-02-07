@@ -1,26 +1,3 @@
 
 --- Errores semanticos ---
---------------------------------------------------
-Numero de linea: 9
-Tipo de error: Declaracion del mismo identificador
-Mensaje: La variable 'a' ya fue declarada en el contexto local
---------------------------------------------------
-Numero de linea: 14
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x': La variable 'b'(int) no es un float
---------------------------------------------------
-Numero de linea: 14
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x': La variable 'c'(int) no es un float
---------------------------------------------------
-Numero de linea: 14
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'x':5 no es un flotante
---------------------------------------------------
-Numero de linea: 16
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'b': La variable 'x'(float) no es un int
---------------------------------------------------
-Numero de linea: 16
-Tipo de error: Tipos de datos incompatibles en la asignacion
-Mensaje: TIPOS DE DATOS INCOMPATIBLES en la asignacion de 'b':0.7 no es un entero
+Tu codigo no tiene errores semanticos!
