@@ -6,7 +6,8 @@ class VarTemporal:
     contador = -1
     def __init__(self):
         self.nombre = "t" + self.contador
-        self.contador = self.contador + 1 
+        self.contador = self.contador + 1
+        self.proxOp = "" 
 class Walker (compiladoresVisitor):
 
     contadorVarTemporales = 0
@@ -14,49 +15,61 @@ class Walker (compiladoresVisitor):
     varAAsignar = ''
 
     
+    def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
+         return super().visitPrograma(ctx)
+      
+
+  
     def visitAsignacion(self, ctx):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
-        return super().visitOpal(ctx)
+        return self.visitOpal(ctx.getChild(2))
     
     
     def visitOpal(self, ctx):
         print("visitando opal de la variable " + self.varAAsignar)
-        return super().visitTermino1(ctx)
+        return self.visitTermino1(ctx.getChild(0))
 
     def visitTermino1(self, ctx):
         print("visitando termino 1 de la variable " + self.varAAsignar)
-        return super().visitTermino2(ctx)
+        return self.visitTermino2(ctx.getChild(0))
 
     def visitTermino2(self, ctx):
         print("visitando termino 2 de la variable " + self.varAAsignar)
-        return super().visitTermino3(ctx)
+        return self.visitTermino3(ctx.getChild(0))
     
 
     def visitTermino3(self, ctx):
         print("visitando termino 3 de la variable " + self.varAAsignar)
-        return super().visitTermino4(ctx)
+        return self.visitTermino4(ctx.getChild(0))
     
 
     def visitTermino4(self, ctx):
         print("visitando termino 4 de la variable " + self.varAAsignar)
         #print(ctx.getChild(0).getText())
-        if len(ctx.getChild(0).getText()) > 3:
-            return super().visitTermino5(ctx)
+        parteSumaResta = ctx.getChild(1)
+        termino5 = ctx.getChild(0) 
+        if len(termino5.getText()) <= 3:
+            print("AAAA:"+termino5.getText())
+            #varTemporal = VarTemporal((ctx.getChild(1)).getChild(0).getText())
+            return self.visitPartesumaresta(parteSumaResta) 
         else:
-            print(ctx.getChild(0).getText()) 
-            return super().visitPartesumaresta(ctx)   
+            return self.visitTermino5(termino5)   
     
 
     def visitPartesumaresta(self, ctx):
         print("Visitando la parte de suma resta")
+        print(ctx.getChild(0).getText())
         if len(ctx.getText()) < 3:
-            print(ctx.getText())
+            print(ctx.getChild(1).getText())
         else:
-            return super().visitTermino4(ctx)
+            return self.visitTermino4(ctx.getChild(1))
     
     def visitTermino5(self, ctx):
         print("visitando termino 5 de la variable " + self.varAAsignar)
+        
+        print(ctx.getText()) 
+
         
 
     
