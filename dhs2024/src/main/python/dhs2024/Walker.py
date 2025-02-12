@@ -50,7 +50,18 @@ class Walker (compiladoresVisitor):
         parteSumaResta = ctx.getChild(1)
         termino5 = ctx.getChild(0) 
         if len(termino5.getText()) <= 3:
-            print("AAAA:"+termino5.getText())
+
+            if len(self.variablesTemporales) == 0:
+                print("t" + str(self.contadorVarTemporales) + " = "+termino5.getText())
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+                self.contadorVarTemporales = self.contadorVarTemporales + 1
+
+            else:
+                
+                print("t" + str(self.contadorVarTemporales) + " = "+ self.variablesTemporales[0] + termino5.getText())
+                self.variablesTemporales.pop()
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
+                self.contadorVarTemporales = self.contadorVarTemporales + 1
             #varTemporal = VarTemporal((ctx.getChild(1)).getChild(0).getText())
             return self.visitPartesumaresta(parteSumaResta) 
         else:
@@ -59,9 +70,14 @@ class Walker (compiladoresVisitor):
 
     def visitPartesumaresta(self, ctx):
         print("Visitando la parte de suma resta")
-        print(ctx.getChild(0).getText())
+        self.variablesTemporales[0] += " " + ctx.getChild(0).getText() + " "
+        #print(ctx.getChild(0).getText())
         if len(ctx.getText()) < 3:
-            print(ctx.getChild(1).getText())
+            print("t" + str(self.contadorVarTemporales) + " = "+ self.variablesTemporales[0] + ctx.getChild(1).getText())
+            self.variablesTemporales.pop()
+            #print(ctx.getChild(1).getText())
+            print(self.varAAsignar + " = t" + str(self.contadorVarTemporales))
+            self.contadorVarTemporales = self.contadorVarTemporales + 1
         else:
             return self.visitTermino4(ctx.getChild(1))
     
