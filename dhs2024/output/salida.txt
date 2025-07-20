@@ -1,8 +1,0 @@
-
---------------------------------------------------
-En el contexto global se encontro lo siguiente:
-x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-
---------------------------------------------------
-Identificadores inicializadas pero no usados:
-ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
