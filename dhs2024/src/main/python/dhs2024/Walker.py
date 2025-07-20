@@ -8,6 +8,7 @@ class VarTemporal:
         self.nombre = "t" + self.contador
         self.contador = self.contador + 1
         self.proxOp = "" 
+        self.prim = 0
 class Walker (compiladoresVisitor):
 
     contadorVarTemporales = 0
@@ -58,7 +59,7 @@ class Walker (compiladoresVisitor):
 
     #         if len(self.variablesTemporales) == 0:
     #             print("t" + str(self.contadorVarTemporales) + " = "+termino5.getText())
-    #             self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+    #             primeraVez = 0 self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
     #             self.contadorVarTemporales = self.contadorVarTemporales + 1
 
     #         else:
@@ -165,42 +166,63 @@ class Walker (compiladoresVisitor):
         #     return self.visitTermino4(ctx.getChild(1))
     
     def visitTermino5(self, ctx):
-        if len(ctx.getChild(1).getText()) > 2: #x = 5 * 8 * 7
-            op = ctx.getChild(1).getChild(0).getText()
-            primNum = ctx.getChild(0).getText()
-            segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+       
+        if len(ctx.getText()) == 3 and len(self.operador) == 0: #x = ( 5 * 6 ) -> primera vez
+            print("primer caso")
+            print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
             
-            print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum )
-            self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
-            self.contadorVarTemporales =+ 1
-            self.visitPartemuldivmod(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (* 1)-> parte mul
-
-
-        elif len(ctx.getChild(0).getText()) == 1 and len(self.operador) != 0:  #x = 5 * 7 * (8)-> esto seria
-            print("t" + str(self.contadorVarTemporales) + " = "+ self.variablesTemporales[0] + self.operador[0] + ctx.getChild(0).getText())
-            self.variablesTemporales.pop()
-            self.operador.pop()
-
-            if len(ctx.getChild(1).getText()) >= 2: #x = 5 * 7 * (8 * 7 )-> esto seria
-                self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+            if len(self.operador) != 0: #x = 5 * 8 * 7 * 9
+                print("t" + str(self.contadorVarTemporales) + " = "+ self.variablesTemporales[0] + self.operador[0] + ctx.getChild(0).getText())
+                self.variablesTemporales.pop()
+                self.operador.pop()
                 self.contadorVarTemporales =+ 1
-                self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1)-> parte mul
-
+            return 
+        else:    
+            if len(ctx.getChild(1).getText()) > 2: #x = 5 * 8 * 7
+                print('dddd')
                 op = ctx.getChild(1).getChild(0).getText()
                 primNum = ctx.getChild(0).getText()
                 segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
-            
+
                 print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum )
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
                 self.contadorVarTemporales =+ 1
-                self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1)-> parte mul
+            
+                if len(self.operador) == 0: #primera vuelta
+                    self.visitPartemuldivmod(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (* 1)-> parte mul
+                else:
+                    self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
+            
+
+            if len(ctx.getChild(0).getText()) == 1 and len(self.operador) != 0:  #x = 5 * 7 * (8)-> esto seria
+                varTemp = self.variablesTemporales.pop()
+                operador = self.operador.pop()
+                print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText())
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+                self.contadorVarTemporales = self.contadorVarTemporales + 1
+                
+                if len(ctx.getChild(1).getText()) >=2: #x = 5 * 8 * 7
+                    self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
+                
+                
+
+
+            # if len(ctx.getChild(1).getText()) >= 2: #x = 5 * 7 * (8 * 7 )-> esto seria
+            #     self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+            #     self.contadorVarTemporales =+ 1
+            #     self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1)-> parte mul
+
+            #     op = ctx.getChild(1).getChild(0).getText()
+            #     primNum = ctx.getChild(0).getText()
+            #     segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+            
+            #     print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum )
+            #     self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
+            #     self.contadorVarTemporales =+ 1
+            #     self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1)-> parte mul
 
             return
             
-        elif ctx.getChild(1).getChildCount() < 3: #x = 5 (* 6 ) -> parte muldiv
-            print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getChild(1).getText())
-            return 
-             
     
     def visitPartemuldivmod(self, ctx):
         print("Visitando la parte de muldiv")

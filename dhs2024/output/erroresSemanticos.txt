@@ -1,0 +1,3 @@
+
+--- Errores semanticos ---
+Tu codigo no tiene errores semanticos!
