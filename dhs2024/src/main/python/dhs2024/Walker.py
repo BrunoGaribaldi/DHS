@@ -48,9 +48,12 @@ class Walker (compiladoresVisitor):
     #prueba
 
     def visitTermino4(self, ctx):
-        self.visitTermino5(ctx.getChild(0))  #miro para ver si hay una multiplicacion o division primero
-        if len(ctx.getChild(0).getText()) == 3: #x = 5 * 6 
-            print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getChild(0).getText())
+        print('parte termino 4')
+        if len(ctx.getChild(0).getText()) > 1:
+            self.visitTermino5(ctx.getChild(0))  #miro para ver si hay una multiplicacion o division primero
+        
+        if len(ctx.getText()) == 3 and '+' in ctx.getText() and len(self.operador) == 0: #x = 5 + 6 -> solamente en estos casos
+            print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
             self.contadorVarTemporales =+ 1
             return
             
@@ -59,10 +62,22 @@ class Walker (compiladoresVisitor):
                 op = ctx.getChild(1).getChild(0).getText()
                 primNum = ctx.getChild(0).getText()
                 segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+                
+                if len(self.variablesTemporales) != 0: # aca es si entro y habia una multiplicacion por ejemplo
+                    #ejemplo x = 5 * 9 + 7 / 1
+                    if len(segNum) > 1 : #x = 5 * 9 + (7 / 1) ->segnum
+                        self.visitTermino5(ctx.getChild(1).getChild(1).getChild(0))  #si hay una multiplicacion adentro 
+                    #en el termino 5 imprimio t0 = 5*9 y t1 = 7/1
+                    # en la stack entonces tengo t1,t0 
+                    segNum = self.variablesTemporales.pop() # saco la variable t1
+                    primNum = self.variablesTemporales.pop() #saco la variable t0
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) # t0 = 5*9; t1 = t0 + 7
+                
+                else:
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) 
             
-                print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum )
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
-                self.contadorVarTemporales =+ 1
+                self.contadorVarTemporales = self.contadorVarTemporales +1
                 
                 if len(self.operador) == 0: #primera vuelta
                     self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> parte sumaresta
@@ -72,6 +87,7 @@ class Walker (compiladoresVisitor):
             if len(ctx.getChild(0).getText()) == 1 and len(self.operador) != 0:  #x = 5 + 7 - (8)-> esto seria
                 varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
                 operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+
                 print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
                 
                 if len(ctx.getChild(1).getText()) >=2: #x = 5 * 8 * 7
@@ -97,11 +113,14 @@ class Walker (compiladoresVisitor):
 
     
     def visitTermino5(self, ctx):
-       
+        print('parte termino 5')
+
         if len(ctx.getText()) == 3 and len(self.operador) == 0: #x = ( 5 * 6 ) -> primera vez
             print("primer caso")
             print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
-            self.contadorVarTemporales =+ 1
+            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+            self.contadorVarTemporales = self.contadorVarTemporales +1
+            return
         else:    
             if len(ctx.getChild(1).getText()) > 2: #x = 5 * 8 * 7
                 op = ctx.getChild(1).getChild(0).getText() #*
