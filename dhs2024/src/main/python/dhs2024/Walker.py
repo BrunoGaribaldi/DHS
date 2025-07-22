@@ -11,17 +11,22 @@ class VarTemporal:
         self.prim = 0
 class Walker (compiladoresVisitor):
 
+    # tres instrucciones
     contadorVarTemporales = 0
     variablesTemporales = []
     operador = []
     varAAsignar = ''
     
+    #etiquetas
     etiquetas = []
     contadorEtiquetas = 0
+    
+    #archivo
+    archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
 
     
     def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
-         return super().visitPrograma(ctx)
+        return super().visitPrograma(ctx)
       
 
     def visitDeclasign(self, ctx):
@@ -38,8 +43,11 @@ class Walker (compiladoresVisitor):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
         if len(ctx.getChild(2).getText()) != 1:
-            return self.visitOpal(ctx.getChild(2))
+            self.visitOpal(ctx.getChild(2))
+            var = self.variablesTemporales.pop()
+            print(ctx.getChild(0).getText() + ' = ' + var)
         else:
+            self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
             print(ctx.getText())
     
     
@@ -52,15 +60,25 @@ class Walker (compiladoresVisitor):
         #self.etiquetas.append('l' + str(self.contadorEtiquetas))
         etiqSaltar = "l" + str(self.contadorEtiquetas)  #si no hay else
         etiqSaltarElse = "l" + str(self.contadorEtiquetas + 1)  #si no hay else
+        
+        self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltar + '\n')
         print("ifntjmp " + varComp + ", " + etiqSaltar)
           
         self.contadorEtiquetas = self.contadorEtiquetas + 1 
         self.visitInstruccion(ctx.getChild(4))
         if ctx.getChildCount() > 5: #hay un else
+            
+            self.archivoCodigoIntermedio.write("jmp " + etiqSaltar+ '\n')     
             print("jmp " + etiqSaltar) #ya entro al if, escapo dl else
+            
+            self.archivoCodigoIntermedio.write('label '+ etiqSaltarElse+ '\n')     
             print('label '+ etiqSaltarElse)
+            
             self.visitInstruccion(ctx.getChild(6))
+            
+        self.archivoCodigoIntermedio.write('label '+ etiqSaltar+ '\n')     
         print('label '+ etiqSaltar) #seria como el fin del bloque del if
+        
         self.contadorEtiquetas = self.contadorEtiquetas + 1
         
 
@@ -90,7 +108,10 @@ class Walker (compiladoresVisitor):
         else:
             #me llega esto x > 5
             if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0:
+                
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+                
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
                 self.contadorVarTemporales =+ 1
                 return
@@ -103,7 +124,12 @@ class Walker (compiladoresVisitor):
         
         #primer caso, me llega x = 2 + 3
         if len(ctx.getText()) == 3 and ('+' in ctx.getText() or '-' in ctx.getText()) and len(self.operador) == 0: #x = 5 + 6 -> solamente en estos casos
+            
+            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n')      
             print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+            
+            
+            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
             self.contadorVarTemporales =+ 1
             return
         
@@ -112,6 +138,8 @@ class Walker (compiladoresVisitor):
         if len(self.operador) != 0 and ctx.getChild(0).getChild(1) == 0:  #x = 5 + 7 - (8)-> esto seria
             varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
             operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+            
+            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
             print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
             
             if ctx.getChild(1).getChildCount() != 0:
@@ -133,6 +161,8 @@ class Walker (compiladoresVisitor):
                         segNum = self.variablesTemporales.pop()
                         primNum = self.variablesTemporales.pop()
                         op = self.operador.pop()
+                        
+                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
                         print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
                         self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
@@ -144,6 +174,8 @@ class Walker (compiladoresVisitor):
                         segNum = self.variablesTemporales.pop()
                         primNum = self.variablesTemporales.pop()
                         op = self.operador.pop()
+                       
+                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
                         print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
             
@@ -159,6 +191,8 @@ class Walker (compiladoresVisitor):
                 if len(self.operador) != 0 :  #x = 5 + 7 - (8)-> esto seria
                     varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
                     operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+                    
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
             
                     if ctx.getChild(1).getChildCount() != 0:
@@ -174,6 +208,8 @@ class Walker (compiladoresVisitor):
                     op = ctx.getChild(1).getChild(0).getText()
                     primNum = ctx.getChild(0).getText()
                     segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+                    
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum + '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
@@ -198,7 +234,10 @@ class Walker (compiladoresVisitor):
 
         if len(ctx.getText()) == 3 and '*' not in self.operador and '/' not in self.operador : #x = ( 5 * 6 ) -> primera vez
             print("primer caso")
+            
+            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n' )      
             print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+            
             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
             self.contadorVarTemporales = self.contadorVarTemporales +1
             return
@@ -206,6 +245,8 @@ class Walker (compiladoresVisitor):
             if self.operador[-1] == '*' or self.operador[-1] == '/':
                 varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
                 operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+                
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0*7
                 
                 if len(ctx.getChild(1).getText()) >=2: #x = 5 * 8 * 7
@@ -223,7 +264,9 @@ class Walker (compiladoresVisitor):
                     segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #7
                     # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
 
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                    
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
                     self.contadorVarTemporales =self.contadorVarTemporales + 1
                     self.visitPartemuldivmod(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 8 (* 7)-> parte mul
