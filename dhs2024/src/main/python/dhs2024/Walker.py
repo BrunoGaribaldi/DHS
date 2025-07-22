@@ -47,113 +47,77 @@ class Walker (compiladoresVisitor):
     
     #prueba
 
+   
     def visitTermino4(self, ctx):
         print('parte termino 4')
-        """ if ctx.getChild(0).getChild(1).getChildCount() != 0: #va a termino 5 y se fija en la parte muldiv
-            self.visitTermino5(ctx.getChild(0))  #miro para ver si hay una multiplicacion o division primero
-         """
         
-        if ctx.getChild(0).getChild(1).getChildCount() != 0 : #si hay alguna multiplicacion visito esto
-            self.visitTermino5(ctx.getChild(0))
-            self.visitPartesumaresta(ctx.getChild(1))
-            print(len(self.operador))
-            return
-                        
-        #caso base 
-        if ctx.getChild(1).getChildCount() == 0 and len(self.operador) != 0:  #x = 5 + 7 - (8)-> esto seria
-            varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
-            operador = self.operador.pop() #el operador que le agregue en el coso muldiv
-            print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
-            self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
-            return
-        
+        #primer caso, me llega x = 2 + 3
         if len(ctx.getText()) == 3 and '+' in ctx.getText() and len(self.operador) == 0: #x = 5 + 6 -> solamente en estos casos
             print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
             self.contadorVarTemporales =+ 1
             return
+        
+        #caso base 
+        
+        if len(self.operador) != 0 and ctx.getChild(0).getChild(1) == 0:  #x = 5 + 7 - (8)-> esto seria
+            varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
+            operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+            print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
+            
+            if ctx.getChild(1).getChildCount() != 0:
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
+                self.visitPartesumaresta(ctx.getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
+                return
+            self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
+
         else:
-            #la primera particion ponele
-            if len(self.variablesTemporales) == 0  : # x = (4 + 5) ->esto queiro partir + 7
+            #parte multiplicacion de terminos
+            if ctx.getChild(0).getChild(1).getChildCount() != 0 : #si hay alguna multiplicacion visito esto
+                self.visitTermino5(ctx.getChild(0))
+                
+                if ctx.getChild(1).getChildCount() != 0: 
+                    self.visitPartesumaresta(ctx.getChild(1)) #ejemplo x = 5 *7 (+ 1) -> esto le paso 
+                else:
+                    segNum = self.variablesTemporales.pop()
+                    primNum = self.variablesTemporales.pop()
+                    op = self.operador.pop()
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
+                
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                    self.contadorVarTemporales = self.contadorVarTemporales +1  
+            
+                    
+                    
+                    
+        #para partir la suma
+        #segundo caso, x = 2 + 6 + 5 + ...
+            else:
+                if len(self.operador) != 0 :  #x = 5 + 7 - (8)-> esto seria
+                    varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
+                    operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+                    print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
+            
+                    if ctx.getChild(1).getChildCount() != 0:
+                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                        self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
+                        self.visitPartesumaresta(ctx.getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
+                        return
+                    self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
+                    return
+
+                 # x = (4 + 5) ->esto queiro partir + 7
                 op = ctx.getChild(1).getChild(0).getText()
                 primNum = ctx.getChild(0).getText()
                 segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
                 print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
-            
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
                 self.contadorVarTemporales = self.contadorVarTemporales +1  
-                
-                if ctx.getChild(1).getChild(1).getChild(1).getChildCount()!=0:
-                    self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
-                
-            if ctx.getChild(1).getChildCount() == 0 and len(self.operador) == 0: #cuando es solo multiplcacion por ejempli
-                return
- 
-            else:
-                if ctx.getChild(1).getChildCount() == 0 and len(self.operador) == 0:
-                    varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
-                    operador = self.operador.pop() #el operador que le agregue en el coso muldiv
-                    print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
-                    self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
-     
-                        
-                
-                
-                
-                
-        
-
             
-        """ else: 
-            
-            if len(ctx.getText()) == 3 and '+' in ctx.getText(): #x = 5 + 6 -> solamente en estos casos
-                print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
-                self.contadorVarTemporales =+ 1
-            
-            if ctx.getChild(1).getChild(1).getChild(1).getChildCount() != 0:  #x = 5 + 7 - 8
-                op = ctx.getChild(1).getChild(0).getText()
-                primNum = ctx.getChild(0).getText()
-                segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+                self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
                 
-                if len(self.variablesTemporales) != 0: # aca es si entro y habia una multiplicacion por ejemplo
-                    #ejemplo x = 5 * 9 + 7 / 1
-                    if len(segNum) > 1 : #x = 5 * 9 + (7 / 1) ->segnum
-                        self.visitTermino5(ctx.getChild(1).getChild(1).getChild(0))  #si hay una multiplicacion adentro 
-                    #en el termino 5 imprimio t0 = 5*9 y t1 = 7/1
-                    # en la stack entonces tengo t1,t0 
-                    segNum = self.variablesTemporales.pop() # saco la variable t1
-                    primNum = self.variablesTemporales.pop() #saco la variable t0
-                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) # t0 = 5*9; t1 = t0 + 7
                 
-                else:
-                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) 
-            
-                self.variablesTemporales.append("t" + str(self.contadorVarTemporales))
-                self.contadorVarTemporales = self.contadorVarTemporales +1
-                
-                if len(self.operador) == 0: #primera vuelta
-                    self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> parte sumaresta
-                else:
-                    self.visitPartesumaresta(ctx.getChild(1))
-                    
-            if ctx.getChild(1).getChildCount() == 0 and len(self.operador) != 0:  #x = 5 + 7 - (8)-> esto seria
-                varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
-                operador = self.operador.pop() #el operador que le agregue en el coso muldiv
-
-                print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
-                
-                if ctx.getChild(1).getChildCount() != 0: #x = 5 * 8 * 7
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
-                    self.contadorVarTemporales = self.contadorVarTemporales + 1
-                    self.visitPartesumaresta(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
-                else:
-                    self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
-                
-     """
-        return None
-        
-
          
 
     def visitPartesumaresta(self, ctx):
@@ -201,7 +165,7 @@ class Walker (compiladoresVisitor):
                     self.contadorVarTemporales = self.contadorVarTemporales + 1
                     self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
                 else:
-                    
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
                     self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
         return
             
