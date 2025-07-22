@@ -50,18 +50,19 @@ class Walker (compiladoresVisitor):
         varComp = self.variablesTemporales.pop() #tiene el t0
         #creamos la etiqueta donde va a saltar
         #self.etiquetas.append('l' + str(self.contadorEtiquetas))
-        etiqSaltarElse = "l" + str(self.contadorEtiquetas) 
-        print("ifntjmp " + varComp + ", " + etiqSaltarElse )
+        etiqSaltar = "l" + str(self.contadorEtiquetas)  #si no hay else
+        etiqSaltarElse = "l" + str(self.contadorEtiquetas + 1)  #si no hay else
+        print("ifntjmp " + varComp + ", " + etiqSaltar)
+          
         self.contadorEtiquetas = self.contadorEtiquetas + 1 
-        etiqSaltarIf = "l" + str(self.contadorEtiquetas)
         self.visitInstruccion(ctx.getChild(4))
-        print("jmp " + etiqSaltarIf)
-        print('label l'+ str(self.contadorEtiquetas - 1)) #seria como el fin del bloque del if
+        if ctx.getChildCount() > 5: #hay un else
+            print("jmp " + etiqSaltar) #ya entro al if, escapo dl else
+            print('label '+ etiqSaltarElse)
+            self.visitInstruccion(ctx.getChild(6))
+        print('label '+ etiqSaltar) #seria como el fin del bloque del if
         self.contadorEtiquetas = self.contadorEtiquetas + 1
         
-        if ctx.getChild(6).getChildCount() != 0:
-            self.visitInstruccion(ctx.getChild(6))
-            print('label '+ etiqSaltarIf)
 
 
         
