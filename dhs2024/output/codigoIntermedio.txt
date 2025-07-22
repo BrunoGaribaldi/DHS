@@ -1,10 +1,5 @@
 x=0
 y=0
 z=0
-t0 = x>0
-ifntjmp t0, l0
-t1 = z*2
-jmp l0
-label l1
-t3 = 5*7
-label l0
+t0 = 2+2
+t1 = t0-1

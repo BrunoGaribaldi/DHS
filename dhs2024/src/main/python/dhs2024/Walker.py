@@ -44,8 +44,9 @@ class Walker (compiladoresVisitor):
         print(self.varAAsignar)
         if len(ctx.getChild(2).getText()) != 1:
             self.visitOpal(ctx.getChild(2))
+            """ print(self.variablesTemporales)
             var = self.variablesTemporales.pop()
-            print(ctx.getChild(0).getText() + ' = ' + var)
+            print(ctx.getChild(0).getText() + ' = ' + var) """
         else:
             self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
             print(ctx.getText())
@@ -147,6 +148,8 @@ class Walker (compiladoresVisitor):
                 self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
                 self.visitPartesumaresta(ctx.getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
                 return
+            
+            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
             self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
 
         else:
