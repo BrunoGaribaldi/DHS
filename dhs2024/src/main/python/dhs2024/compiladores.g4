@@ -135,6 +135,7 @@ parterelacion: MAY termino3
              | MIN termino3
              | MINEQ termino3
              | MAYEQ termino3
+             | EQ termino3
              |
              ;
 termino4 : termino5 partesumaresta; 

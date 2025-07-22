@@ -15,18 +15,56 @@ class Walker (compiladoresVisitor):
     variablesTemporales = []
     operador = []
     varAAsignar = ''
+    
+    etiquetas = []
+    contadorEtiquetas = 0
 
     
     def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
          return super().visitPrograma(ctx)
       
 
-  
+    def visitDeclasign(self, ctx):
+        self.varAAsignar = ctx.getChild(1).getText()
+        print(self.varAAsignar)
+        if len(ctx.getChild(3).getText()) != 1:
+            return self.visitOpal(ctx.getChild(2))
+        else:
+            print(ctx.getText())
+    
+        return super().visitDeclasign(ctx)
+    
     def visitAsignacion(self, ctx):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
-        return self.visitOpal(ctx.getChild(2))
+        if len(ctx.getChild(2).getText()) != 1:
+            return self.visitOpal(ctx.getChild(2))
+        else:
+            print(ctx.getText())
     
+    
+    def visitIif(self, ctx):
+        print('Entre a if')
+        self.visitOpal(ctx.getChild(2))
+        # t0 = x > 1
+        varComp = self.variablesTemporales.pop() #tiene el t0
+        #creamos la etiqueta donde va a saltar
+        #self.etiquetas.append('l' + str(self.contadorEtiquetas))
+        etiqSaltarElse = "l" + str(self.contadorEtiquetas) 
+        print("ifntjmp " + varComp + ", " + etiqSaltarElse )
+        self.contadorEtiquetas = self.contadorEtiquetas + 1 
+        etiqSaltarIf = "l" + str(self.contadorEtiquetas)
+        self.visitInstruccion(ctx.getChild(4))
+        print("jmp " + etiqSaltarIf)
+        print('label l'+ str(self.contadorEtiquetas - 1)) #seria como el fin del bloque del if
+        self.contadorEtiquetas = self.contadorEtiquetas + 1
+        
+        if ctx.getChild(6).getChildCount() != 0:
+            self.visitInstruccion(ctx.getChild(6))
+            print('label '+ etiqSaltarIf)
+
+
+        
     
     def visitOpal(self, ctx):
         print("visitando opal de la variable " + self.varAAsignar)
@@ -43,7 +81,18 @@ class Walker (compiladoresVisitor):
 
     def visitTermino3(self, ctx):
         print("visitando termino 3 de la variable " + self.varAAsignar)
-        return self.visitTermino4(ctx.getChild(0))
+        
+        #mayormente no hay comparaciones, por eso me fijo antes de irme
+        ops = ("==", ">",">=", "<", "<=")
+        if not any(op in ctx.getText() for op in ops):
+            return self.visitTermino4(ctx.getChild(0))
+        else:
+            #me llega esto x > 5
+            if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0:
+                print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
+                self.contadorVarTemporales =+ 1
+                return
     
     #prueba
 
@@ -52,7 +101,7 @@ class Walker (compiladoresVisitor):
         print('parte termino 4')
         
         #primer caso, me llega x = 2 + 3
-        if len(ctx.getText()) == 3 and '+' in ctx.getText() and len(self.operador) == 0: #x = 5 + 6 -> solamente en estos casos
+        if len(ctx.getText()) == 3 and ('+' in ctx.getText() or '-' in ctx.getText()) and len(self.operador) == 0: #x = 5 + 6 -> solamente en estos casos
             print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
             self.contadorVarTemporales =+ 1
             return
@@ -119,16 +168,17 @@ class Walker (compiladoresVisitor):
                     self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
                     return
 
-                 # x = (4 + 5) ->esto queiro partir + 7
-                op = ctx.getChild(1).getChild(0).getText()
-                primNum = ctx.getChild(0).getText()
-                segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
-                print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
+                if ctx.getChild(1).getChildCount() != 0:
+                    # x = (4 + 5) ->esto queiro partir + 7
+                    op = ctx.getChild(1).getChild(0).getText()
+                    primNum = ctx.getChild(0).getText()
+                    segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
-                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
-                self.contadorVarTemporales = self.contadorVarTemporales +1  
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                    self.contadorVarTemporales = self.contadorVarTemporales +1  
             
-                self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
+                    self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 6 (+ 1)-> le paso esta parte
                 
                 
          
@@ -136,7 +186,7 @@ class Walker (compiladoresVisitor):
     def visitPartesumaresta(self, ctx):
         print("Visitando la parte de suma resta")
         self.operador.append(ctx.getChild(0).getText())  #le paso arriba el operador de suma para que recuerde que operacion esta haciendo
-        print(ctx.getText())
+        #print(ctx.getText())
         self.visitTermino4(ctx.getChild(1))  #visito el que termino de la derecha
         
         return None
@@ -184,7 +234,7 @@ class Walker (compiladoresVisitor):
     
     def visitPartemuldivmod(self, ctx):
         print("Visitando la parte de muldiv")
-        print(ctx.getText())
+        #print(ctx.getText())
         self.operador.append(ctx.getChild(0).getText())  #le paso arriba el operador de suma para que recuerde que operacion esta haciendo
         self.visitTermino5(ctx.getChild(1))  #visito el que termino de la derecha
         
