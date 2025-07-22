@@ -44,9 +44,11 @@ class Walker (compiladoresVisitor):
         print(self.varAAsignar)
         if len(ctx.getChild(2).getText()) != 1:
             self.visitOpal(ctx.getChild(2))
-            """ print(self.variablesTemporales)
+            #print(self.variablesTemporales)
             var = self.variablesTemporales.pop()
-            print(ctx.getChild(0).getText() + ' = ' + var) """
+            
+            print(ctx.getChild(0).getText() + ' = ' + var)
+            self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
         else:
             self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
             print(ctx.getText())
@@ -154,9 +156,21 @@ class Walker (compiladoresVisitor):
 
         else:
             #parte multiplicacion de terminos
-            if ctx.getChild(0).getChild(1).getChildCount() != 0 : #si hay alguna multiplicacion visito esto
-                self.visitTermino5(ctx.getChild(0))
+            #lado izquierdo sin multpilciacion pero derecho si por ejemplo x = 1 + 2*3
+            if ctx.getChild(0).getChild(1).getChildCount() == 0 and ('*' in ctx.getChild(1).getText() or '/' in ctx.getChild(1).getText()): #
+                print(ctx.getChild(1).getChild(1).getText())
                 
+                print("t" + str(self.contadorVarTemporales) + " = "+ctx.getChild(0).getText()) #t1 = 1
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ctx.getChild(0).getText() + '\n') #t1 = 1
+                
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
+                
+                self.visitPartesumaresta(ctx.getChild(1))
+                return
+            if ctx.getChild(0).getChild(1).getChildCount() != 0 : #si hay alguna multiplicacion visito esto
+                print(ctx.getChild(0).getText())
+                self.visitTermino5(ctx.getChild(0))
                 if ctx.getChild(1).getChildCount() != 0: 
                     
                     #antes de visitar quiero ver si no tengo que imprimir una suma de variables anteriores
@@ -182,8 +196,8 @@ class Walker (compiladoresVisitor):
                         print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
             
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
-                    self.contadorVarTemporales = self.contadorVarTemporales +1  
+                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+                        self.contadorVarTemporales = self.contadorVarTemporales +1  
             
                     
                     
@@ -238,6 +252,7 @@ class Walker (compiladoresVisitor):
     def visitTermino5(self, ctx):
         print('parte termino 5')
 
+        print(len(ctx.getText()))
         if len(ctx.getText()) == 3 and '*' not in self.operador and '/' not in self.operador : #x = ( 5 * 6 ) -> primera vez
             print("primer caso")
             
