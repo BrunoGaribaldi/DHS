@@ -195,9 +195,12 @@ class Walker (compiladoresVisitor):
                     varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
                     operador = self.operador.pop() #el operador que le agregue en el coso muldiv
                     
+                    
                     self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
             
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
+
                     if ctx.getChild(1).getChildCount() != 0:
                         self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
                         self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
@@ -264,7 +267,7 @@ class Walker (compiladoresVisitor):
                 if len(self.operador) == 0 or self.operador[-1] == '+' or self.operador[-1] == '-': #primera vuelta
                     op = ctx.getChild(1).getChild(0).getText() #*
                     primNum = ctx.getChild(0).getText() #5
-                    segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #7
+                    segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #8
                     # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
 
                     self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
