@@ -48,9 +48,9 @@ class Walker (compiladoresVisitor):
             var = self.variablesTemporales.pop()
             
             print(ctx.getChild(0).getText() + ' = ' + var)
-            self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
+            self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
         else:
-            self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
+            self.archivoCodigoIntermedio.write(ctx.getText()+ '\n \n')      
             print(ctx.getText())
     
     
@@ -72,10 +72,10 @@ class Walker (compiladoresVisitor):
         if ctx.getChildCount() > 5: #hay un else
             
             self.archivoCodigoIntermedio.write("jmp " + etiqSaltar+ '\n')     
-            print("jmp " + etiqSaltar) #ya entro al if, escapo dl else
+            print("jmp " + etiqSaltarElse) #ya entro al if, escapo dl else
             
             self.archivoCodigoIntermedio.write('label '+ etiqSaltarElse+ '\n')     
-            print('label '+ etiqSaltarElse)
+            print('label '+ etiqSaltar)
             
             self.visitInstruccion(ctx.getChild(6))
             
