@@ -49,6 +49,8 @@ class Optimizador:
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest):
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
+        print(optimizado)
+        print(self.bloques)
         for bloquen in self.bloques:
             inicio,fin = bloquen
             constantes = dict()
@@ -57,10 +59,10 @@ class Optimizador:
             #bucle sobre cada bloque optimizable
             for i in range(inicio , fin + 1):
                 linea = optimizado[i].split()
-                print(linea)
-
+                
+                
                 # 1)es asignacion?
-                if (linea[1] != '='):
+                if (linea[1] != '='): #no
                     continue
                 else:
                     # t1 = 2
@@ -71,50 +73,61 @@ class Optimizador:
                         # t1 = t2 y en mi diccionario existe t2
                         if len(linea) == 3 and (linea[2] in constantes):
                             constantes[linea[0]] = constantes[linea[2]]
-                            continue
+                            linea[2] = constantes[linea[0]]
+                            optimizado[i] = " ".join(linea) + "\n"
                         else:
                         # caso t = 2 + 4
                             if len(linea) == 5 and (linea[2].isdigit() and linea[4].isdigit()):
                                 tokens = [linea[2],linea[3],linea[4]]
-                                expr = " ".join(tokens)  # '2 + 4'
+                                expr = " ".join(str(token) for token in tokens)  # '2 + 4'
                                 resultado = eval(expr)   # 6 
                                 str_resultado = str(resultado)
-                                print(str_resultado) #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
+                                #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
                                 constantes[linea[0]] = resultado #guardo en diccionario
+                                nueva_linea = [linea[0], '=', str_resultado]
+                                optimizado[i] = " ".join(nueva_linea) + "\n"
                             else:
                                 #caso t = 2 + t   
                                 if len(linea) == 5 and (linea[2].isdigit() and not linea[4].isdigit() and linea[4] in constantes):
-                                    tokens = [linea[2],linea[3],constantes(linea[4])]
-                                    expr = " ".join(tokens)  # '2 + 4'
+                                    tokens = [linea[2],linea[3],constantes[linea[4]]]
+                                    expr = " ".join(str(token) for token in tokens)  # '2 + 4'
                                     resultado = eval(expr)   # 6 
                                     str_resultado = str(resultado)
-                                    print(str_resultado) #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
+                                    #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
                                     constantes[linea[0]] = resultado #guardo en diccionario
+                                    nueva_linea = [linea[0], '=', str_resultado]
+                                    optimizado[i] = " ".join(nueva_linea) + "\n"
                                 else:
                                     #caso t = t + 2
                                     if len(linea) == 5 and (not linea[2].isdigit() and linea[4].isdigit() and linea[2] in constantes):
-                                        tokens = [constantes(linea[2]),linea[3],linea[4]]
-                                        expr = " ".join(tokens)  # '2 + 4'
+                                        tokens = [constantes[linea[2]],linea[3],linea[4]]
+                                        expr = " ".join(str(token) for token in tokens)  # '2 + 4'
                                         resultado = eval(expr)   # 6 
                                         str_resultado = str(resultado)
-                                        print(str_resultado) #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
+                                        #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
                                         constantes[linea[0]] = resultado #guardo en diccionario
+                                        nueva_linea = [linea[0], '=', str_resultado]
+                                        optimizado[i] = " ".join(nueva_linea) + "\n"
                                     else:
                                         #caso t = t1 + t2
                                         if len(linea) == 5 and linea[2] in constantes and linea [4] in constantes: #osea q t1 y t2 este en mi diccionario
-                                            tokens = [constantes(linea[2]),linea[3],constantes(linea[4])]
-                                            expr = " ".join(tokens)  # '2 + 4'
+                                            tokens = [constantes[linea[2]],linea[3],constantes[linea[4]]]
+                                            expr = " ".join(str(token) for token in tokens)  # '2 + 4'
                                             resultado = eval(expr)   # 6 
                                             str_resultado = str(resultado)
-                                            print(str_resultado) #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
+                                            #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
                                             constantes[linea[0]] = resultado #guardo en diccionario
+                                            nueva_linea = [linea[0], '=', str_resultado]
+                                            optimizado[i] = " ".join(nueva_linea) + "\n"
                                         else:
                                             #caso t = t1 + t2 pero t1 no lo tengo en el diccionario
-                                            if len(linea) == 5 and linea[2] in constantes:
-                                                continue #agregar a la salida
+                                            if len(linea) == 5 and linea[4] in constantes:
+                                                linea[4] = constantes[linea[4]]
+                                                optimizado[i] = " ".join(linea) + "\n"
                                             else:
-                                                continue # agregar a la salida
-            print(constantes)
+                                                linea[2] = constantes[linea[2]]
+                                                optimizado[i] = " ".join(linea) + "\n"
+        print(optimizado)                                   
                                 
 
                 
