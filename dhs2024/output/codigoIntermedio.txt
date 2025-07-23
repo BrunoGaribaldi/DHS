@@ -12,8 +12,11 @@ ifntjmp t0, l1
 t1 = z*x
 y = t1
  
-t2 = i+1
-i = t2
+t2 = z+1
+z = t2
+ 
+t3 = i+1
+i = t3
  
 jmp l0
 label l1

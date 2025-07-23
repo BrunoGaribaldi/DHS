@@ -1,3 +1,5 @@
+--------------------------------------------------
+En el contexto iniciado en la linea 7 se encontro lo siguiente:
 
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:

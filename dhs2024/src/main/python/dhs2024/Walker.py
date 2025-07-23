@@ -87,29 +87,34 @@ class Walker (compiladoresVisitor):
 
 
     def visitIfor(self, ctx):
-        print('-for-')
-        self.visitAsignacion(ctx.getChild(2))
+        #for ( i = 0 ; i< x ; i = i + 1 ) y = z * x;
+
+        self.visitAsignacion(ctx.getChild(2)) #visito i = 0
         
-        labelEvalCond = 'l' + str(self.contadorEtiquetas)
+        labelEvalCond = 'l' + str(self.contadorEtiquetas) #label en el que evaluo si x < 0
         
         self.archivoCodigoIntermedio.write('label ' + labelEvalCond+ '\n')
         print('label ' + labelEvalCond)
         
         self.contadorEtiquetas = self.contadorEtiquetas + 1
-        labelFinFor = 'l' + str(self.contadorEtiquetas)
-        self.visitCond(ctx.getChild(4))
+        labelFinFor = 'l' + str(self.contadorEtiquetas) #cuando salga del for me vot aca
+        self.visitCond(ctx.getChild(4)) #entro a la condicion
         
+        #sies falso salto al fin del dor
         self.archivoCodigoIntermedio.write('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas)+ '\n')
         print('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas))
         
-        self.visitInstruccion(ctx.getChild(8))
-        self.visitIter(ctx.getChild(6))
+        self.visitInstruccion(ctx.getChild(8)) #visito el bloque
+        self.visitIter(ctx.getChild(6)) #una vez finalizaod el bloque incremento i por ejemolo
         
         self.archivoCodigoIntermedio.write('jmp ' + labelEvalCond + '\n')
         print('jmp ' + labelEvalCond)
         
         self.archivoCodigoIntermedio.write('label ' + labelFinFor + '\n')
         print('label ' + labelFinFor)
+        
+        self.contadorEtiquetas = self.contadorEtiquetas + 1
+        
              
     
     def visitOpal(self, ctx):
@@ -157,7 +162,7 @@ class Walker (compiladoresVisitor):
             
             
             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
-            self.contadorVarTemporales =+ 1
+            self.contadorVarTemporales = self.contadorVarTemporales + 1
             return
         
         #caso base 
