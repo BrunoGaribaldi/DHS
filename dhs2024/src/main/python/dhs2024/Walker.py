@@ -42,18 +42,53 @@ class Walker (compiladoresVisitor):
     def visitAsignacion(self, ctx):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
-        if len(ctx.getChild(2).getText()) != 1:
-            self.visitOpal(ctx.getChild(2))
-            #print(self.variablesTemporales)
-            var = self.variablesTemporales.pop()
-            
-            print(ctx.getChild(0).getText() + ' = ' + var)
-            self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
+        
+        if ctx.llamadafunc(): #estoy en una funcion
+           self.visitLlamadafunc(ctx.getChild(2))
         else:
-            self.archivoCodigoIntermedio.write(ctx.getText()+ '\n \n')      
-            print(ctx.getText())
+            if len(ctx.getChild(2).getText()) != 1:
+                self.visitOpal(ctx.getChild(2))
+                #print(self.variablesTemporales)
+                var = self.variablesTemporales.pop()
+            
+                print(ctx.getChild(0).getText() + ' = ' + var)
+                self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
+            else:
+                self.archivoCodigoIntermedio.write(ctx.getText()+ '\n \n')      
+                print(ctx.getText())
     
     
+    def visitFunc(self, ctx):
+        labelFuncion = 'l' + str(self.contadorEtiquetas)
+        dirRetorno = 't' + str(self.contadorVarTemporales)
+        self.contadorEtiquetas = self.contadorEtiquetas + 1
+        self.contadorVarTemporales = self.contadorVarTemporales + 1
+        
+         
+        self.archivoCodigoIntermedio.write('label ' + labelFuncion + '\n')
+        self.archivoCodigoIntermedio.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
+        
+        #voy a argumentos para que escriban pop ...
+        self.visitArgumentosf(ctx.getChild(3))
+        self.visitBloqueespecial(ctx.getChild(5)) #visito las instrucciones
+        
+        #pusheamos a la pila la variable de retorno
+        self.archivoCodigoIntermedio.write('push t' + str(self.contadorVarTemporales - 1) + '\n')
+        self.archivoCodigoIntermedio.write('jump ' + dirRetorno + '\n') #saltoa direccion de retorno
+                        
+    
+    def visitArgumentosf(self, ctx):
+        if ctx.getChildCount() != 0: #puede no tener argumentos
+            self.visitFuncargumentos(ctx.getChild(0)) #siempre va a tener un argumetno, lo visito
+            if ctx.getChildCount() > 1:
+                self.visitArgumentosf(ctx.getChild(2)) #si tiene mas, hago una especie de recursividad
+            
+            
+    
+    def visitFuncargumentos(self, ctx):
+        self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(1).getText() + '\n')
+        
+        
     def visitIif(self, ctx):
         print('Entre a if')
         self.visitOpal(ctx.getChild(2))
@@ -98,7 +133,6 @@ class Walker (compiladoresVisitor):
         #for ( i = 0 ; i< x ; i = i + 1 ) y = z * x;
 
         self.visitAsignacion(ctx.getChild(2)) #visito i = 0
-        
         labelEvalCond = 'l' + str(self.contadorEtiquetas) #label en el que evaluo si x < 0
         
         self.archivoCodigoIntermedio.write('label ' + labelEvalCond+ '\n')

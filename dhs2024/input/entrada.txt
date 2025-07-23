@@ -1,12 +1,19 @@
 
-int x, y , z, i ;
+int x, y , z, i, o, p ;
 x = 0;
 y = 0;
 z = 0;
+o = 0 ;
+p = 7 ;
 
-if ( x > 0 ){
-	y = z * 2 ;
-		}
-
+int f(int a, int b);
 
 x = x / 2 ;
+x  = f(o,p);
+
+int f ( int a , int b){
+	int w;
+	w = a + b;
+	return w;
+}
+

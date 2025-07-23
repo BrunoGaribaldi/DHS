@@ -4,12 +4,19 @@ y=0
  
 z=0
  
-t0 = x>0
-ifntjmp t0, l0
-t1 = z*2
-y = t1
+o=0
+ 
+p=7
+ 
+t0 = x/2
+x = t0
  
 label l0
-t2 = x/2
-x = t2
+pop t1
+pop a
+pop b
+t2 = a+b
+w = t2
  
+push t2
+jump t1
