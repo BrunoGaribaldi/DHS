@@ -21,6 +21,8 @@ class Walker (compiladoresVisitor):
     etiquetasFunciones = {} #va a ser un diccionario, almacena el nombre de variable  y la dir de label
     contadorEtiquetas = 0
     
+    #funciones
+    argumentosFunciones = []
     
     #archivo
     archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
@@ -72,6 +74,12 @@ class Walker (compiladoresVisitor):
         
         #voy a argumentos para que escriban pop ...
         self.visitArgumentosf(ctx.getChild(3))
+        
+        #argumentosenorden
+        while self.argumentosFunciones:
+            arg = self.argumentosFunciones.pop()
+            self.archivoCodigoIntermedio.write('pop ' + arg + '\n')
+
         self.visitBloqueespecial(ctx.getChild(5)) #visito las instrucciones
         
         #pusheamos a la pila la variable de retorno
@@ -88,7 +96,8 @@ class Walker (compiladoresVisitor):
             
     
     def visitFuncargumentos(self, ctx):
-        self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(1).getText() + '\n')
+        self.argumentosFunciones.append(ctx.getChild(1).getText())
+        #self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(1).getText() + '\n')
         
     
     #-------------------parte de llamada a funciones-------------------------------------# 

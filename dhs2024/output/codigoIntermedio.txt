@@ -15,8 +15,8 @@ pop x
  
 label l1
 pop t1
-pop a
 pop b
+pop a
 t2 = a+b
 w = t2
  
