@@ -69,6 +69,7 @@ class Walker (compiladoresVisitor):
         self.contadorVarTemporales = self.contadorVarTemporales + 1
         
          
+        self.archivoCodigoIntermedio.write('\n--- Funcion --- \n') 
         self.archivoCodigoIntermedio.write('label ' + labelFuncion + '\n')
         self.archivoCodigoIntermedio.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
         
@@ -102,6 +103,8 @@ class Walker (compiladoresVisitor):
     
     #-------------------parte de llamada a funciones-------------------------------------# 
     def visitLlamadafunc(self, ctx):
+        self.archivoCodigoIntermedio.write('\n--- Llamada a funcion --- \n') 
+        
         self.visitArgumentosllamada(ctx.getChild(2))
         
         labelLlamada = 'l' + str(self.contadorEtiquetas)
@@ -114,8 +117,8 @@ class Walker (compiladoresVisitor):
         
         self.etiquetasFunciones[ctx.getChild(0).getText()] = labelFuncion 
         self.archivoCodigoIntermedio.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
-        self.archivoCodigoIntermedio.write('jmp ' + labelFuncion +  '\n') #cuando se ejecute la funcion vuelve a ese label
-        self.archivoCodigoIntermedio.write('label ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
+        self.archivoCodigoIntermedio.write('jmp ' + labelFuncion +  '\n') 
+        self.archivoCodigoIntermedio.write('label ' + labelLlamada + '\n') 
 
         print('jmp ' + labelFuncion)
         

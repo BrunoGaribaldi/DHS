@@ -1,24 +1,8 @@
-x=0
-y=0
-z=0
-o=0
-p=7
-t0 = x/2
-x = t0
+a=0
+b=0
+c=0
+d=0
+t0 = (a*b-c)
+t1 = t0+(a*b+d)
+x = t1
  
-push o
-push p
-push l0
-jmp l1
-label l0
-pop x
- 
-label l1
-pop t1
-pop b
-pop a
-t2 = a+b
-w = t2
- 
-push t2
-jump t1

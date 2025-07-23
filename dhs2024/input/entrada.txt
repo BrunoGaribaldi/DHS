@@ -1,19 +1,8 @@
 
-int x, y , z, i, o, p ;
-x = 0;
-y = 0;
-z = 0;
-o = 0 ;
-p = 7 ;
+int a, b , c, d, x ;
+a = 0;
+b = 0;
+c = 0;
+d = 0 ;
 
-int f(int a, int b);
-
-x = x / 2 ;
-x  = f(o,p);
-
-int f ( int a , int b){
-	int w;
-	w = a + b;
-	return w;
-}
-
+x = (a * b - c) + (a * b + d);
