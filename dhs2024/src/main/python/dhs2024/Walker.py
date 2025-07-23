@@ -86,7 +86,31 @@ class Walker (compiladoresVisitor):
         
 
 
+    def visitIfor(self, ctx):
+        print('-for-')
+        self.visitAsignacion(ctx.getChild(2))
         
+        labelEvalCond = 'l' + str(self.contadorEtiquetas)
+        
+        self.archivoCodigoIntermedio.write('label ' + labelEvalCond+ '\n')
+        print('label ' + labelEvalCond)
+        
+        self.contadorEtiquetas = self.contadorEtiquetas + 1
+        labelFinFor = 'l' + str(self.contadorEtiquetas)
+        self.visitCond(ctx.getChild(4))
+        
+        self.archivoCodigoIntermedio.write('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas)+ '\n')
+        print('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas))
+        
+        self.visitInstruccion(ctx.getChild(8))
+        self.visitIter(ctx.getChild(6))
+        
+        self.archivoCodigoIntermedio.write('jmp ' + labelEvalCond + '\n')
+        print('jmp ' + labelEvalCond)
+        
+        self.archivoCodigoIntermedio.write('label ' + labelFinFor + '\n')
+        print('label ' + labelFinFor)
+             
     
     def visitOpal(self, ctx):
         print("visitando opal de la variable " + self.varAAsignar)
