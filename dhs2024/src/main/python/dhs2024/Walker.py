@@ -18,8 +18,9 @@ class Walker (compiladoresVisitor):
     varAAsignar = ''
     
     #etiquetas
-    etiquetas = []
+    etiquetasFunciones = {} #va a ser un diccionario, almacena el nombre de variable  y la dir de label
     contadorEtiquetas = 0
+    
     
     #archivo
     archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
@@ -45,6 +46,7 @@ class Walker (compiladoresVisitor):
         
         if ctx.llamadafunc(): #estoy en una funcion
            self.visitLlamadafunc(ctx.getChild(2))
+           self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(0).getText() + '\n \n')
         else:
             if len(ctx.getChild(2).getText()) != 1:
                 self.visitOpal(ctx.getChild(2))
@@ -54,12 +56,12 @@ class Walker (compiladoresVisitor):
                 print(ctx.getChild(0).getText() + ' = ' + var)
                 self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
             else:
-                self.archivoCodigoIntermedio.write(ctx.getText()+ '\n \n')      
+                self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
                 print(ctx.getText())
     
     
     def visitFunc(self, ctx):
-        labelFuncion = 'l' + str(self.contadorEtiquetas)
+        labelFuncion = self.etiquetasFunciones[ctx.getChild(1).getText()]
         dirRetorno = 't' + str(self.contadorVarTemporales)
         self.contadorEtiquetas = self.contadorEtiquetas + 1
         self.contadorVarTemporales = self.contadorVarTemporales + 1
@@ -88,7 +90,37 @@ class Walker (compiladoresVisitor):
     def visitFuncargumentos(self, ctx):
         self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(1).getText() + '\n')
         
+    
+    #-------------------parte de llamada a funciones-------------------------------------# 
+    def visitLlamadafunc(self, ctx):
+        self.visitArgumentosllamada(ctx.getChild(2))
         
+        labelLlamada = 'l' + str(self.contadorEtiquetas)
+        self.contadorEtiquetas = self.contadorEtiquetas + 1 
+        
+        labelFuncion = 'l' + str(self.contadorEtiquetas)
+        self.contadorEtiquetas = self.contadorEtiquetas + 1 
+        
+        
+        
+        self.etiquetasFunciones[ctx.getChild(0).getText()] = labelFuncion 
+        self.archivoCodigoIntermedio.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
+        self.archivoCodigoIntermedio.write('jmp ' + labelFuncion +  '\n') #cuando se ejecute la funcion vuelve a ese label
+        self.archivoCodigoIntermedio.write('label ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
+
+        print('jmp ' + labelFuncion)
+        
+        
+    
+    def visitArgumentosllamada(self, ctx):
+        if ctx.getChildCount() != 0: #puede no tener argumentos
+            self.visitLlamargumentos(ctx.getChild(0)) #siempre va a tener un argumetno, lo visito
+            if ctx.getChildCount() > 1:
+                self.visitLlamargumentos(ctx.getChild(2)) #si tiene mas, hago una especie de recursividad
+    
+    def visitLlamargumentos(self, ctx):
+        self.archivoCodigoIntermedio.write('push ' + ctx.getChild(0).getText() + '\n')
+    
     def visitIif(self, ctx):
         print('Entre a if')
         self.visitOpal(ctx.getChild(2))

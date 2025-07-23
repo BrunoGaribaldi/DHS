@@ -1,17 +1,19 @@
 x=0
- 
 y=0
- 
 z=0
- 
 o=0
- 
 p=7
- 
 t0 = x/2
 x = t0
  
+push o
+push p
+push l0
+jmp l1
 label l0
+pop x
+ 
+label l1
 pop t1
 pop a
 pop b
