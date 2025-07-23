@@ -15,6 +15,7 @@ class Walker (compiladoresVisitor):
     contadorVarTemporales = 0
     variablesTemporales = []
     operador = []
+    operadorMulDiv = []
     varAAsignar = ''
     
     #etiquetas
@@ -234,8 +235,6 @@ class Walker (compiladoresVisitor):
                 self.contadorVarTemporales =+ 1
                 return
     
-    #prueba
-
    
     def visitTermino4(self, ctx):
         print('parte termino 4')
@@ -366,56 +365,60 @@ class Walker (compiladoresVisitor):
     
     def visitTermino5(self, ctx):
         print('parte termino 5')
-
-        print(len(ctx.getText()))
-        if len(ctx.getText()) == 3 and '*' not in self.operador and '/' not in self.operador : #x = ( 5 * 6 ) -> primera vez
-            print("primer caso")
-            
-            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n' )      
-            print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+       #comoel caso base, x = 5 * 7 * (1) -> esto seria
+        if ctx.getChild(1).getChildCount() == 0:
+            varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
+            operador = self.operadorMulDiv.pop() #el operador que le agregue en el coso muldiv
+                
+            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
+            print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
             
             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
             self.contadorVarTemporales = self.contadorVarTemporales +1
-            return
-        if ctx.getChild(1).getChildCount() == 0 and len(self.operador)!=0:  #x = 5 * 7 * (8)-> esto seria, como el caso base ponele
-            if self.operador[-1] == '*' or self.operador[-1] == '/':
+                
+        
+        else:
+            if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0 and len(self.operadorMulDiv) == 0: #x = 2 * 5 ->solo esto
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n' )      
+                print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
+            
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                self.contadorVarTemporales = self.contadorVarTemporales +1
+                return
+
+            if ctx.getChild(1).getChildCount() != 0 and len(self.operadorMulDiv) != 0: #x = 2 * 1 * (8) * 2
                 varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
-                operador = self.operador.pop() #el operador que le agregue en el coso muldiv
+                operador = self.operadorMulDiv.pop() #el operador que le agregue en el coso muldiv
                 
                 self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
-                print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0*7
+                print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
+            
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                self.contadorVarTemporales = self.contadorVarTemporales +1
                 
-                if len(ctx.getChild(1).getText()) >=2: #x = 5 * 8 * 7
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
-                    self.contadorVarTemporales = self.contadorVarTemporales + 1
-                    self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
-                else:
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) 
-                    self.contadorVarTemporales = self.contadorVarTemporales + 1 #no appendeo ninguna variable, solo sumo
-        else:    
-            if len(ctx.getChild(1).getText()) > 2: #x = 5 * 8 * 7
-                if len(self.operador) == 0 or self.operador[-1] == '+' or self.operador[-1] == '-': #primera vuelta
-                    op = ctx.getChild(1).getChild(0).getText() #*
-                    primNum = ctx.getChild(0).getText() #5
-                    segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #8
-                    # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
+                self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 8 (* 7) / 7-> parte mul
+                           
+            else: # tiene mas de 2 terminos x = 2 * 7 / 2 * 1
+                
+                op = ctx.getChild(1).getChild(0).getText() #*
+                primNum = ctx.getChild(0).getText() #2
+                segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #7
+                # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
 
-                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
-                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                     
-                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                    self.contadorVarTemporales =self.contadorVarTemporales + 1
-                    self.visitPartemuldivmod(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 8 (* 7)-> parte mul
-                else:
-                    self.visitPartemuldivmod(ctx.getChild(1)) #x = 5 * 6 (* 1 * 8)-> parte mul
-            
-        return
-            
-    
+                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                self.contadorVarTemporales =self.contadorVarTemporales + 1
+                
+                self.visitPartemuldivmod(ctx.getChild(1).getChild(1).getChild(1)) #x = 5 * 8 (* 7)-> parte mul
+                
+       
+       
     def visitPartemuldivmod(self, ctx):
         print("Visitando la parte de muldiv")
         #print(ctx.getText())
-        self.operador.append(ctx.getChild(0).getText())  #le paso arriba el operador de suma para que recuerde que operacion esta haciendo
+        self.operadorMulDiv.append(ctx.getChild(0).getText())  #le paso arriba el operador de suma para que recuerde que operacion esta haciendo
         self.visitTermino5(ctx.getChild(1))  #visito el que termino de la derecha
         
         return None      
