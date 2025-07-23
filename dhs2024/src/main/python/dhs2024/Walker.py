@@ -307,7 +307,7 @@ class Walker (compiladoresVisitor):
                         primNum = self.variablesTemporales.pop()
                         op = self.operador.pop()
                        
-                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
+                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                         print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
                 
             
@@ -325,7 +325,7 @@ class Walker (compiladoresVisitor):
                     operador = self.operador.pop() #el operador que le agregue en el coso muldiv
                     
                     
-                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' '  + operador + ' '+ ctx.getChild(0).getText()+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0 - 7
             
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
@@ -344,8 +344,8 @@ class Walker (compiladoresVisitor):
                     primNum = ctx.getChild(0).getText()
                     segNum = ctx.getChild(1).getChild(1).getChild(0).getText()
                     
-                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum + '\n')      
-                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 4+5
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + ' ' + op+ ' ' + segNum + '\n')      
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + ' ' + op  + ' ' + segNum ) #t0 = 4+5
                 
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #appendeo t0
                     self.contadorVarTemporales = self.contadorVarTemporales +1  
@@ -382,7 +382,7 @@ class Walker (compiladoresVisitor):
                 varTemp = self.variablesTemporales.pop() #saco la variabler anterior, en este caso t0
                 operador = self.operador.pop() #el operador que le agregue en el coso muldiv
                 
-                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()+ '\n')      
+                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + operador + ctx.getChild(0).getText()) #t1 = t0*7
                 
                 if len(ctx.getChild(1).getText()) >=2: #x = 5 * 8 * 7
@@ -400,7 +400,7 @@ class Walker (compiladoresVisitor):
                     segNum = ctx.getChild(1).getChild(1).getChild(0).getText() #8
                     # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
 
-                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum+ '\n')      
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                     
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
