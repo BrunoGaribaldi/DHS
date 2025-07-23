@@ -4,7 +4,7 @@ En el contexto iniciado en la linea 7 se encontro lo siguiente:
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:
 x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
-i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:0	 Usado:0
 z: ID:z	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
 y: ID:y	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 

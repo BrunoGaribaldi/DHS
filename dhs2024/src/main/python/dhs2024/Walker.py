@@ -62,10 +62,17 @@ class Walker (compiladoresVisitor):
         #creamos la etiqueta donde va a saltar
         #self.etiquetas.append('l' + str(self.contadorEtiquetas))
         etiqSaltar = "l" + str(self.contadorEtiquetas)  #si no hay else
-        etiqSaltarElse = "l" + str(self.contadorEtiquetas + 1)  #si no hay else
+        etiqSaltarElse = "l" + str(self.contadorEtiquetas + 1)  #si  hay else
         
-        self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltar + '\n')
-        print("ifntjmp " + varComp + ", " + etiqSaltar)
+        if ctx.getChildCount() > 5: #hay else
+            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltarElse + '\n')
+            print("ifntjmp " + varComp + ", " + etiqSaltar)
+        
+        else:
+            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltar + '\n')
+            print("ifntjmp " + varComp + ", " + etiqSaltar)
+            
+            
           
         self.contadorEtiquetas = self.contadorEtiquetas + 1 
         self.visitInstruccion(ctx.getChild(4))
@@ -78,6 +85,7 @@ class Walker (compiladoresVisitor):
             print('label '+ etiqSaltar)
             
             self.visitInstruccion(ctx.getChild(6))
+        
             
         self.archivoCodigoIntermedio.write('label '+ etiqSaltar+ '\n')     
         print('label '+ etiqSaltar) #seria como el fin del bloque del if
