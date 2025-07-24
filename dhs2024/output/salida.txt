@@ -1,14 +1,18 @@
 --------------------------------------------------
-En el contexto iniciado en la linea 9 se encontro lo siguiente:
+En el contexto iniciado en la linea 14 se encontro lo siguiente:
+a: ID:a	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+b: ID:b	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+w: ID:w	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 
 --------------------------------------------------
 En el contexto global se encontro lo siguiente:
-c: ID:c	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+c: ID:c	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+i: ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
 x: ID:x	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
-d: ID:d	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+d: ID:d	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:1
+f: ID:f	Tipo: FuncionTipoDato.INT	Inicializado:1	 Usado:1
 
 --------------------------------------------------
 Identificadores inicializadas pero no usados:
-ID:c	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
-ID:d	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+ID:w	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0
+ID:i	Tipo:Variable 	TipoDato.INT	Inicializado:1	 Usado:0

@@ -1,27 +1,22 @@
-
---- Asignacion variable c linea 4 ---
 c=0
-
---- Asignacion variable d linea 5 ---
 d=0
-
---- Asignacion variable i linea 6 ---
 i=3
-
---- Asignacion variable x linea 7 ---
 x=4
-
---- IF linea 9 --- 
-t0 = x>0
-ifntjmp t0, l0
-
---- Asignacion variable c linea 10 ---
-t1 = i*2
-c = t1
- 
+t0 = x/2
+x = t0
+push c
+push d
+push l0
+jmp l1
 label l0
-
---- Asignacion variable c linea 13 ---
-t2 = i + 8
-c = t2
- 
+pop x
+label l1
+pop t1
+pop b
+pop a
+[
+t2 = a + b
+w = t2
+]
+push t2
+jump t1

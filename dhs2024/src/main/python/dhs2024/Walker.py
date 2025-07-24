@@ -27,6 +27,7 @@ class Walker (compiladoresVisitor):
     
     #archivo
     archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
+    archivoCodigoIntermedioComentarios = open("./output/codigoIntermedioComentarios.txt", "w")
 
     
     def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
@@ -46,11 +47,13 @@ class Walker (compiladoresVisitor):
     def visitAsignacion(self, ctx):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
-        self.archivoCodigoIntermedio.write('\n--- Asignacion variable ' + ctx.getChild(0).getText() +  ' linea ' + str(ctx.start.line) + ' ---\n')
+        self.archivoCodigoIntermedioComentarios.write('\n--- Asignacion variable ' + ctx.getChild(0).getText() +  ' linea ' + str(ctx.start.line) + ' ---\n')
 
         if ctx.llamadafunc(): #estoy en una funcion
            self.visitLlamadafunc(ctx.getChild(2))
-           self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(0).getText() + '\n \n')
+           
+           self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(0).getText() + '\n')
+           self.archivoCodigoIntermedioComentarios.write('pop ' + ctx.getChild(0).getText() + '\n \n')
         else:
             if len(ctx.getChild(2).getText()) != 1:
                 self.visitOpal(ctx.getChild(2))
@@ -61,7 +64,9 @@ class Walker (compiladoresVisitor):
                     primVar = self.variablesTemporales.pop()
                     op = self.operadorSumaResta.pop()
                     
+                    self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primVar + ' ' + op + ' '  + var + '\n')      
                     self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primVar + ' ' + op + ' '  + var + '\n')      
+                    
                     print("t" + str(self.contadorVarTemporales) + " = "+ primVar+ ' ' + op  + ' ' + var )
                 
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
@@ -69,9 +74,12 @@ class Walker (compiladoresVisitor):
                 
                 var = self.variablesTemporales.pop()    
                 print(ctx.getChild(0).getText() + ' = ' + var)
-                self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
+                self.archivoCodigoIntermedioComentarios.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
+                self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
+            
             else:
                 self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
+                self.archivoCodigoIntermedioComentarios.write(ctx.getText()+ '\n')      
                 print(ctx.getText())
     
     
@@ -82,9 +90,14 @@ class Walker (compiladoresVisitor):
         self.contadorVarTemporales = self.contadorVarTemporales + 1
         
          
-        self.archivoCodigoIntermedio.write('\n--- Funcion --- \n') 
+        self.archivoCodigoIntermedioComentarios.write('\n--- Funcion --- \n') 
+        
+        self.archivoCodigoIntermedioComentarios.write('label ' + labelFuncion + '\n')
         self.archivoCodigoIntermedio.write('label ' + labelFuncion + '\n')
+        
+        self.archivoCodigoIntermedioComentarios.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
         self.archivoCodigoIntermedio.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
+        
         
         #voy a argumentos para que escriban pop ...
         self.visitArgumentosf(ctx.getChild(3))
@@ -92,12 +105,18 @@ class Walker (compiladoresVisitor):
         #argumentosenorden
         while self.argumentosFunciones:
             arg = self.argumentosFunciones.pop()
+            self.archivoCodigoIntermedioComentarios.write('pop ' + arg + '\n')
             self.archivoCodigoIntermedio.write('pop ' + arg + '\n')
 
+        self.archivoCodigoIntermedio.write('[\n')
         self.visitBloqueespecial(ctx.getChild(5)) #visito las instrucciones
+        self.archivoCodigoIntermedio.write(']\n')
         
         #pusheamos a la pila la variable de retorno
+        self.archivoCodigoIntermedioComentarios.write('push t' + str(self.contadorVarTemporales - 1) + '\n')
         self.archivoCodigoIntermedio.write('push t' + str(self.contadorVarTemporales - 1) + '\n')
+        
+        self.archivoCodigoIntermedioComentarios.write('jump ' + dirRetorno + '\n') #saltoa direccion de retorno
         self.archivoCodigoIntermedio.write('jump ' + dirRetorno + '\n') #saltoa direccion de retorno
                         
     
@@ -111,12 +130,12 @@ class Walker (compiladoresVisitor):
     
     def visitFuncargumentos(self, ctx):
         self.argumentosFunciones.append(ctx.getChild(1).getText())
-        #self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(1).getText() + '\n')
+        #self.archivoCodigoIntermedioComentarios.write('pop ' + ctx.getChild(1).getText() + '\n')
         
     
     #-------------------parte de llamada a funciones-------------------------------------# 
     def visitLlamadafunc(self, ctx):
-        self.archivoCodigoIntermedio.write('\n--- Llamada a funcion --- \n') 
+        self.archivoCodigoIntermedioComentarios.write('\n--- Llamada a funcion --- \n') 
         
         self.visitArgumentosllamada(ctx.getChild(2))
         
@@ -129,9 +148,15 @@ class Walker (compiladoresVisitor):
         
         
         self.etiquetasFunciones[ctx.getChild(0).getText()] = labelFuncion 
+        self.archivoCodigoIntermedioComentarios.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
         self.archivoCodigoIntermedio.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
+        
+        self.archivoCodigoIntermedioComentarios.write('jmp ' + labelFuncion +  '\n') 
         self.archivoCodigoIntermedio.write('jmp ' + labelFuncion +  '\n') 
+        
+        self.archivoCodigoIntermedioComentarios.write('label ' + labelLlamada + '\n') 
         self.archivoCodigoIntermedio.write('label ' + labelLlamada + '\n') 
+
 
         print('jmp ' + labelFuncion)
         
@@ -145,11 +170,11 @@ class Walker (compiladoresVisitor):
                 self.visitArgumentosllamada(ctx.getChild(2)) #si tiene mas, hago una especie de recursividad
     
     def visitLlamargumentos(self, ctx):
+        self.archivoCodigoIntermedioComentarios.write('push ' + ctx.getChild(0).getText() + '\n')
         self.archivoCodigoIntermedio.write('push ' + ctx.getChild(0).getText() + '\n')
-    
     def visitIif(self, ctx):
         print('Entre a if')
-        self.archivoCodigoIntermedio.write('\n--- IF linea ' + str(ctx.start.line) + ' --- \n') 
+        self.archivoCodigoIntermedioComentarios.write('\n--- IF linea ' + str(ctx.start.line) + ' --- \n') 
         
         self.visitOpal(ctx.getChild(2))
         # t0 = x > 1
@@ -160,11 +185,15 @@ class Walker (compiladoresVisitor):
         etiqSaltarElse = "l" + str(self.contadorEtiquetas + 1)  #si  hay else
         
         if ctx.getChildCount() > 5: #hay else
-            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltarElse + '\n')
+            self.archivoCodigoIntermedioComentarios.write("ifntjmp " + varComp + " , " + etiqSaltarElse + '\n')
+            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + " , " + etiqSaltarElse + '\n')
+            
             print("ifntjmp " + varComp + ", " + etiqSaltar)
         
         else:
-            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + ", " + etiqSaltar + '\n')
+            self.archivoCodigoIntermedioComentarios.write("ifntjmp " + varComp + " , " + etiqSaltar + '\n')
+            self.archivoCodigoIntermedio.write("ifntjmp " + varComp + " , " + etiqSaltar + '\n')
+            
             print("ifntjmp " + varComp + ", " + etiqSaltar)
             
             
@@ -173,15 +202,18 @@ class Walker (compiladoresVisitor):
         self.visitInstruccion(ctx.getChild(4))
         if ctx.getChildCount() > 5: #hay un else
             
+            self.archivoCodigoIntermedioComentarios.write("jmp " + etiqSaltar+ '\n')     
             self.archivoCodigoIntermedio.write("jmp " + etiqSaltar+ '\n')     
             print("jmp " + etiqSaltarElse) #ya entro al if, escapo dl else
             
-            self.archivoCodigoIntermedio.write('label '+ etiqSaltarElse+ '\n')     
+            self.archivoCodigoIntermedioComentarios.write('label '+ etiqSaltarElse+ '\n')     
+            self.archivoCodigoIntermedio.write('label '+ etiqSaltarElse+ '\n')            
             print('label '+ etiqSaltar)
             
             self.visitInstruccion(ctx.getChild(6))
         
             
+        self.archivoCodigoIntermedioComentarios.write('label '+ etiqSaltar+ '\n')     
         self.archivoCodigoIntermedio.write('label '+ etiqSaltar+ '\n')     
         print('label '+ etiqSaltar) #seria como el fin del bloque del if
         
@@ -191,12 +223,14 @@ class Walker (compiladoresVisitor):
 
     def visitIfor(self, ctx):
         #for ( i = 0 ; i< x ; i = i + 1 ) y = z * x;
-        self.archivoCodigoIntermedio.write('\n--- For linea ' + str(ctx.start.line) + ' ---\n')
+        self.archivoCodigoIntermedioComentarios.write('\n--- For linea ' + str(ctx.start.line) + ' ---\n')
 
         self.visitAsignacion(ctx.getChild(2)) #visito i = 0
         labelEvalCond = 'l' + str(self.contadorEtiquetas) #label en el que evaluo si x < 0
         
+        self.archivoCodigoIntermedioComentarios.write('label ' + labelEvalCond+ '\n')
         self.archivoCodigoIntermedio.write('label ' + labelEvalCond+ '\n')
+        
         print('label ' + labelEvalCond)
         
         self.contadorEtiquetas = self.contadorEtiquetas + 1
@@ -204,16 +238,19 @@ class Walker (compiladoresVisitor):
         self.visitCond(ctx.getChild(4)) #entro a la condicion
         
         #sies falso salto al fin del dor
-        self.archivoCodigoIntermedio.write('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas)+ '\n')
+        self.archivoCodigoIntermedioComentarios.write('ifntjmp t' + str(self.contadorVarTemporales - 1) + ' , l' + str(self.contadorEtiquetas)+ '\n')
+        self.archivoCodigoIntermedio.write('ifntjmp t' + str(self.contadorVarTemporales - 1) + ' , l' + str(self.contadorEtiquetas)+ '\n')
         print('ifntjmp t' + str(self.contadorVarTemporales - 1) + ', l' + str(self.contadorEtiquetas))
         
         self.visitInstruccion(ctx.getChild(8)) #visito el bloque
         self.visitIter(ctx.getChild(6)) #una vez finalizaod el bloque incremento i por ejemolo
         
         self.archivoCodigoIntermedio.write('jmp ' + labelEvalCond + '\n')
+        self.archivoCodigoIntermedioComentarios.write('jmp ' + labelEvalCond + '\n')
         print('jmp ' + labelEvalCond)
         
         self.archivoCodigoIntermedio.write('label ' + labelFinFor + '\n')
+        self.archivoCodigoIntermedioComentarios.write('label ' + labelFinFor + '\n')
         print('label ' + labelFinFor)
         
         self.contadorEtiquetas = self.contadorEtiquetas + 1
@@ -245,6 +282,7 @@ class Walker (compiladoresVisitor):
             if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0:
                 
                 self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n')      
+                self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
                 
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
@@ -272,7 +310,7 @@ class Walker (compiladoresVisitor):
                     primNum = self.variablesTemporales.pop()
                     op = self.operadorSumaResta.pop()    
             
-                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                    self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                         
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -288,6 +326,7 @@ class Walker (compiladoresVisitor):
                     operador = self.operadorSumaResta.pop() 
                     
                     self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
+                    self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
                     print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
                 
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -306,6 +345,7 @@ class Walker (compiladoresVisitor):
                             primNum = ctx.getChild(0).getText()
                             
                             self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+  '\n')      
+                            self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+  '\n')      
                             print("t" + str(self.contadorVarTemporales) + " = "+ primNum ) #t0 = 5*8
                         
                             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -318,7 +358,7 @@ class Walker (compiladoresVisitor):
                             primNum = self.variablesTemporales.pop()
                             op = self.operadorSumaResta.pop()    
             
-                            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                             print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                         
                             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -330,6 +370,7 @@ class Walker (compiladoresVisitor):
                             op = ctx.getChild(1).getChild(0).getText()    
             
                             self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                             print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                         
                             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -341,6 +382,7 @@ class Walker (compiladoresVisitor):
                             op = ctx.getChild(1).getChild(0).getText()    
             
                             self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                             print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                         
                             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -371,6 +413,7 @@ class Walker (compiladoresVisitor):
             operador = self.operadorMulDiv.pop() #el operador que le agregue en el coso muldiv
                 
             self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
+            self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
             print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
             
             self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -380,6 +423,7 @@ class Walker (compiladoresVisitor):
         else:
             if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0 and len(self.operadorMulDiv) == 0: #x = 2 * 5 ->solo esto
                 self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n' )      
+                self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText()+ '\n' )      
                 print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
             
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -391,6 +435,7 @@ class Walker (compiladoresVisitor):
                 operador = self.operadorMulDiv.pop() #el operador que le agregue en el coso muldiv
                 
                 self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
+                self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
             
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
@@ -406,6 +451,7 @@ class Walker (compiladoresVisitor):
                 # siempre va a ser distinto en la primera parte porque hay que partir en 3 primero
 
                 self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
                 print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
                     
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7

@@ -1,0 +1,41 @@
+
+--- Asignacion variable c linea 4 ---
+c=0
+
+--- Asignacion variable d linea 5 ---
+d=0
+
+--- Asignacion variable i linea 6 ---
+i=3
+
+--- Asignacion variable x linea 7 ---
+x=4
+
+--- Asignacion variable x linea 11 ---
+t0 = x/2
+x = t0
+ 
+
+--- Asignacion variable x linea 12 ---
+
+--- Llamada a funcion --- 
+push c
+push d
+push l0
+jmp l1
+label l0
+pop x
+ 
+
+--- Funcion --- 
+label l1
+pop t1
+pop b
+pop a
+
+--- Asignacion variable w linea 16 ---
+t2 = a + b
+w = t2
+ 
+push t2
+jump t1

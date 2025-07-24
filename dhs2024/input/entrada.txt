@@ -6,8 +6,13 @@ d = 0;
 i = 3;
 x = 4;
 
-if ( x > 0 ){
-	c = i * 2; 
-		}
+int f(int a, int b);
 
-c =  i + 8;
+x = x / 2 ;
+x  = f(c,d);
+
+int f ( int a , int b){
+	int w;
+	w = a + b;
+	return w;
+}
