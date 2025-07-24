@@ -54,8 +54,19 @@ class Walker (compiladoresVisitor):
             if len(ctx.getChild(2).getText()) != 1:
                 self.visitOpal(ctx.getChild(2))
                 #print(self.variablesTemporales)
-                var = self.variablesTemporales.pop()
-                print(self.variablesTemporales)
+                
+                if len(self.variablesTemporales) > 1: #por ahi cuando hay sumas de terminos quedan por sumar 
+                    var = self.variablesTemporales.pop()
+                    primVar = self.variablesTemporales.pop()
+                    op = self.operadorSumaResta.pop()
+                    
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primVar + ' ' + op + ' '  + var + '\n')      
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primVar+ ' ' + op  + ' ' + var )
+                
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
+                    self.contadorVarTemporales = self.contadorVarTemporales + 1    
+                
+                var = self.variablesTemporales.pop()    
                 print(ctx.getChild(0).getText() + ' = ' + var)
                 self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
             else:
@@ -232,98 +243,106 @@ class Walker (compiladoresVisitor):
                 print("t" + str(self.contadorVarTemporales) + " = "+ ctx.getText())
                 
                 self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
-                self.contadorVarTemporales =+ 1
+                self.contadorVarTemporales = self.contadorVarTemporales + 1    
+
                 return
     
    
     def visitTermino4(self, ctx):
         print('parte termino 4')
         
-        #primero tengo que chequear que no haya ninguna multiplicacion
-        if ctx.getChild(0).getChild(1).getChildCount() != 0: #x = 2* 5 + 1
-            self.visitTermino5(ctx.getChild(0))
-            if len(self.operadorSumaResta) != 0 and len(self.variablesTemporales) > 1: # x = (1 * 2)-> en pila de variables + (8 * 9)-> en pila de variables
-                segNum = self.variablesTemporales.pop()    
-                primNum = self.variablesTemporales.pop()
-                op = self.operadorSumaResta.pop()    
-        
-                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
-                print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
-                    
-                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                self.contadorVarTemporales =self.contadorVarTemporales + 1
-            
-            if ctx.getChild(1).getChildCount() != 0:        
+        #primero me fijo tema parentesits
+        if ctx.getChild(0).getChild(0).getChild(0).getChild(0).getChildCount() == 3: 
+            self.visitOpal(ctx.getChild(0).getChild(0).getChild(0).getChild(0).getChild(1))
+            if ctx.getChild(1).getChildCount() != 0: #si hay otro termino al lado lo visito
                 self.visitPartesumaresta(ctx.getChild(1))
-        
         else:
-            if len(self.operadorSumaResta) != 0: #caso base, ejemplo x = 2  + 1 - (7) -> esto me llega
-                
-                varTemp = self.variablesTemporales.pop() 
-                operador = self.operadorSumaResta.pop() 
-                
-                self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
-                print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
+        #primero tengo que chequear que no haya ninguna multiplicacion
+            if ctx.getChild(0).getChild(1).getChildCount() != 0: #x = 2* 5 + 1
+                self.visitTermino5(ctx.getChild(0))
+                if len(self.operadorSumaResta) != 0 and len(self.variablesTemporales) > 1 and ctx.getChild(1).getChildCount() == 0: # x = (1 * 2)-> en pila de variables + (8 * 9)-> en pila de variables
+                    print('oepopeo')
+                    segNum = self.variablesTemporales.pop()    
+                    primNum = self.variablesTemporales.pop()
+                    op = self.operadorSumaResta.pop()    
             
-                self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                self.contadorVarTemporales = self.contadorVarTemporales +1
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                        
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                    self.contadorVarTemporales =self.contadorVarTemporales + 1
                 
-                if ctx.getChild(1).getChildCount() != 0:
+                if ctx.getChild(1).getChildCount() != 0:        
                     self.visitPartesumaresta(ctx.getChild(1))
-
             
             else:
-                #si llego hasta aca es porque tiene mas de dosterminos x = 2 + 3 + 2 + 5
-                if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0: #x = 2 + 3
+                if len(self.operadorSumaResta) != 0: #caso base, ejemplo x = 2  + 1 - (7) -> esto me llega
                     
-                    if ctx.getChild(1).getChild(1).getChild(0).getChild(1).getChildCount() != 0: #aca hay una multiplicacion x = 1 + 5*7
-
-                        primNum = ctx.getChild(0).getText()
-                        
-                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+  '\n')      
-                        print("t" + str(self.contadorVarTemporales) + " = "+ primNum ) #t0 = 5*8
+                    varTemp = self.variablesTemporales.pop() 
+                    operador = self.operadorSumaResta.pop() 
                     
-                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                        self.contadorVarTemporales =self.contadorVarTemporales + 1
-                        
-                        #self.visitTermino5(ctx.getChild(1).getChild(1).getChild(0)) #voy a la multiplicacion
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ varTemp+ ' ' + operador+ ' ' + ctx.getChild(0).getText()+ '\n')      
+                    print("t" + str(self.contadorVarTemporales) + " = "+ varTemp + ' ' + operador+ ' ' + ctx.getChild(0).getText()) #t1 = t0*7
+                
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                    self.contadorVarTemporales = self.contadorVarTemporales +1
+                    
+                    if ctx.getChild(1).getChildCount() != 0:
                         self.visitPartesumaresta(ctx.getChild(1))
-                        #hago la suma de los dos terminos
-                        """ segNum = self.variablesTemporales.pop()    
-                        primNum = self.variablesTemporales.pop()
-                        op = self.operadorSumaResta.pop()    
-        
-                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
-                        print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
-                    
-                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                        self.contadorVarTemporales =self.contadorVarTemporales + 1 """
+
                 
-                    else:
-                        segNum = ctx.getChild(1).getChild(1).getChild(0).getText()    
-                        primNum = ctx.getChild(0).getText()
-                        op = ctx.getChild(1).getChild(0).getText()    
-        
-                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
-                        print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                else:
+                    #si llego hasta aca es porque tiene mas de dosterminos x = 2 + 3 + 2 + 5
+                    if ctx.getChild(1).getChild(1).getChild(1).getChildCount() == 0: #x = 2 + 3
+                        
+                        if ctx.getChild(1).getChild(1).getChild(0).getChild(1).getChildCount() != 0: #aca hay una multiplicacion x = 1 + 5*7
+
+                            primNum = ctx.getChild(0).getText()
+                            
+                            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+  '\n')      
+                            print("t" + str(self.contadorVarTemporales) + " = "+ primNum ) #t0 = 5*8
+                        
+                            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                            self.contadorVarTemporales =self.contadorVarTemporales + 1
+                            
+                            #self.visitTermino5(ctx.getChild(1).getChild(1).getChild(0)) #voy a la multiplicacion
+                            self.visitPartesumaresta(ctx.getChild(1))
+                            #hago la suma de los dos terminos
+                            """ segNum = self.variablesTemporales.pop()    
+                            primNum = self.variablesTemporales.pop()
+                            op = self.operadorSumaResta.pop()    
+            
+                            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                        
+                            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                            self.contadorVarTemporales =self.contadorVarTemporales + 1 """
                     
-                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                        self.contadorVarTemporales =self.contadorVarTemporales + 1
-                
-                else: #x = (2 + 6)-> tengo que partir esto + 7
-                        segNum = ctx.getChild(1).getChild(1).getChild(0).getText()    
-                        primNum = ctx.getChild(0).getText()
-                        op = ctx.getChild(1).getChild(0).getText()    
-        
-                        self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
-                        print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                        else:
+                            segNum = ctx.getChild(1).getChild(1).getChild(0).getText()    
+                            primNum = ctx.getChild(0).getText()
+                            op = ctx.getChild(1).getChild(0).getText()    
+            
+                            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                        
+                            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                            self.contadorVarTemporales =self.contadorVarTemporales + 1
                     
-                        self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
-                        self.contadorVarTemporales =self.contadorVarTemporales + 1
-                    
-                        self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1))
-                    
-                    
+                    else: #x = (2 + 6)-> tengo que partir esto + 7
+                            segNum = ctx.getChild(1).getChild(1).getChild(0).getText()    
+                            primNum = ctx.getChild(0).getText()
+                            op = ctx.getChild(1).getChild(0).getText()    
+            
+                            self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primNum+ ' ' + op+ ' ' + segNum+ '\n')      
+                            print("t" + str(self.contadorVarTemporales) + " = "+ primNum + op + segNum ) #t0 = 5*8
+                        
+                            self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
+                            self.contadorVarTemporales =self.contadorVarTemporales + 1
+                        
+                            self.visitPartesumaresta(ctx.getChild(1).getChild(1).getChild(1))
+                        
+                        
                 
          
              
