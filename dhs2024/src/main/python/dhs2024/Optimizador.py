@@ -138,46 +138,105 @@ class Optimizador:
 
     #algoritmo basado en lo siguiente: https://youtu.be/23PoAQKYsHE                 
     def optimizacionExpresionesComunes(self, src , destino):
-        optimizado = src.copy()
-        saltar_for = False
+        optimizado = src.copy() 
         largoOptimizado = len(optimizado)
         for bloquen in self.bloques:
-            inicio,fin = bloquen
-            print("-------------------------------------------------")
-
-            #bucle sobre cada bloque optimizable
-            for i in range(inicio , fin + 1): # en este caso el candidato no los indica la i
-                linea = optimizado[i].split()  
-                counter = 0
-                if len(linea) == 5 and linea[1] == '=': 
-                    if linea[0] == linea [2] or linea[0] == linea [4]: #ha cambiado p?
+            inicio, fin = bloquen
+            i = inicio
+            while i <= fin: 
+                linea = optimizado[i].split()
+                if len(linea) == 5 and linea [1] == '=': #osea si es del tipo p = x + y x ejemplo
+                    if linea[0] == linea [2] or linea [0] == linea[4]: # a cambiado p?
+                        i += 1
                         continue
-                    while largoOptimizado > i + counter: # no cambio p
-                        siguiente_linea = optimizado[i + counter].split()
-                        counter += 1
-                        if len(siguiente_linea) == 5 and siguiente_linea[1] == '=': #el que le sigue es del tipo t = x + x?
-                            if siguiente_linea[0] == linea [2] or siguiente_linea[0] == linea [4]: #ha cambiado p en t = x + x?
-                               counter = 1
-                               #si cambia deja de ser candidato p, tengo que ir a la siguiente iteracion del for
-                               saltar_for = True
-                               break #salgo del while
-                            else: 
-                                if siguiente_linea[2] == linea [2] and siguiente_linea[4] == linea [4] and siguiente_linea[3] == linea [3]: #p + 0 == x + x????
-                                  #si es igual osea p + 0 == p + 0
-                                  nueva_linea = [siguiente_linea[0], '=' , linea[0]] 
-                                  optimizado[i+counter-1] = " ".join(nueva_linea) + "\n"
-                                  continue
-                                else: 
-                                   continue
-                        else:
-                            continue # no es del tipo t = x + x     
-                    if saltar_for:
-                        saltar_for = False
-                        continue #siguiente it del for
-                else:   
-                    continue    
-        for lineas in optimizado:
-            destino.write(lineas)        
+                    
+                    j = i + 1 #evaluamos las siguientes lineas
+                    while j <= fin:
+                        siguienteLinea = optimizado[j].split()
+                        if len(siguienteLinea) != 5 or siguienteLinea[1] != '=': #pregunto si no es la proxima linea t = t + t (significa que es una asignacion normal o otra cosa)
+                            j += 1
+                            continue
+                    
+                        # a cambiado p en t = t + t?
+                        if siguienteLinea[0] == linea[2] or siguienteLinea[0] == linea[4]:
+                            break
+
+                        # Coincide operación y operandos osea p = x + y === t = t + t????
+                        if (siguienteLinea[2] == linea[2] and 
+                            siguienteLinea[3] == linea[3] and 
+                            siguienteLinea[4] == linea[4]):
+
+                            nueva_linea = f"{siguienteLinea[0]} = {linea[0]}\n"
+                            optimizado[j] = nueva_linea
+
+                        j += 1
+                i += 1
+        print(optimizado)
+        # Escribimos todo al destino
+        destino.seek(0)
+        destino.truncate() #para escribir el archivo de cero
+        for linea in optimizado:
+            if not linea.endswith('\n'):
+                linea += '\n'
+            destino.write(linea)
+
+
+        # optimizado = src.copy()
+        # saltar_for = False
+        # largoOptimizado = len(optimizado)
+        # for bloquen in self.bloques:
+        #     inicio,fin = bloquen
+        #     print("-------------------------------------------------")
+
+        #     #bucle sobre cada bloque optimizable
+        #     for i in range(inicio , fin + 1): # en este caso el candidato no los indica la i
+        #         linea = optimizado[i].split()  
+        #         print("esta es la linea con la que nos encontramos de candidato ahora", linea)
+        #         counter = 1
+        #         print("es", linea, "= 5 y tiene = ?" )
+        #         if len(linea) == 5 and linea[1] == '=': 
+        #             print("si!, es ", linea[0] , "igual a ",  linea [2] , " o es igual a ", linea [4])
+        #             if linea[0] == linea [2] or linea[0] == linea [4]: #ha cambiado p?
+        #                 print("si!!! por lo tanto deja de ser candidato")
+        #                 continue
+        #             print("no! no deja de ser candidato por lo tanto entramos al while")
+        #             print("largoOptimizado > i + counter ?????")
+        #             while largoOptimizado > i + counter: # no cambio p   
+        #                 siguiente_linea = optimizado[i + counter].split()
+        #                 print("esta es la siguiente linea", siguiente_linea, "es mayor a 5 y tiene el =? " )
+        #                 if len(siguiente_linea) == 5 and siguiente_linea[1] == '=': #el que le sigue es del tipo t = x + x?
+        #                     print(siguiente_linea, "SIII es mayor a 5 y tiene el =. aHORA, ", siguiente_linea[0] , "ES IGUAL A " , linea [2], "O A " , linea [4])
+        #                     if siguiente_linea[0] == linea [2] or siguiente_linea[0] == linea [4]: #ha cambiado p en t = x + x?
+        #                        print("sep por lo tanto deja de ser candidato, me voy al siguiente")
+        #                        counter = 1
+        #                        #si cambia deja de ser candidato p, tengo que ir a la siguiente iteracion del for
+        #                        saltar_for = True
+        #                        break #salgo del while
+        #                     else: 
+        #                         print("nononononono por lo tanto nos cuestionamos si ", siguiente_linea[2],"=", linea [2],"y", siguiente_linea[4],"=", linea [4] ,"y",siguiente_linea[3] ,"=",linea [3])  
+        #                         if siguiente_linea[2] == linea [2] and siguiente_linea[4] == linea [4] and siguiente_linea[3] == linea [3]: #p + 0 == x + x????
+        #                           print('ASI ES MUCHACHOS POR LO TANTO CREAMOS UNA NUEVA LINEA, cuanto sera i + counter?', i + counter)
+        #                           #si es igual osea p + 0 == p + 0
+        #                           nueva_linea = [siguiente_linea[0], '=' , linea[0]] 
+        #                           optimizado[i+counter] = " ".join(nueva_linea) + "\n"
+        #                           counter += 1
+        #                           continue
+        #                         else: 
+        #                            print('NO SE CREA UNA PORONGA')
+        #                            continue
+        #                 else:
+        #                     print(siguiente_linea, "NOOO es mayor a 5 y tiene el =")
+        #                     counter += 1
+        #                     continue # no es del tipo t = x + x     
+        #             if saltar_for:
+        #                 print("holaaa saltamos al siguiente ciclo for")
+        #                 saltar_for = False
+        #                 continue #siguiente it del for
+        #         else:   
+        #             print("es", linea, "= 5 y tiene = ? NOOOOOO" )
+        #             continue    
+        # for lineas in optimizado:
+        #     destino.write(lineas)        
 
 
         
