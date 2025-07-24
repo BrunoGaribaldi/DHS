@@ -5,52 +5,110 @@ class Optimizador:
     
     def optimizar(self):
         with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+            #quitamos espacios en blanco del archivo
+            lineas = src.readlines()
+            lineas_limpias = [linea.strip() for linea in lineas if linea.strip() != ""]
+            with open("Entrada.txt", "w") as f:
+                for linea in lineas_limpias:
+                    f.write(linea + "\n")
+            src.seek(0)
+
             self.bloques = []
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
-            self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
-            dest.seek(0)
-            lineasConPropagacionDeConstantes = dest.readlines()
-            dest.seek(0)
-            self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
-            dest.seek(0)
-            lineasConOptimizacionExpresionesComunes = dest.readlines()
-            self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
+            # self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+            # dest.seek(0)
+            # lineasConPropagacionDeConstantes = dest.readlines()
+            # dest.seek(0)
+            # self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
+            # dest.seek(0)
+            # lineasConOptimizacionExpresionesComunes = dest.readlines()
+            # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
 
 #Funcion para generar bloques optimizables
     def generadorDeBloques(self,lineasCodigoIntermedio):
         print('Identificando bloques...')
         self.bloques = []
-        #print(lineasCodigoIntermedio)
         banderajmp = 0
+        banderaf = 0
+        banderaPush = 0
+        contadorCorchete = 0
         for i, linea in enumerate(lineasCodigoIntermedio):
             #print(i, linea)
             lineaSplit = linea.split() 
 
             #caso: la primer linea de toas es un lider
+            
             if i == 0:
                 self.bloques.append([i,i])
             else:
-                if(lineaSplit[0] == 'jmp' or lineaSplit[0] == 'ifntjmp'):
-                    self.bloques[-1][1] = i
-                    #caso el siguiente a un salto es lider
-                    self.bloques.append([i+1,i+1])
-                    banderajmp = 1
-                else:
-                    #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
-                    if (lineaSplit[0] == 'label' and banderajmp == 0):
-                        self.bloques.append([i,i])
-                    else:
-                        if(lineaSplit[0] == 'label' and banderajmp == 1):
-                        #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
-                            banderajmp = 0
+                    #Sector llamada funciones
+                    if lineaSplit[0] == 'push' :
+                        if i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == 'push':
+                            banderaPush = 1
+                            continue
+                        if i + 2 == len(lineasCodigoIntermedio):
+                            continue
+                        if i + 4 < len(lineasCodigoIntermedio) and (lineasCodigoIntermedio[i+4].split()[0] == 'pop' or lineasCodigoIntermedio[i+4].split()[0] == '['):
+                            continue
                         else: 
-                            if (banderajmp == 1):
-                                continue
-                            else:
-                                #caso cualquiera donde yo me encuentro una variable o una t
-                                 self.bloques[-1][1] = i                     
-        print("Bloques optimizables:", self.bloques) 
+                            banderaPush = 1
+                            continue
+                    if lineaSplit[0] == 'jmp' and banderaPush == 1:
+                        continue
+                    if lineaSplit[0] == 'label' and banderaPush == 1:
+                        self.bloques.append([i,i])
+                        banderaPush = 0
+                        continue
+                    #Sector ejecucion funciones
+                    if (lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and i + 2 < len(lineasCodigoIntermedio) and
+                        lineasCodigoIntermedio[i+1].split()[0] == 'pop' and 
+                        lineasCodigoIntermedio[i+2].split()[0] == '['):
+                        banderaf = 1
+                        continue
+                    if (lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and i + 2 < len(lineasCodigoIntermedio) and
+                        lineasCodigoIntermedio[i+1].split()[0] == 'pop' and 
+                        lineasCodigoIntermedio[i+2].split()[0] == 'pop'):
+                        banderaf = 1
+                        continue
+                    if banderaf == 1 and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] != ']' :
+                        continue
+                    if banderaf == 1 and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == ']':
+                        continue
+                    if banderaf == 1 and lineaSplit[0] == ']':
+                        banderaf = 0
+                        contadorCorchete = 1
+                        continue
+                    if contadorCorchete == 1: 
+                        contadorCorchete = 0
+                        continue
+                        
+
+                    if(lineaSplit[0] == 'jmp' or lineaSplit[0] == 'ifntjmp'):
+                        self.bloques[-1][1] = i
+                        #caso el siguiente a un salto es lider
+                        self.bloques.append([i+1,i+1])
+                        banderajmp = 1
+                    else: 
+                        #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
+                        if (lineaSplit[0] == 'label' and banderajmp == 0):
+                            self.bloques.append([i,i])
+                        else:
+                            if(lineaSplit[0] == 'label' and banderajmp == 1):
+                            #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
+                                banderajmp = 0
+                            else: 
+                                if (banderajmp == 1):
+                                    continue
+                                else:
+                                    #caso cualquiera donde yo me encuentro una variable o una t
+                                    self.bloques[-1][1] = i   
+
+        print("Bloques optimizables:", self.bloques)
+#SECTOR DE FUNCIONES. Aclaracion. Toda funcion no sera optimizada tanto en la llamada como en su ejecucion.
+                        
+            
+         
 
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
