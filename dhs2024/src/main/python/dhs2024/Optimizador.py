@@ -4,7 +4,7 @@ class Optimizador:
         self.bloques = []
     
     def optimizar(self):
-        with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+        with open("./codigoIntermedio.txt", "r") as src, open("./CodigoIntermedioOptimizado.txt", "w+") as dest:
             #quitamos espacios en blanco del archivo
             lineas = src.readlines()
             lineas_limpias = [linea.strip() for linea in lineas if linea.strip() != ""]
@@ -16,11 +16,11 @@ class Optimizador:
             self.bloques = []
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
-            # self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
-            # dest.seek(0)
-            # lineasConPropagacionDeConstantes = dest.readlines()
-            # dest.seek(0)
-            # self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
+            self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+            dest.seek(0)
+            lineasConPropagacionDeConstantes = dest.readlines()
+            dest.seek(0)
+            self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
             # dest.seek(0)
             # lineasConOptimizacionExpresionesComunes = dest.readlines()
             # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
@@ -29,87 +29,99 @@ class Optimizador:
     def generadorDeBloques(self,lineasCodigoIntermedio):
         print('Identificando bloques...')
         self.bloques = []
-        banderajmp = 0
+        banderaLlamadaFuncion = 0
         banderaf = 0
-        banderaPush = 0
-        contadorCorchete = 0
+        banderaSalidaF = 0
+        #print(lineasCodigoIntermedio)
+        banderajmp = 0
         for i, linea in enumerate(lineasCodigoIntermedio):
             #print(i, linea)
             lineaSplit = linea.split() 
 
             #caso: la primer linea de toas es un lider
-            
             if i == 0:
                 self.bloques.append([i,i])
             else:
-                    #Sector llamada funciones
-                    if lineaSplit[0] == 'push' :
-                        if i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == 'push':
-                            banderaPush = 1
-                            continue
-                        if i + 2 == len(lineasCodigoIntermedio):
-                            continue
-                        if i + 4 < len(lineasCodigoIntermedio) and (lineasCodigoIntermedio[i+4].split()[0] == 'pop' or lineasCodigoIntermedio[i+4].split()[0] == '['):
-                            continue
-                        else: 
-                            banderaPush = 1
-                            continue
-                    if lineaSplit[0] == 'jmp' and banderaPush == 1:
+
+                #Seccion destinada a identificar funciones. Las funciones no van a ser optimizadas.
+                #toda llamada a funcion es push <o varios push> - jmp - label - pop - cualquier cosa (distinta de pop)
+                # pero la ejecucion de las funciones termina por ] - push - jmp
+                if (
+                    lineaSplit[0] == 'push'
+                    and banderaLlamadaFuncion == 0
+                    and (
+                        (i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i + 1].split()[0] == 'push')
+                        or (
+                            i + 4 < len(lineasCodigoIntermedio)
+                            and lineasCodigoIntermedio[i + 4].split()[0] != 'pop'
+                            and lineasCodigoIntermedio[i + 4].split()[0] != '['
+                        )
+                    )
+                ):
+                    print(lineaSplit[0])
+                    print('i+1', lineasCodigoIntermedio[i+1].split()[0])
+                    print('i+4', lineasCodigoIntermedio[i+4].split()[0])
+                    banderaLlamadaFuncion = 1
+                    continue
+                
+                if banderaLlamadaFuncion == 1:
+                    if lineaSplit[0] == 'push':
+                        #significa que se pueden seguir cargando cosas a la pila en la funcion.
                         continue
-                    if lineaSplit[0] == 'label' and banderaPush == 1:
-                        self.bloques.append([i,i])
-                        banderaPush = 0
+                    
+                    if (lineaSplit[0] == 'jump'):
+                        banderaLlamadaFuncion = 0
                         continue
-                    #Sector ejecucion funciones
-                    if (lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and i + 2 < len(lineasCodigoIntermedio) and
-                        lineasCodigoIntermedio[i+1].split()[0] == 'pop' and 
-                        lineasCodigoIntermedio[i+2].split()[0] == '['):
-                        banderaf = 1
-                        continue
-                    if (lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and i + 2 < len(lineasCodigoIntermedio) and
-                        lineasCodigoIntermedio[i+1].split()[0] == 'pop' and 
-                        lineasCodigoIntermedio[i+2].split()[0] == 'pop'):
-                        banderaf = 1
-                        continue
-                    if banderaf == 1 and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] != ']' :
-                        continue
-                    if banderaf == 1 and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == ']':
-                        continue
-                    if banderaf == 1 and lineaSplit[0] == ']':
+                                     
+                #toda ejecucion de funcion comienza por label - pop <o varios pop> - [ y termina en ] - push - jmp
+                if banderaf == 1:
+                    if lineaSplit[0] == ']':
+                        banderaSalidaF = 1
                         banderaf = 0
-                        contadorCorchete = 1
+                        continue    
+                    else:
                         continue
-                    if contadorCorchete == 1: 
-                        contadorCorchete = 0
+                
+                if banderaSalidaF == 1: 
+                    if lineaSplit[0] == 'push':
                         continue
-                        
+                    if lineaSplit[0] == 'jump':
+                        banderaSalidaF = 0
+                        continue
 
-                    if(lineaSplit[0] == 'jmp' or lineaSplit[0] == 'ifntjmp'):
-                        self.bloques[-1][1] = i
-                        #caso el siguiente a un salto es lider
-                        self.bloques.append([i+1,i+1])
-                        banderajmp = 1
-                    else: 
-                        #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
-                        if (lineaSplit[0] == 'label' and banderajmp == 0):
-                            self.bloques.append([i,i])
-                        else:
-                            if(lineaSplit[0] == 'label' and banderajmp == 1):
-                            #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
-                                banderajmp = 0
-                            else: 
-                                if (banderajmp == 1):
-                                    continue
-                                else:
-                                    #caso cualquiera donde yo me encuentro una variable o una t
-                                    self.bloques[-1][1] = i   
 
-        print("Bloques optimizables:", self.bloques)
-#SECTOR DE FUNCIONES. Aclaracion. Toda funcion no sera optimizada tanto en la llamada como en su ejecucion.
-                        
-            
-         
+                
+                #Todo esto es para la demas logica que no tenga que ver con las funciones.
+                if lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == 'pop' and banderaf == 0:
+                    #si me encuentro en el siguiente con otro pop o con [ entonces si o si estoy dentro de una funcion. 
+                    if i + 2 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+2].split()[0] == 'pop':
+                        banderaf = 1
+                        continue
+                    if i + 2 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+2].split()[0] == '[':
+                        banderaf = 1
+                        continue
 
+                if(lineaSplit[0] == 'jump' or lineaSplit[0] == 'ifntjmp'):
+                    self.bloques[-1][1] = i
+                    #caso el siguiente a un salto es lider
+                    self.bloques.append([i+1,i+1])
+                    banderajmp = 1
+                else:
+                    #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
+                    if (lineaSplit[0] == 'label' and banderajmp == 0):
+                        self.bloques.append([i,i])
+                    else:
+                        if(lineaSplit[0] == 'label' and banderajmp == 1):
+                        #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
+                            banderajmp = 0
+                        else: 
+                            if (banderajmp == 1):
+                                continue
+                            else:
+                                #caso cualquiera donde yo me encuentro una variable o una t
+                                 self.bloques[-1][1] = i                     
+        print("Bloques optimizables:", self.bloques) 
+                                
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
@@ -275,13 +287,3 @@ class Optimizador:
             if not linea.endswith('\n'):
                 linea += '\n'
             destino.write(linea)      
-
-if __name__ == "__main__":
-    opt = Optimizador()
-    opt.optimizar()
-
-    
-
-
-
-
