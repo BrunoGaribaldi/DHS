@@ -5,10 +5,14 @@ class Optimizador:
     
 
     def optimizar(self):
-        with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w") as dest:
+        with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
             self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+            dest.seek(0)
+            lineasConPropagacionDeConstantes = dest.readlines()
+            dest.seek(0)
+            self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
             
 
     def generadorDeBloques(self,lineasCodigoIntermedio):
@@ -46,7 +50,7 @@ class Optimizador:
         print("Bloques optimizables:", self.bloques) 
 
     
-    def propagacionDeConstantes(self,lineasCodigoIntermedio,dest):
+    def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
         print(optimizado)
@@ -125,12 +129,55 @@ class Optimizador:
                                                 linea[4] = constantes[linea[4]]
                                                 optimizado[i] = " ".join(linea) + "\n"
                                             else:
-                                                linea[2] = constantes[linea[2]]
-                                                optimizado[i] = " ".join(linea) + "\n"
-        print(optimizado)                                   
-                                
+                                                if linea[2] in constantes:
+                                                    linea[2] = constantes[linea[2]]
+                                                    optimizado[i] = " ".join(linea) + "\n"
+        print(optimizado)
+        for lineas in optimizado:
+            dest.write(lineas)                                   
 
-                
+    #algoritmo basado en lo siguiente: https://youtu.be/23PoAQKYsHE                 
+    def optimizacionExpresionesComunes(self, src , destino):
+        optimizado = src.copy()
+        saltar_for = False
+        largoOptimizado = len(optimizado)
+        for bloquen in self.bloques:
+            inicio,fin = bloquen
+            print("-------------------------------------------------")
+
+            #bucle sobre cada bloque optimizable
+            for i in range(inicio , fin + 1): # en este caso el candidato no los indica la i
+                linea = optimizado[i].split()  
+                counter = 0
+                if len(linea) == 5 and linea[1] == '=': 
+                    if linea[0] == linea [2] or linea[0] == linea [4]: #ha cambiado p?
+                        continue
+                    while largoOptimizado > i + counter: # no cambio p
+                        siguiente_linea = optimizado[i + counter].split()
+                        counter += 1
+                        if len(siguiente_linea) == 5 and siguiente_linea[1] == '=': #el que le sigue es del tipo t = x + x?
+                            if siguiente_linea[0] == linea [2] or siguiente_linea[0] == linea [4]: #ha cambiado p en t = x + x?
+                               counter = 1
+                               #si cambia deja de ser candidato p, tengo que ir a la siguiente iteracion del for
+                               saltar_for = True
+                               break #salgo del while
+                            else: 
+                                if siguiente_linea[2] == linea [2] and siguiente_linea[4] == linea [4] and siguiente_linea[3] == linea [3]: #p + 0 == x + x????
+                                  #si es igual osea p + 0 == p + 0
+                                  nueva_linea = [siguiente_linea[0], '=' , linea[0]] 
+                                  optimizado[i+counter-1] = " ".join(nueva_linea) + "\n"
+                                  continue
+                                else: 
+                                   continue
+                        else:
+                            continue # no es del tipo t = x + x     
+                    if saltar_for:
+                        saltar_for = False
+                        continue #siguiente it del for
+                else:   
+                    continue    
+        for lineas in optimizado:
+            destino.write(lineas)        
 
 
         
