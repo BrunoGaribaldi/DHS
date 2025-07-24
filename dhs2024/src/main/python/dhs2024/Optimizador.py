@@ -3,9 +3,9 @@ class Optimizador:
     def __init__(self):
         self.bloques = []
     
-
     def optimizar(self):
         with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+            self.bloques = []
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
             self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
@@ -13,8 +13,11 @@ class Optimizador:
             lineasConPropagacionDeConstantes = dest.readlines()
             dest.seek(0)
             self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
-            
+            dest.seek(0)
+            lineasConOptimizacionExpresionesComunes = dest.readlines()
+            self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
 
+#Funcion para generar bloques optimizables
     def generadorDeBloques(self,lineasCodigoIntermedio):
         print('Identificando bloques...')
         self.bloques = []
@@ -49,7 +52,6 @@ class Optimizador:
                                  self.bloques[-1][1] = i                     
         print("Bloques optimizables:", self.bloques) 
 
-    
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
@@ -139,7 +141,6 @@ class Optimizador:
     #algoritmo basado en lo siguiente: https://youtu.be/23PoAQKYsHE                 
     def optimizacionExpresionesComunes(self, src , destino):
         optimizado = src.copy() 
-        largoOptimizado = len(optimizado)
         for bloquen in self.bloques:
             inicio, fin = bloquen
             i = inicio
@@ -180,67 +181,42 @@ class Optimizador:
                 linea += '\n'
             destino.write(linea)
 
+#Funcion para detectar variables que no se esten utilizando (Dead Code Elimination)
+# https://youtu.be/ayyBhYowVIs
+    def eliminacionCodigoInnecesario(self, src, destino):
+        definidas = set()
+        usadas = set()
+        optimizado = src.copy()
 
-        # optimizado = src.copy()
-        # saltar_for = False
-        # largoOptimizado = len(optimizado)
-        # for bloquen in self.bloques:
-        #     inicio,fin = bloquen
-        #     print("-------------------------------------------------")
+        for bloquen in self.bloques:
+            inicio, fin = bloquen
+            i = inicio
 
-        #     #bucle sobre cada bloque optimizable
-        #     for i in range(inicio , fin + 1): # en este caso el candidato no los indica la i
-        #         linea = optimizado[i].split()  
-        #         print("esta es la linea con la que nos encontramos de candidato ahora", linea)
-        #         counter = 1
-        #         print("es", linea, "= 5 y tiene = ?" )
-        #         if len(linea) == 5 and linea[1] == '=': 
-        #             print("si!, es ", linea[0] , "igual a ",  linea [2] , " o es igual a ", linea [4])
-        #             if linea[0] == linea [2] or linea[0] == linea [4]: #ha cambiado p?
-        #                 print("si!!! por lo tanto deja de ser candidato")
-        #                 continue
-        #             print("no! no deja de ser candidato por lo tanto entramos al while")
-        #             print("largoOptimizado > i + counter ?????")
-        #             while largoOptimizado > i + counter: # no cambio p   
-        #                 siguiente_linea = optimizado[i + counter].split()
-        #                 print("esta es la siguiente linea", siguiente_linea, "es mayor a 5 y tiene el =? " )
-        #                 if len(siguiente_linea) == 5 and siguiente_linea[1] == '=': #el que le sigue es del tipo t = x + x?
-        #                     print(siguiente_linea, "SIII es mayor a 5 y tiene el =. aHORA, ", siguiente_linea[0] , "ES IGUAL A " , linea [2], "O A " , linea [4])
-        #                     if siguiente_linea[0] == linea [2] or siguiente_linea[0] == linea [4]: #ha cambiado p en t = x + x?
-        #                        print("sep por lo tanto deja de ser candidato, me voy al siguiente")
-        #                        counter = 1
-        #                        #si cambia deja de ser candidato p, tengo que ir a la siguiente iteracion del for
-        #                        saltar_for = True
-        #                        break #salgo del while
-        #                     else: 
-        #                         print("nononononono por lo tanto nos cuestionamos si ", siguiente_linea[2],"=", linea [2],"y", siguiente_linea[4],"=", linea [4] ,"y",siguiente_linea[3] ,"=",linea [3])  
-        #                         if siguiente_linea[2] == linea [2] and siguiente_linea[4] == linea [4] and siguiente_linea[3] == linea [3]: #p + 0 == x + x????
-        #                           print('ASI ES MUCHACHOS POR LO TANTO CREAMOS UNA NUEVA LINEA, cuanto sera i + counter?', i + counter)
-        #                           #si es igual osea p + 0 == p + 0
-        #                           nueva_linea = [siguiente_linea[0], '=' , linea[0]] 
-        #                           optimizado[i+counter] = " ".join(nueva_linea) + "\n"
-        #                           counter += 1
-        #                           continue
-        #                         else: 
-        #                            print('NO SE CREA UNA PORONGA')
-        #                            continue
-        #                 else:
-        #                     print(siguiente_linea, "NOOO es mayor a 5 y tiene el =")
-        #                     counter += 1
-        #                     continue # no es del tipo t = x + x     
-        #             if saltar_for:
-        #                 print("holaaa saltamos al siguiente ciclo for")
-        #                 saltar_for = False
-        #                 continue #siguiente it del for
-        #         else:   
-        #             print("es", linea, "= 5 y tiene = ? NOOOOOO" )
-        #             continue    
-        # for lineas in optimizado:
-        #     destino.write(lineas)        
+            while i <= fin:
+                linea = optimizado [i].split()
+                if len(linea) >= 3 and linea[1] == '=':
+                    definidas.add(linea[0]) #miro el lado izquierdo y agrego a definidas
+                    #ahora miramos el lado derecho para ver que variables estan siendo usadas
+                    usadas.update([linea[j] for j in range(2, len(linea)) if linea[j].isidentifier()])
+                i += 1
+            
+            #vemos variables que no se esten usando
+            innecesarias = definidas - usadas
+            i = inicio
+            while i <= fin:
+                partes = optimizado[i].split()
+                if len(partes) >= 3 and partes[1] == '=' and partes[0] in innecesarias:
+                    optimizado[i] = "" #saco la linea
+                i += 1
 
-
-        
-        
+        destino.seek(0)
+        destino.truncate() #para escribir el archivo de cero
+        for linea in optimizado:
+            if linea == "":
+                continue  # saltar línea vacía
+            if not linea.endswith('\n'):
+                linea += '\n'
+            destino.write(linea)      
 
 if __name__ == "__main__":
     opt = Optimizador()
