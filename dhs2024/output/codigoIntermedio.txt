@@ -1,11 +1,27 @@
-a=0
-b=0
+
+--- Asignacion variable c linea 4 ---
 c=0
+
+--- Asignacion variable d linea 5 ---
 d=0
-t0 = a*b
-t1 = t0 - c
-t2 = a*b
-t3 = t2 + d
-t4 = t1 + t3
-x = t4
+
+--- Asignacion variable i linea 6 ---
+i=3
+
+--- Asignacion variable x linea 7 ---
+x=4
+
+--- IF linea 9 --- 
+t0 = x>0
+ifntjmp t0, l0
+
+--- Asignacion variable c linea 10 ---
+t1 = i*2
+c = t1
+ 
+label l0
+
+--- Asignacion variable c linea 13 ---
+t2 = i + 8
+c = t2
  

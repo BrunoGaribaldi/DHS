@@ -46,7 +46,8 @@ class Walker (compiladoresVisitor):
     def visitAsignacion(self, ctx):
         self.varAAsignar = ctx.getChild(0).getText()
         print(self.varAAsignar)
-        
+        self.archivoCodigoIntermedio.write('\n--- Asignacion variable ' + ctx.getChild(0).getText() +  ' linea ' + str(ctx.start.line) + ' ---\n')
+
         if ctx.llamadafunc(): #estoy en una funcion
            self.visitLlamadafunc(ctx.getChild(2))
            self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(0).getText() + '\n \n')
@@ -55,7 +56,7 @@ class Walker (compiladoresVisitor):
                 self.visitOpal(ctx.getChild(2))
                 #print(self.variablesTemporales)
                 
-                if len(self.variablesTemporales) > 1: #por ahi cuando hay sumas de terminos quedan por sumar 
+                if len(self.variablesTemporales) > 1 and len(self.operadorSumaResta) != 0: #por ahi cuando hay sumas de terminos quedan por sumar 
                     var = self.variablesTemporales.pop()
                     primVar = self.variablesTemporales.pop()
                     op = self.operadorSumaResta.pop()
@@ -140,13 +141,16 @@ class Walker (compiladoresVisitor):
         if ctx.getChildCount() != 0: #puede no tener argumentos
             self.visitLlamargumentos(ctx.getChild(0)) #siempre va a tener un argumetno, lo visito
             if ctx.getChildCount() > 1:
-                self.visitLlamargumentos(ctx.getChild(2)) #si tiene mas, hago una especie de recursividad
+                print('entre')
+                self.visitArgumentosllamada(ctx.getChild(2)) #si tiene mas, hago una especie de recursividad
     
     def visitLlamargumentos(self, ctx):
         self.archivoCodigoIntermedio.write('push ' + ctx.getChild(0).getText() + '\n')
     
     def visitIif(self, ctx):
         print('Entre a if')
+        self.archivoCodigoIntermedio.write('\n--- IF linea ' + str(ctx.start.line) + ' --- \n') 
+        
         self.visitOpal(ctx.getChild(2))
         # t0 = x > 1
         varComp = self.variablesTemporales.pop() #tiene el t0
@@ -187,6 +191,7 @@ class Walker (compiladoresVisitor):
 
     def visitIfor(self, ctx):
         #for ( i = 0 ; i< x ; i = i + 1 ) y = z * x;
+        self.archivoCodigoIntermedio.write('\n--- For linea ' + str(ctx.start.line) + ' ---\n')
 
         self.visitAsignacion(ctx.getChild(2)) #visito i = 0
         labelEvalCond = 'l' + str(self.contadorEtiquetas) #label en el que evaluo si x < 0
@@ -254,14 +259,15 @@ class Walker (compiladoresVisitor):
         #primero me fijo tema parentesits
         if ctx.getChild(0).getChild(0).getChild(0).getChild(0).getChildCount() == 3: 
             self.visitOpal(ctx.getChild(0).getChild(0).getChild(0).getChild(0).getChild(1))
+            if ctx.getChild(0).getChild(1).getChildCount() != 0: #si hay otro termino al lado lo visito
+                self.visitPartemuldivmod(ctx.getChild(0).getChild(1))
             if ctx.getChild(1).getChildCount() != 0: #si hay otro termino al lado lo visito
                 self.visitPartesumaresta(ctx.getChild(1))
         else:
         #primero tengo que chequear que no haya ninguna multiplicacion
             if ctx.getChild(0).getChild(1).getChildCount() != 0: #x = 2* 5 + 1
                 self.visitTermino5(ctx.getChild(0))
-                if len(self.operadorSumaResta) != 0 and len(self.variablesTemporales) > 1 and ctx.getChild(1).getChildCount() == 0: # x = (1 * 2)-> en pila de variables + (8 * 9)-> en pila de variables
-                    print('oepopeo')
+                """ if len(self.operadorSumaResta) != 0 and len(self.variablesTemporales) > 1 and ctx.getChild(1).getChildCount() == 0: # x = (1 * 2)-> en pila de variables + (8 * 9)-> en pila de variables
                     segNum = self.variablesTemporales.pop()    
                     primNum = self.variablesTemporales.pop()
                     op = self.operadorSumaResta.pop()    
@@ -271,7 +277,7 @@ class Walker (compiladoresVisitor):
                         
                     self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #lo anado a la pila porque despues a esto lo multiplico por 7
                     self.contadorVarTemporales =self.contadorVarTemporales + 1
-                
+                 """
                 if ctx.getChild(1).getChildCount() != 0:        
                     self.visitPartesumaresta(ctx.getChild(1))
             
