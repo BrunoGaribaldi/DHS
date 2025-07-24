@@ -3,9 +3,9 @@ class Optimizador:
     def __init__(self):
         self.bloques = []
     
-
     def optimizar(self):
         with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+            self.bloques = []
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
             self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
@@ -13,8 +13,11 @@ class Optimizador:
             lineasConPropagacionDeConstantes = dest.readlines()
             dest.seek(0)
             self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
-            
+            dest.seek(0)
+            lineasConOptimizacionExpresionesComunes = dest.readlines()
+            self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
 
+#Funcion para generar bloques optimizables
     def generadorDeBloques(self,lineasCodigoIntermedio):
         print('Identificando bloques...')
         self.bloques = []
@@ -49,7 +52,6 @@ class Optimizador:
                                  self.bloques[-1][1] = i                     
         print("Bloques optimizables:", self.bloques) 
 
-    
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
@@ -138,50 +140,83 @@ class Optimizador:
 
     #algoritmo basado en lo siguiente: https://youtu.be/23PoAQKYsHE                 
     def optimizacionExpresionesComunes(self, src , destino):
-        optimizado = src.copy()
-        saltar_for = False
-        largoOptimizado = len(optimizado)
+        optimizado = src.copy() 
         for bloquen in self.bloques:
-            inicio,fin = bloquen
-            print("-------------------------------------------------")
-
-            #bucle sobre cada bloque optimizable
-            for i in range(inicio , fin + 1): # en este caso el candidato no los indica la i
-                linea = optimizado[i].split()  
-                counter = 0
-                if len(linea) == 5 and linea[1] == '=': 
-                    if linea[0] == linea [2] or linea[0] == linea [4]: #ha cambiado p?
+            inicio, fin = bloquen
+            i = inicio
+            while i <= fin: 
+                linea = optimizado[i].split()
+                if len(linea) == 5 and linea [1] == '=': #osea si es del tipo p = x + y x ejemplo
+                    if linea[0] == linea [2] or linea [0] == linea[4]: # a cambiado p?
+                        i += 1
                         continue
-                    while largoOptimizado > i + counter: # no cambio p
-                        siguiente_linea = optimizado[i + counter].split()
-                        counter += 1
-                        if len(siguiente_linea) == 5 and siguiente_linea[1] == '=': #el que le sigue es del tipo t = x + x?
-                            if siguiente_linea[0] == linea [2] or siguiente_linea[0] == linea [4]: #ha cambiado p en t = x + x?
-                               counter = 1
-                               #si cambia deja de ser candidato p, tengo que ir a la siguiente iteracion del for
-                               saltar_for = True
-                               break #salgo del while
-                            else: 
-                                if siguiente_linea[2] == linea [2] and siguiente_linea[4] == linea [4] and siguiente_linea[3] == linea [3]: #p + 0 == x + x????
-                                  #si es igual osea p + 0 == p + 0
-                                  nueva_linea = [siguiente_linea[0], '=' , linea[0]] 
-                                  optimizado[i+counter-1] = " ".join(nueva_linea) + "\n"
-                                  continue
-                                else: 
-                                   continue
-                        else:
-                            continue # no es del tipo t = x + x     
-                    if saltar_for:
-                        saltar_for = False
-                        continue #siguiente it del for
-                else:   
-                    continue    
-        for lineas in optimizado:
-            destino.write(lineas)        
+                    
+                    j = i + 1 #evaluamos las siguientes lineas
+                    while j <= fin:
+                        siguienteLinea = optimizado[j].split()
+                        if len(siguienteLinea) != 5 or siguienteLinea[1] != '=': #pregunto si no es la proxima linea t = t + t (significa que es una asignacion normal o otra cosa)
+                            j += 1
+                            continue
+                    
+                        # a cambiado p en t = t + t?
+                        if siguienteLinea[0] == linea[2] or siguienteLinea[0] == linea[4]:
+                            break
 
+                        # Coincide operación y operandos osea p = x + y === t = t + t????
+                        if (siguienteLinea[2] == linea[2] and 
+                            siguienteLinea[3] == linea[3] and 
+                            siguienteLinea[4] == linea[4]):
 
-        
-        
+                            nueva_linea = f"{siguienteLinea[0]} = {linea[0]}\n"
+                            optimizado[j] = nueva_linea
+
+                        j += 1
+                i += 1
+        print(optimizado)
+        # Escribimos todo al destino
+        destino.seek(0)
+        destino.truncate() #para escribir el archivo de cero
+        for linea in optimizado:
+            if not linea.endswith('\n'):
+                linea += '\n'
+            destino.write(linea)
+
+#Funcion para detectar variables que no se esten utilizando (Dead Code Elimination)
+# https://youtu.be/ayyBhYowVIs
+    def eliminacionCodigoInnecesario(self, src, destino):
+        definidas = set()
+        usadas = set()
+        optimizado = src.copy()
+
+        for bloquen in self.bloques:
+            inicio, fin = bloquen
+            i = inicio
+
+            while i <= fin:
+                linea = optimizado [i].split()
+                if len(linea) >= 3 and linea[1] == '=':
+                    definidas.add(linea[0]) #miro el lado izquierdo y agrego a definidas
+                    #ahora miramos el lado derecho para ver que variables estan siendo usadas
+                    usadas.update([linea[j] for j in range(2, len(linea)) if linea[j].isidentifier()])
+                i += 1
+            
+            #vemos variables que no se esten usando
+            innecesarias = definidas - usadas
+            i = inicio
+            while i <= fin:
+                partes = optimizado[i].split()
+                if len(partes) >= 3 and partes[1] == '=' and partes[0] in innecesarias:
+                    optimizado[i] = "" #saco la linea
+                i += 1
+
+        destino.seek(0)
+        destino.truncate() #para escribir el archivo de cero
+        for linea in optimizado:
+            if linea == "":
+                continue  # saltar línea vacía
+            if not linea.endswith('\n'):
+                linea += '\n'
+            destino.write(linea)      
 
 if __name__ == "__main__":
     opt = Optimizador()
