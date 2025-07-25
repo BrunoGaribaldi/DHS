@@ -1,133 +1,56 @@
 
---- Asignacion variable a linea 4 ---
+--- Asignacion variable a linea 3 ---
 a=4
 
---- Asignacion variable b linea 5 ---
+--- Asignacion variable b linea 4 ---
 b=9
 
---- Asignacion variable c linea 6 ---
+--- Asignacion variable c linea 5 ---
 c=0
 
---- Asignacion variable d linea 7 ---
-d=0
+--- Asignacion variable d linea 6 ---
+d=7
 
---- Asignacion variable i linea 8 ---
+--- Asignacion variable i linea 7 ---
 i=3
 
---- Asignacion variable x linea 9 ---
+--- Asignacion variable x linea 8 ---
 x=4
 
---- Asignacion variable z linea 10 ---
+--- Asignacion variable z linea 9 ---
 z=2
 
---- Asignacion variable y linea 11 ---
+--- Asignacion variable y linea 10 ---
 y=1
 
---- Asignacion variable x linea 12 ---
-t0 = 4 + 5
-t1 = t0 - 3
-x = t1
- 
-
---- Asignacion variable x linea 13 ---
-t2 = 4 + 5
-t3 = t2 - 3
-t4 = t3 + 7
-x = t4
- 
-
---- Asignacion variable x linea 15 ---
-t5 = 5 * 2
-t6 = t5 * 1
-t7 = t6 * 4
-x = t7
+--- Asignacion variable x linea 16 ---
+t0 = x/2
+x = t0
  
 
 --- Asignacion variable x linea 17 ---
-t8 = 3*y
-t9 = 5*z
-t10 = t9 / 2
-t11 = t8 + t10
-x = t11
- 
 
---- Asignacion variable x linea 18 ---
-t12 = a*b
-t13 = t12 - c
-t14 = a*b
-t15 = t14 + d
-t16 = t13 + t15
-x = t16
- 
-
---- For linea 21 ---
-
---- Asignacion variable i linea 21 ---
-i=0
+--- Llamada a funcion --- 
+push c
+push d
+push i
+push l0
+jump f
 label l0
-t17 = i<x
-ifntjmp t17 , l1
-
---- Asignacion variable a linea 22 ---
-t18 = d*x
-a = t18
+pop x
  
 
---- Asignacion variable x linea 23 ---
-t19 = x/2
-x = t19
+--- Funcion --- 
+label f
+pop t1
+pop c
+pop b
+pop a
+
+--- Asignacion variable w linea 21 ---
+t2 = a + b
+t3 = t2 - c
+w = t3
  
-
---- Asignacion variable i linea 21 ---
-t20 = i + 1
-i = t20
- 
-jmp l0
-label l1
-
---- For linea 26 ---
-
---- Asignacion variable i linea 26 ---
-i=0
-label l2
-t21 = i<x
-ifntjmp t21 , l3
-
---- Asignacion variable y linea 27 ---
-t22 = z*x
-y = t22
- 
-
---- Asignacion variable i linea 26 ---
-t23 = i + 1
-i = t23
- 
-jmp l2
-label l3
-
---- IF linea 29 --- 
-t24 = x>0
-ifntjmp t24 , l5
-
---- Asignacion variable y linea 30 ---
-t25 = z*2
-y = t25
- 
-jmp l4
-label l5
-
---- Asignacion variable y linea 33 ---
-t26 = z/2
-y = t26
- 
-label l4
-
---- IF linea 35 --- 
-t27 = x>0
-ifntjmp t27 , l6
-
---- Asignacion variable c linea 36 ---
-t28 = i*2
-c = t28
- 
-label l6
+push w
+jump t1

@@ -1,0 +1,18 @@
+arreglar tema else y deteccion
+
+retornar variable 
+
+corregir que la funcion este inicializada
+
+
+int f(int a, int b);
+
+x = x / 2 ;
+x  = f(c,d);
+
+
+programa entero
+-------------------------
+revisar lo de d
+
+poner nombre en vez de clave en el label funcion 

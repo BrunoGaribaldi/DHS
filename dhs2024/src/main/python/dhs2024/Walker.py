@@ -24,6 +24,7 @@ class Walker (compiladoresVisitor):
     
     #funciones
     argumentosFunciones = []
+    varFinales = []
     
     #archivo
     archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
@@ -76,6 +77,8 @@ class Walker (compiladoresVisitor):
                 print(ctx.getChild(0).getText() + ' = ' + var)
                 self.archivoCodigoIntermedioComentarios.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
                 self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
+                
+                self.varFinales.append(ctx.getChild(0).getText())
             
             else:
                 self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
@@ -95,6 +98,7 @@ class Walker (compiladoresVisitor):
         self.archivoCodigoIntermedioComentarios.write('label ' + labelFuncion + '\n')
         self.archivoCodigoIntermedio.write('label ' + labelFuncion + '\n')
         
+        
         self.archivoCodigoIntermedioComentarios.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
         self.archivoCodigoIntermedio.write('pop ' + dirRetorno + '\n') #direccion de retorno, me llega l1 pero yo lo nombro t0
         
@@ -108,13 +112,14 @@ class Walker (compiladoresVisitor):
             self.archivoCodigoIntermedioComentarios.write('pop ' + arg + '\n')
             self.archivoCodigoIntermedio.write('pop ' + arg + '\n')
 
-        self.archivoCodigoIntermedio.write('[\n')
         self.visitBloqueespecial(ctx.getChild(5)) #visito las instrucciones
-        self.archivoCodigoIntermedio.write(']\n')
+        self.archivoCodigoIntermedio.write('label end_' + labelFuncion+ '\n')
         
         #pusheamos a la pila la variable de retorno
-        self.archivoCodigoIntermedioComentarios.write('push t' + str(self.contadorVarTemporales - 1) + '\n')
-        self.archivoCodigoIntermedio.write('push t' + str(self.contadorVarTemporales - 1) + '\n')
+        if len(self.varFinales) != 0:
+            varRetorno = self.varFinales.pop()
+            self.archivoCodigoIntermedioComentarios.write('push ' + varRetorno + '\n')
+            self.archivoCodigoIntermedio.write('push ' + varRetorno + '\n')
         
         self.archivoCodigoIntermedioComentarios.write('jump ' + dirRetorno + '\n') #saltoa direccion de retorno
         self.archivoCodigoIntermedio.write('jump ' + dirRetorno + '\n') #saltoa direccion de retorno
@@ -142,8 +147,7 @@ class Walker (compiladoresVisitor):
         labelLlamada = 'l' + str(self.contadorEtiquetas)
         self.contadorEtiquetas = self.contadorEtiquetas + 1 
         
-        labelFuncion = 'l' + str(self.contadorEtiquetas)
-        self.contadorEtiquetas = self.contadorEtiquetas + 1 
+        labelFuncion = ctx.getChild(0).getText()
         
         
         
