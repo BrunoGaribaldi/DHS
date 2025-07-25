@@ -1,22 +1,66 @@
+a=4
+b=9
 c=0
 d=0
 i=3
 x=4
-t0 = x/2
-x = t0
-push c
-push d
-push l0
-jmp l1
+z=2
+y=1
+t0 = 4 + 5
+t1 = t0 - 3
+x = t1
+t2 = 4 + 5
+t3 = t2 - 3
+t4 = t3 + 7
+x = t4
+t5 = 5 * 2
+t6 = t5 * 1
+t7 = t6 * 4
+x = t7
+t8 = 3*y
+t9 = 5*z
+t10 = t9 / 2
+t11 = t8 + t10
+x = t11
+t12 = a*b
+t13 = t12 - c
+t14 = a*b
+t15 = t14 + d
+t16 = t13 + t15
+x = t16
+i=0
 label l0
-pop x
+t17 = i<x
+ifntjmp t17 , l1
+t18 = d*x
+a = t18
+t19 = x/2
+x = t19
+t20 = i + 1
+i = t20
+jmp l0
 label l1
-pop t1
-pop b
-pop a
-[
-t2 = a + b
-w = t2
-]
-push t2
-jump t1
+i=0
+label l2
+t21 = i<x
+ifntjmp t21 , l3
+t22 = z*x
+y = t22
+t23 = i + 1
+i = t23
+jmp l2
+label l3
+t24 = x>0
+ifntjmp t24 , l5
+t25 = z*2
+y = t25
+jmp l4
+label l5
+t26 = z/2
+y = t26
+label l4
+t27 = x>0
+ifntjmp t27 , l6
+t28 = i*2
+c = t28
+label l6

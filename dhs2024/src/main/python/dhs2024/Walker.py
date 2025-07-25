@@ -151,8 +151,8 @@ class Walker (compiladoresVisitor):
         self.archivoCodigoIntermedioComentarios.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
         self.archivoCodigoIntermedio.write('push ' + labelLlamada + '\n') #cuando se ejecute la funcion vuelve a ese label
         
-        self.archivoCodigoIntermedioComentarios.write('jmp ' + labelFuncion +  '\n') 
-        self.archivoCodigoIntermedio.write('jmp ' + labelFuncion +  '\n') 
+        self.archivoCodigoIntermedioComentarios.write('jump ' + labelFuncion +  '\n') 
+        self.archivoCodigoIntermedio.write('jump ' + labelFuncion +  '\n') 
         
         self.archivoCodigoIntermedioComentarios.write('label ' + labelLlamada + '\n') 
         self.archivoCodigoIntermedio.write('label ' + labelLlamada + '\n') 
@@ -202,8 +202,8 @@ class Walker (compiladoresVisitor):
         self.visitInstruccion(ctx.getChild(4))
         if ctx.getChildCount() > 5: #hay un else
             
-            self.archivoCodigoIntermedioComentarios.write("jmp " + etiqSaltar+ '\n')     
-            self.archivoCodigoIntermedio.write("jmp " + etiqSaltar+ '\n')     
+            self.archivoCodigoIntermedioComentarios.write("jump " + etiqSaltar+ '\n')     
+            self.archivoCodigoIntermedio.write("jump " + etiqSaltar+ '\n')     
             print("jmp " + etiqSaltarElse) #ya entro al if, escapo dl else
             
             self.archivoCodigoIntermedioComentarios.write('label '+ etiqSaltarElse+ '\n')     
@@ -245,8 +245,8 @@ class Walker (compiladoresVisitor):
         self.visitInstruccion(ctx.getChild(8)) #visito el bloque
         self.visitIter(ctx.getChild(6)) #una vez finalizaod el bloque incremento i por ejemolo
         
-        self.archivoCodigoIntermedio.write('jmp ' + labelEvalCond + '\n')
-        self.archivoCodigoIntermedioComentarios.write('jmp ' + labelEvalCond + '\n')
+        self.archivoCodigoIntermedio.write('jump ' + labelEvalCond + '\n')
+        self.archivoCodigoIntermedioComentarios.write('jump ' + labelEvalCond + '\n')
         print('jmp ' + labelEvalCond)
         
         self.archivoCodigoIntermedio.write('label ' + labelFinFor + '\n')
