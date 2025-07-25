@@ -657,6 +657,8 @@ class Escucha (compiladoresListener) :
          #agregamos a la lista de variables no
             if variable.inicializado==1 and variable.usado==0:
                 self.idNoUsadosInicializados.append(variable)
+            if variable.inicializado == 0 and variable.usado == 1: 
+                self.erroresSemanticos.append("Funcion usada y no inicialiazada: " + variable.nombre)
 
         print("En el contexto global se encontro lo siguiente:")
         self.tablaDeSimbolos.contextos[-1].imprimirTabla()
