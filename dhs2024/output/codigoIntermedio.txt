@@ -1,28 +1,56 @@
-a=4
-b=9
-c=0
-d=7
-i=3
-x=4
-z=2
-y=1
-t0 = x/2
-x = t0
-push c
-push d
-push i
-push l0
-jump f
-label l0
+label main
+pop t0
+a=0
+x=7
+z=8
+t1 = x==10
+ifntjmp t1 , l1
+t2 = x*7
+t3 = t2 + 1
+x = t3
+label l1
+push x
+push l3
+jump pot
+label l3
 pop x
-label f
-pop t1
-pop c
-pop b
-pop a
-t2 = a + b
-t3 = t2 - c
-w = t3
-label end_f
-push w
-jump t1
+i=0
+label l4
+t4 = i<7
+ifntjmp t4 , l5
+t5 = z*i
+z = t5
+t6 = i + 1
+i = t6
+jump l4
+label l5
+b=10
+push z
+push x
+push b
+push l6
+jump mul
+label l6
+pop y
+label end_main
+push a
+jump t0
+label pot
+pop t7
+pop f
+t8 = f*f
+f = t8
+label end_pot
+push f
+jump t7
+label mul
+pop t9
+pop n
+pop m
+pop l
+t10 = l + m
+t11 = t10 / n
+o = t11
+label end_mul
+push o
+jump t9

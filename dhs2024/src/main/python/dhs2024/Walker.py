@@ -24,7 +24,7 @@ class Walker (compiladoresVisitor):
     
     #funciones
     argumentosFunciones = []
-    varFinales = []
+    varRetorno = []
     
     #archivo
     archivoCodigoIntermedio = open("./output/codigoIntermedio.txt", "w")
@@ -34,7 +34,10 @@ class Walker (compiladoresVisitor):
     def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
         return super().visitPrograma(ctx)
       
-
+    def visitReturn(self, ctx):
+        super().visitReturn(ctx)
+        self.varRetorno.append(ctx.getChild(1).getText())
+    
     def visitDeclasign(self, ctx):
         self.varAAsignar = ctx.getChild(1).getText()
         print(self.varAAsignar)
@@ -56,7 +59,17 @@ class Walker (compiladoresVisitor):
            self.archivoCodigoIntermedio.write('pop ' + ctx.getChild(0).getText() + '\n')
            self.archivoCodigoIntermedioComentarios.write('pop ' + ctx.getChild(0).getText() + '\n \n')
         else:
-            if len(ctx.getChild(2).getText()) != 1:
+            opl = ctx.getChild(2)
+            parterelacion= opl.getChild(0).getChild(0).getChild(0).getChild(1)
+            partesumaresta = opl.getChild(0).getChild(0).getChild(0).getChild(0).getChild(1)
+            partemuldiv = opl.getChild(0).getChild(0).getChild(0).getChild(0).getChild(0).getChild(1)
+            if parterelacion.getChildCount() == 0 and partesumaresta.getChildCount() == 0 and partemuldiv.getChildCount() == 0 :
+                self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
+                self.archivoCodigoIntermedioComentarios.write(ctx.getText()+ '\n')      
+                print(ctx.getText())
+    
+            
+            else:
                 self.visitOpal(ctx.getChild(2))
                 #print(self.variablesTemporales)
                 
@@ -78,16 +91,37 @@ class Walker (compiladoresVisitor):
                 self.archivoCodigoIntermedioComentarios.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
                 self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
                 
-                self.varFinales.append(ctx.getChild(0).getText())
+            """ if len(ctx.getChild(2).getText()) != 1:
+                self.visitOpal(ctx.getChild(2))
+                #print(self.variablesTemporales)
+                
+                if len(self.variablesTemporales) > 1 and len(self.operadorSumaResta) != 0: #por ahi cuando hay sumas de terminos quedan por sumar 
+                    var = self.variablesTemporales.pop()
+                    primVar = self.variablesTemporales.pop()
+                    op = self.operadorSumaResta.pop()
+                    
+                    self.archivoCodigoIntermedioComentarios.write("t" + str(self.contadorVarTemporales) + " = "+ primVar + ' ' + op + ' '  + var + '\n')      
+                    self.archivoCodigoIntermedio.write("t" + str(self.contadorVarTemporales) + " = "+ primVar + ' ' + op + ' '  + var + '\n')      
+                    
+                    print("t" + str(self.contadorVarTemporales) + " = "+ primVar+ ' ' + op  + ' ' + var )
+                
+                    self.variablesTemporales.append("t" + str(self.contadorVarTemporales)) #hago el append para que salte despues
+                    self.contadorVarTemporales = self.contadorVarTemporales + 1    
+                
+                var = self.variablesTemporales.pop()    
+                print(ctx.getChild(0).getText() + ' = ' + var)
+                self.archivoCodigoIntermedioComentarios.write(ctx.getChild(0).getText() + ' = ' + var + '\n \n')
+                self.archivoCodigoIntermedio.write(ctx.getChild(0).getText() + ' = ' + var + '\n')
+                
             
             else:
                 self.archivoCodigoIntermedio.write(ctx.getText()+ '\n')      
                 self.archivoCodigoIntermedioComentarios.write(ctx.getText()+ '\n')      
                 print(ctx.getText())
-    
+     """
     
     def visitFunc(self, ctx):
-        labelFuncion = self.etiquetasFunciones[ctx.getChild(1).getText()]
+        labelFuncion = ctx.getChild(1).getText()
         dirRetorno = 't' + str(self.contadorVarTemporales)
         self.contadorEtiquetas = self.contadorEtiquetas + 1
         self.contadorVarTemporales = self.contadorVarTemporales + 1
@@ -114,10 +148,11 @@ class Walker (compiladoresVisitor):
 
         self.visitBloqueespecial(ctx.getChild(5)) #visito las instrucciones
         self.archivoCodigoIntermedio.write('label end_' + labelFuncion+ '\n')
+        self.archivoCodigoIntermedioComentarios.write('label end_' + labelFuncion+ '\n')
         
         #pusheamos a la pila la variable de retorno
-        if len(self.varFinales) != 0:
-            varRetorno = self.varFinales.pop()
+        if len(self.varRetorno) != 0:
+            varRetorno = self.varRetorno.pop()
             self.archivoCodigoIntermedioComentarios.write('push ' + varRetorno + '\n')
             self.archivoCodigoIntermedio.write('push ' + varRetorno + '\n')
         
@@ -136,7 +171,9 @@ class Walker (compiladoresVisitor):
     def visitFuncargumentos(self, ctx):
         self.argumentosFunciones.append(ctx.getChild(1).getText())
         #self.archivoCodigoIntermedioComentarios.write('pop ' + ctx.getChild(1).getText() + '\n')
-        
+      
+    
+         
     
     #-------------------parte de llamada a funciones-------------------------------------# 
     def visitLlamadafunc(self, ctx):

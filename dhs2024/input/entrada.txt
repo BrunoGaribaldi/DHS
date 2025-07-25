@@ -1,24 +1,35 @@
 
-int a,b,c,d, x, y, z, i ;
-a = 4;
-b = 9;
-c = 0;
-d = 7;
-i = 3;
-x = 4;
-z = 2;
-y = 1;
+int pot(int f);
+int mul(int l,int m,int n);
+int main () {
+    int a, x, y, i,z;
+	a = 0;
+	x = 7;
+	z = 8;
+	if ( x == 10 ){
+	x = (x * 7) + 1;
+	}
+	x = pot(x);
 
+	for(i = 0; i < 7; i = i + 1){
+		z = z * i;
+	}
 
+	int b;
+	b = 10;
+	y = mul(z,x,b);
 
-int f(int a, int b, int c);
-
-x = x / 2 ;
-x  = f(c,d,i);
-
-int f ( int a , int b ,int c){
-	int w;
-	w = a + b - c;
-	return w;
+    return a;
 }
 
+
+int pot(int f){
+	f = f * f;
+	return f;
+}
+
+int mul(int l, int m, int n){
+	int o;
+	o = (l + m )/n;
+	return o;
+}

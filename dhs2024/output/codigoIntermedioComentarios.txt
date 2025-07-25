@@ -1,56 +1,101 @@
 
---- Asignacion variable a linea 3 ---
-a=4
+--- Funcion --- 
+label main
+pop t0
 
---- Asignacion variable b linea 4 ---
-b=9
+--- Asignacion variable a linea 6 ---
+a=0
 
---- Asignacion variable c linea 5 ---
-c=0
+--- Asignacion variable x linea 7 ---
+x=7
 
---- Asignacion variable d linea 6 ---
-d=7
+--- Asignacion variable z linea 8 ---
+z=8
 
---- Asignacion variable i linea 7 ---
-i=3
+--- IF linea 9 --- 
+t1 = x==10
+ifntjmp t1 , l1
 
---- Asignacion variable x linea 8 ---
-x=4
-
---- Asignacion variable z linea 9 ---
-z=2
-
---- Asignacion variable y linea 10 ---
-y=1
-
---- Asignacion variable x linea 16 ---
-t0 = x/2
-x = t0
+--- Asignacion variable x linea 10 ---
+t2 = x*7
+t3 = t2 + 1
+x = t3
  
+label l1
 
---- Asignacion variable x linea 17 ---
+--- Asignacion variable x linea 12 ---
 
 --- Llamada a funcion --- 
-push c
-push d
-push i
-push l0
-jump f
-label l0
+push x
+push l3
+jump pot
+label l3
 pop x
  
 
---- Funcion --- 
-label f
-pop t1
-pop c
-pop b
-pop a
+--- For linea 14 ---
 
---- Asignacion variable w linea 21 ---
-t2 = a + b
-t3 = t2 - c
-w = t3
+--- Asignacion variable i linea 14 ---
+i=0
+label l4
+t4 = i<7
+ifntjmp t4 , l5
+
+--- Asignacion variable z linea 15 ---
+t5 = z*i
+z = t5
  
-push w
-jump t1
+
+--- Asignacion variable i linea 14 ---
+t6 = i + 1
+i = t6
+ 
+jump l4
+label l5
+
+--- Asignacion variable b linea 19 ---
+b=10
+
+--- Asignacion variable y linea 20 ---
+
+--- Llamada a funcion --- 
+push z
+push x
+push b
+push l6
+jump mul
+label l6
+pop y
+ 
+label end_main
+push a
+jump t0
+
+--- Funcion --- 
+label pot
+pop t7
+pop f
+
+--- Asignacion variable f linea 27 ---
+t8 = f*f
+f = t8
+ 
+label end_pot
+push f
+jump t7
+
+--- Funcion --- 
+label mul
+pop t9
+pop n
+pop m
+pop l
+
+--- Asignacion variable o linea 33 ---
+t10 = l + m
+t11 = t10 / n
+o = t11
+ 
+label end_mul
+push o
+jump t9
