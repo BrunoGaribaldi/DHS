@@ -7,38 +7,45 @@ class Optimizador:
     
     def optimizar(self):
         self.acomodar_entrada()
-        with open("Entrada.txt", "r") as src:
+        with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "r") as src:
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
             src.seek(0)
             lineasCodigoIntermedio = src.readlines()
-            with open('CodigoIntermedioOptimizado.txt', 'w') as dest:
-                self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
 
+        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'w') as dest:
+            self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+        
+        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'r') as destino:
+            destino.seek(0)
+            lineasConPropagacionDeConstantes = destino.readlines()
+            
+        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'w') as dest:
+            self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
 
-            # dest.seek(0)
-            # lineasConPropagacionDeConstantes = dest.readlines()
-            # dest.seek(0)
-            # self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
-            # dest.seek(0)
+            #dest.seek(0)
             # lineasConOptimizacionExpresionesComunes = dest.readlines()
             # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
         
     def acomodar_entrada (self):
-        with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+        with open("DHS/dhs2024/output/codigoIntermedio.txt", "r") as src:
             # quitamos espacios en blanco del archivo
             lineas = src.readlines()
             lineas_limpias = [linea.strip() for linea in lineas if linea.strip() != ""]
-            with open("Entrada.txt", "w") as f:
+            operadores = ['>=', '<=', '==', '!=', '++', '--', '&&', '||', '+', '-', '*', '/', '>', '<',  '=',  '%', '!' ]
+
+
+            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "w") as f:
                 for linea in lineas_limpias:
                     f.write(linea + "\n")
-            src.seek(0)
-            operadores = ['>=', '<=', '==', '!=', '++', '--', '&&', '||', '+', '-', '*', '/', '>', '<',  '=',  '%', '!' ]
-            self.bloques = []
-            lineasCodigoIntermedio = src.readlines()
-            lineasCodigoIntermedio = self.agregar_espacios(lineasCodigoIntermedio, operadores)
-            print(lineasCodigoIntermedio)
-            with open("Entrada.txt", "w") as f:
+            
+            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "r") as f:
+                self.bloques = []
+                lineasCodigoIntermedio = f.readlines()
+                lineasCodigoIntermedio = self.agregar_espacios(lineasCodigoIntermedio, operadores)
+                print(lineasCodigoIntermedio)
+
+            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "w") as f:
                 for i, linea in enumerate(lineasCodigoIntermedio):
                     if i == len(lineasCodigoIntermedio) - 1:
                         f.write(linea.rstrip('\n'))  # Última línea, sin \n
@@ -195,7 +202,6 @@ class Optimizador:
                         #caso cualquiera donde yo me encuentro una variable o una t
                             self.bloques[-1][1] = i 
 
-
 #funcion algoritmo propagacion de constantes.
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
@@ -289,12 +295,16 @@ class Optimizador:
 
     #algoritmo basado en lo siguiente: https://youtu.be/23PoAQKYsHE                 
     def optimizacionExpresionesComunes(self, src , destino):
+        print('optimizando expresiones comunes')
         optimizado = src.copy() 
         for bloquen in self.bloques:
             inicio, fin = bloquen
+            ('veamos el nestor en bloque' , inicio , fin)
             i = inicio
             while i <= fin: 
                 linea = optimizado[i].split()
+                print(linea)
+                print(linea)
                 if len(linea) == 5 and linea [1] == '=': #osea si es del tipo p = x + y x ejemplo
                     if linea[0] == linea [2] or linea [0] == linea[4]: # a cambiado p?
                         i += 1
@@ -367,9 +377,6 @@ class Optimizador:
                 linea += '\n'
             destino.write(linea)      
 
-if __name__ == "__main__":
-    opt = Optimizador()
-    opt.optimizar()
 
     
 
