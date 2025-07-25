@@ -1,45 +1,101 @@
+import re
 class Optimizador: 
 
     def __init__(self):
         self.bloques = []
+        self.banderajmp = 0
     
     def optimizar(self):
-        with open("./codigoIntermedio.txt", "r") as src, open("./CodigoIntermedioOptimizado.txt", "w+") as dest:
-            #quitamos espacios en blanco del archivo
+        self.acomodar_entrada()
+        with open("Entrada.txt", "r") as src:
+            lineasCodigoIntermedio = src.readlines()
+            self.generadorDeBloques(lineasCodigoIntermedio)
+            #self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+            # dest.seek(0)
+            # lineasConPropagacionDeConstantes = dest.readlines()
+            # dest.seek(0)
+            # self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
+            # dest.seek(0)
+            # lineasConOptimizacionExpresionesComunes = dest.readlines()
+            # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
+        
+    def acomodar_entrada (self):
+        with open("./Entrada.txt", "r") as src, open("./CodigoIntermedioOptimizado", "w+") as dest:
+            # quitamos espacios en blanco del archivo
             lineas = src.readlines()
             lineas_limpias = [linea.strip() for linea in lineas if linea.strip() != ""]
             with open("Entrada.txt", "w") as f:
                 for linea in lineas_limpias:
                     f.write(linea + "\n")
             src.seek(0)
-
+            operadores = ['>=', '<=', '==', '!=', '++', '--', '&&', '||', '+', '-', '*', '/', '>', '<',  '=',  '%', '!' ]
             self.bloques = []
             lineasCodigoIntermedio = src.readlines()
-            self.generadorDeBloques(lineasCodigoIntermedio)
-            self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
-            dest.seek(0)
-            lineasConPropagacionDeConstantes = dest.readlines()
-            dest.seek(0)
-            self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
-            # dest.seek(0)
-            # lineasConOptimizacionExpresionesComunes = dest.readlines()
-            # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
+            lineasCodigoIntermedio = self.agregar_espacios(lineasCodigoIntermedio, operadores)
+            print(lineasCodigoIntermedio)
+            with open("Entrada.txt", "w") as f:
+                for i, linea in enumerate(lineasCodigoIntermedio):
+                    if i == len(lineasCodigoIntermedio) - 1:
+                        f.write(linea.rstrip('\n'))  # Última línea, sin \n
+                    else:
+                        f.write(linea)
+
+    def agregar_espacios(self, lineasCodigoIntermedio, operadores):
+
+        for i, linea in enumerate(lineasCodigoIntermedio):
+            lineaSplit = linea.split()
+            if len(lineaSplit) == 1 and '=' in lineaSplit[0]:
+                izquierda, derecha_con_salto = lineaSplit[0].split('=', 1)
+                if not derecha_con_salto.endswith('\n'):
+                    derecha_con_salto += '\n'
+                nueva_linea = f"{izquierda} = {derecha_con_salto}"
+                lineasCodigoIntermedio[i] = nueva_linea
+
+            elif len(lineaSplit) >= 3 and lineaSplit[1] == '=':
+                patron = '|'.join(sorted(map(re.escape, operadores), key=len, reverse=True))
+                regex_operadores = re.compile(rf'\s*({patron})\s*')
+
+                expresion_derecha = ' '.join(lineaSplit[2:])
+
+                expresion_derecha = regex_operadores.sub(r' \1 ', expresion_derecha)
+                expresion_derecha = ' '.join(expresion_derecha.split())
+
+                nueva_linea = f"{lineaSplit[0]} = {expresion_derecha}"
+
+                if linea.endswith('\n'):
+                    nueva_linea += '\n'
+                lineasCodigoIntermedio[i] = nueva_linea
+
+                if not nueva_linea.endswith('\n') and linea.endswith('\n'):
+                    nueva_linea += '\n'
+
+                lineasCodigoIntermedio[i] = nueva_linea
+        return lineasCodigoIntermedio
+
+
+    def separar_por_operador(self, texto, operadores):
+        for op in operadores:
+            if op in texto:
+                izquierda, derecha = texto.split(op, 1)
+                return izquierda, op, derecha
+        return texto, None, None
 
 #Funcion para generar bloques optimizables
     def generadorDeBloques(self,lineasCodigoIntermedio):
         print('Identificando bloques...')
+
         self.bloques = []
         banderaLlamadaFuncion = 0
         banderaf = 0
+        banderaDentroF = 0
         banderaSalidaF = 0
-        #print(lineasCodigoIntermedio)
-        banderajmp = 0
         for i, linea in enumerate(lineasCodigoIntermedio):
             #print(i, linea)
             lineaSplit = linea.split() 
+            print(self.bloques)
 
             #caso: la primer linea de toas es un lider
-            if i == 0:
+            if i == 0 and (not lineaSplit[0] == 'label' and not lineaSplit[1] == 'main'):
                 self.bloques.append([i,i])
             else:
 
@@ -52,15 +108,14 @@ class Optimizador:
                     and (
                         (i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i + 1].split()[0] == 'push')
                         or (
-                            i + 4 < len(lineasCodigoIntermedio)
-                            and lineasCodigoIntermedio[i + 4].split()[0] != 'pop'
-                            and lineasCodigoIntermedio[i + 4].split()[0] != '['
+                            i + 2 < len(lineasCodigoIntermedio)
+                            and not lineasCodigoIntermedio[i + 2].split()[1].startswith('l')
                         )
                     )
                 ):
                     print(lineaSplit[0])
                     print('i+1', lineasCodigoIntermedio[i+1].split()[0])
-                    print('i+4', lineasCodigoIntermedio[i+4].split()[0])
+                    print('i+2', lineasCodigoIntermedio[i+4].split()[0], lineasCodigoIntermedio[i + 2].split()[1])
                     banderaLlamadaFuncion = 1
                     continue
                 
@@ -74,54 +129,68 @@ class Optimizador:
                         continue
                                      
                 #toda ejecucion de funcion comienza por label - pop <o varios pop> - [ y termina en ] - push - jmp
-                if banderaf == 1:
-                    if lineaSplit[0] == ']':
-                        banderaSalidaF = 1
+                #enrealiad ahora toda funcion ahora comienza por label nombre funcion. Nombre funcion es cualquier cosa distinta de lnumero
+                if lineaSplit[0] == 'label' and not lineaSplit[1].startswith("l") and banderaf == 0:
+                    print('este es el valor de i aca' , i)
+                    banderaf = 1
+                    continue
+                if banderaf == 1 and lineaSplit[0] == 'pop':
+                    if lineasCodigoIntermedio[i-1].split()[0] == 'label' and lineasCodigoIntermedio[i-1].split()[1].startswith('l'):
+                        #significa que es la salida de una llamada de funcion que retorna algo
+                        self.bloques[-1][1] = i 
+                        continue
+                    print('me encontre con un pop de funcion' , i)
+                    continue
+                if banderaf == 1 and banderaDentroF == 0 and lineaSplit[0] != 'pop':
+                    print('este no es pop, por lo tanto entro a la funcion' , i)
+                    banderaDentroF = 1
+                    self.bloques.append([i,i])
+                    self.algoritmo(lineaSplit,i)
+                    continue
+                if banderaDentroF == 1  and banderaf == 1:
+                    if lineaSplit[0] == 'label' and lineaSplit[1].startswith('end_'):
+                        banderaDentroF = 0 
                         banderaf = 0
-                        continue    
-                    else:
+                        banderaSalidaF = 1
+                        print('fin de la funcion')
                         continue
-                
-                if banderaSalidaF == 1: 
-                    if lineaSplit[0] == 'push':
-                        continue
-                    if lineaSplit[0] == 'jump':
-                        banderaSalidaF = 0
-                        continue
+                    print('sigo dentro de la funcion')
+                    self.algoritmo(lineaSplit,i)
+                    continue
+                if banderaSalidaF == 1 and lineaSplit[0] == 'push':
+                    continue
+                if banderaSalidaF == 1 and lineaSplit[0] == 'jump':
+                    banderaSalidaF = 0
+                    continue
 
-
-                
-                #Todo esto es para la demas logica que no tenga que ver con las funciones.
-                if lineaSplit[0] == 'label' and i + 1 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+1].split()[0] == 'pop' and banderaf == 0:
-                    #si me encuentro en el siguiente con otro pop o con [ entonces si o si estoy dentro de una funcion. 
-                    if i + 2 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+2].split()[0] == 'pop':
-                        banderaf = 1
-                        continue
-                    if i + 2 < len(lineasCodigoIntermedio) and lineasCodigoIntermedio[i+2].split()[0] == '[':
-                        banderaf = 1
-                        continue
-
-                if(lineaSplit[0] == 'jump' or lineaSplit[0] == 'ifntjmp'):
-                    self.bloques[-1][1] = i
-                    #caso el siguiente a un salto es lider
-                    self.bloques.append([i+1,i+1])
-                    banderajmp = 1
-                else:
-                    #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
-                    if (lineaSplit[0] == 'label' and banderajmp == 0):
-                        self.bloques.append([i,i])
-                    else:
-                        if(lineaSplit[0] == 'label' and banderajmp == 1):
-                        #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
-                            banderajmp = 0
-                        else: 
-                            if (banderajmp == 1):
-                                continue
-                            else:
-                                #caso cualquiera donde yo me encuentro una variable o una t
-                                 self.bloques[-1][1] = i                     
+                self.algoritmo(lineaSplit,i)
+                                    
         print("Bloques optimizables:", self.bloques) 
-                                
+
+
+    def algoritmo (self, lineaSplit, i):
+        print(i)
+        if(lineaSplit[0] == 'jump' or lineaSplit[0] == 'ifntjmp'):
+            self.bloques[-1][1] = i
+            #caso el siguiente a un salto es lider
+            self.bloques.append([i+1,i+1])
+            self.banderajmp = 1
+        else:
+            #caso el destino de un salto es lider y la anterior instruccion no es jmp o ifntjmp
+            if (lineaSplit[0] == 'label' and self.banderajmp == 0):
+                self.bloques.append([i,i])
+            else:
+                if(lineaSplit[0] == 'label' and self.banderajmp == 1):
+                #en el caso de que lo sea, la omito xq ya la agregue en append([i+1,i+1])
+                    self.banderajmp = 0
+                else: 
+                    if (self.banderajmp == 1):
+                        self.banderajmp = 0
+                        return
+                    else:
+                        #caso cualquiera donde yo me encuentro una variable o una t
+                            self.bloques[-1][1] = i 
+
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
@@ -287,3 +356,13 @@ class Optimizador:
             if not linea.endswith('\n'):
                 linea += '\n'
             destino.write(linea)      
+
+if __name__ == "__main__":
+    opt = Optimizador()
+    opt.optimizar()
+
+    
+
+
+
+
