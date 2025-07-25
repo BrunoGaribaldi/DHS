@@ -10,7 +10,12 @@ class Optimizador:
         with open("Entrada.txt", "r") as src:
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
-            #self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+            src.seek(0)
+            lineasCodigoIntermedio = src.readlines()
+            with open('CodigoIntermedioOptimizado.txt', 'w') as dest:
+                self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
+
+
             # dest.seek(0)
             # lineasConPropagacionDeConstantes = dest.readlines()
             # dest.seek(0)
@@ -167,7 +172,6 @@ class Optimizador:
                                     
         print("Bloques optimizables:", self.bloques) 
 
-
     def algoritmo (self, lineaSplit, i):
         print(i)
         if(lineaSplit[0] == 'jump' or lineaSplit[0] == 'ifntjmp'):
@@ -191,6 +195,8 @@ class Optimizador:
                         #caso cualquiera donde yo me encuentro una variable o una t
                             self.bloques[-1][1] = i 
 
+
+#funcion algoritmo propagacion de constantes.
     def propagacionDeConstantes(self,lineasCodigoIntermedio,dest): #probar el tema de > o < logicos
         print('Propagacion de constantes...')  
         optimizado = lineasCodigoIntermedio.copy() 
@@ -211,14 +217,16 @@ class Optimizador:
                     continue
                 else:
                     # t1 = 2
+                    print(i)
                     if len(linea) == 3 and (linea[2].isdigit() or linea[2].isalpha()):
                         constantes[linea[0]] = linea[2]
+                        print('linea' , i , 'diccionario' , constantes)
                         continue
                     else: 
                         # t1 = t2 y en mi diccionario existe t2
                         if len(linea) == 3 and (linea[2] in constantes):
                             constantes[linea[0]] = constantes[linea[2]]
-                            linea[2] = constantes[linea[0]]
+                            linea[2] = str(constantes[linea[0]])
                             optimizado[i] = " ".join(linea) + "\n"
                         else:
                         # caso t = 2 + 4
@@ -245,9 +253,11 @@ class Optimizador:
                                 else:
                                     #caso t = t + 2
                                     if len(linea) == 5 and (not linea[2].isdigit() and linea[4].isdigit() and linea[2] in constantes):
+                                        print('entre acaaaaa')
                                         tokens = [constantes[linea[2]],linea[3],linea[4]]
                                         expr = " ".join(str(token) for token in tokens)  # '2 + 4'
-                                        resultado = eval(expr)   # 6 
+                                        resultado = eval(expr)   # 6
+                                        print('este es el resultadooo', resultado) 
                                         str_resultado = str(resultado)
                                         #aca guarda en archivo. REVISAR EL TEMA DE LOS TIPOS DE DATOS EN LAS VARIABLES T.
                                         constantes[linea[0]] = resultado #guardo en diccionario
