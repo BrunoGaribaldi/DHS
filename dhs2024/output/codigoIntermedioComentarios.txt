@@ -78,7 +78,10 @@ pop f
 
 --- Asignacion variable f linea 27 ---
 t8 = f*f
-f = t8
+t9 = 9/2
+t10 = 7*4
+t11 = t9 + t10
+f = t11
  
 label end_pot
 push f
@@ -86,16 +89,18 @@ jump t7
 
 --- Funcion --- 
 label mul
-pop t9
+pop t12
 pop n
 pop m
 pop l
 
 --- Asignacion variable o linea 33 ---
-t10 = l + m
-t11 = t10 / n
-o = t11
+t13 = t8 + l
+t14 = t13 + m
+t15 = t14 / n
+t16 = t15 + 8
+o = t16
  
 label end_mul
 push o
-jump t9
+jump t12

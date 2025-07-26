@@ -659,7 +659,7 @@ class Escucha (compiladoresListener) :
                 self.idNoUsadosInicializados.append(variable)
             if variable.inicializado == 0 and variable.usado == 1: 
                 self.erroresSemanticos.append("Funcion usada y no inicialiazada: " + variable.nombre)
-            if variable.inicializado == 0 and variable.usado == 0: 
+            if variable.inicializado == 0 and variable.usado == 0 and variable.nombre != 'main': 
                 self.erroresSemanticos.append("Funcion con prototipo pero no inicializada ni utilizada: " + variable.nombre)
 
         print("En el contexto global se encontro lo siguiente:")

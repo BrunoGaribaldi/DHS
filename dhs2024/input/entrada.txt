@@ -24,12 +24,12 @@ int main () {
 
 
 int pot(int f){
-	f = f * f;
+	f = f * f + 9/2 + 7 *4;
 	return f;
 }
 
 int mul(int l, int m, int n){
 	int o;
-	o = (l + m )/n;
+	o = (l + m )/n + 8;
 	return o;
 }
