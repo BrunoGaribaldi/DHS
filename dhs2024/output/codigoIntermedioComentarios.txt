@@ -12,18 +12,24 @@ x=7
 --- Asignacion variable z linea 8 ---
 z=8
 
---- IF linea 9 --- 
-t1 = x==10
-ifntjmp t1 , l1
+--- Asignacion variable x linea 9 ---
+t1 = x + a
+t2 = t1 + z
+x = t2
+ 
 
---- Asignacion variable x linea 10 ---
-t2 = x*7
-t3 = t2 + 1
-x = t3
+--- IF linea 10 --- 
+t3 = x==10
+ifntjmp t3 , l1
+
+--- Asignacion variable x linea 11 ---
+t4 = x*7
+t5 = t4 + 1
+x = t5
  
 label l1
 
---- Asignacion variable x linea 13 ---
+--- Asignacion variable x linea 15 ---
 
 --- Llamada a funcion --- 
 push x
@@ -33,30 +39,40 @@ label l3
 pop x
  
 
---- For linea 15 ---
+--- For linea 17 ---
 
---- Asignacion variable i linea 15 ---
+--- Asignacion variable i linea 17 ---
 i=0
 label l4
-t4 = i<7
-ifntjmp t4 , l5
+t6 = i<7
+ifntjmp t6 , l5
 
---- Asignacion variable z linea 16 ---
-t5 = z*i
-z = t5
+--- Asignacion variable z linea 18 ---
+t7 = z*i
+z = t7
  
 
---- Asignacion variable i linea 15 ---
-t6 = i + 1
-i = t6
+--- Asignacion variable i linea 17 ---
+t8 = i + 1
+i = t8
  
 jump l4
 label l5
 
---- Asignacion variable b linea 20 ---
+--- Asignacion variable b linea 22 ---
 b=10
 
---- Asignacion variable y linea 21 ---
+--- Asignacion variable c linea 23 ---
+t9 = b + 10
+c = t9
+ 
+
+--- Asignacion variable b linea 24 ---
+t10 = b + 10
+b = t10
+ 
+
+--- Asignacion variable y linea 25 ---
 
 --- Llamada a funcion --- 
 push z
@@ -73,31 +89,31 @@ jump t0
 
 --- Funcion --- 
 label pot
-pop t7
+pop t11
 pop f
 
---- Asignacion variable f linea 28 ---
-t8 = f*f
-t9 = t8 + 8
-f = t9
+--- Asignacion variable f linea 32 ---
+t12 = f*f
+t13 = t12 + 8
+f = t13
  
 label end_pot
 push f
-jump t7
+jump t11
 
 --- Funcion --- 
 label mul
-pop t10
+pop t14
 pop n
 pop m
 pop l
 
---- Asignacion variable o linea 34 ---
-t11 = l + m
-t12 = t11 * n
-t13 = t12 + 8
-o = t13
+--- Asignacion variable o linea 38 ---
+t15 = l + m
+t16 = t15 * n
+t17 = t16 + 8
+o = t17
  
 label end_mul
 push o
-jump t10
+jump t14

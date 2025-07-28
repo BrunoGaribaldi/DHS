@@ -3,11 +3,14 @@ pop t0
 a = 0
 x = 7
 z = 8
-t1 = x == 10
-ifntjmp t1 , l1
-t2 = x * 7
-t3 = t2 + 1
-x = t3
+t1 = x + a
+t2 = t1 + z
+x = t2
+t3 = x == 10
+ifntjmp t3 , l1
+t4 = x * 7
+t5 = t4 + 1
+x = t5
 label l1
 push x
 push l3
@@ -16,15 +19,19 @@ label l3
 pop x
 i = 0
 label l4
-t4 = i < 7
-ifntjmp t4 , l5
-t5 = z * i
-z = t5
-t6 = i + 1
-i = t6
+t6 = i < 7
+ifntjmp t6 , l5
+t7 = z * i
+z = t7
+t8 = i + 1
+i = t8
 jump l4
 label l5
 b = 10
+t9 = b + 10
+c = t9
+t10 = b + 10
+b = t10
 push z
 push x
 push b
@@ -36,23 +43,23 @@ label end_main
 push a
 jump t0
 label pot
-pop t7
+pop t11
 pop f
-t8 = f * f
-t9 = t8 + 8
-f = t9
+t12 = f * f
+t13 = t12 + 8
+f = t13
 label end_pot
 push f
-jump t7
+jump t11
 label mul
-pop t10
+pop t14
 pop n
 pop m
 pop l
-t11 = l + m
-t12 = t11 * n
-t13 = t12 + 8
-o = t13
+t15 = l + m
+t16 = t15 * n
+t17 = t16 + 8
+o = t17
 label end_mul
 push o
-jump t10
+jump t14

@@ -2,15 +2,16 @@
 int pot(int f);
 int mul(int l,int m,int n);
 int main () {
-    int a, x, y, i,z;
+    int a,c, x, y, i,z;
 	a = 0;
 	x = 7;
 	z = 8;
+	x = x + a + z;
 	if ( x == 10 ){
 	x = (x * 7) + 1;
 	}
 
-	
+
 	x = pot(x);
 
 	for(i = 0; i < 7; i = i + 1){
@@ -19,6 +20,8 @@ int main () {
 
 	int b;
 	b = 10;
+	c = b + 10;
+	b = b + 10;
 	y = mul(z,x,b);
 
     return a;
