@@ -26,10 +26,11 @@ def main(argv):
         caminante.visitPrograma(tree)
 
         print('Optimizando codigo intermedio')
+        
         optimizador = Optimizador()
 
         for i in range(pasadas):
-            optimizador.optimizar
+            optimizador.optimizar()
             
     else:
         print('\nTu codigo presenta errores semanticos, no es posible realizar el codigo intermedio\n')

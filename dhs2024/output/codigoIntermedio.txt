@@ -39,23 +39,20 @@ label pot
 pop t7
 pop f
 t8 = f*f
-t9 = 9/2
-t10 = 7*4
-t11 = t9 + t10
-f = t11
+t9 = t8 + 8
+f = t9
 label end_pot
 push f
 jump t7
 label mul
-pop t12
+pop t10
 pop n
 pop m
 pop l
-t13 = t8 + l
-t14 = t13 + m
-t15 = t14 / n
-t16 = t15 + 8
-o = t16
+t11 = l + m
+t12 = t11 * n
+t13 = t12 + 8
+o = t13
 label end_mul
 push o
-jump t12
+jump t10

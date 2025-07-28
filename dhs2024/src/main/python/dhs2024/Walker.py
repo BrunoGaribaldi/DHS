@@ -32,7 +32,9 @@ class Walker (compiladoresVisitor):
 
     
     def visitPrograma(self, ctx: compiladoresParser.ProgramaContext):
-        return super().visitPrograma(ctx)
+        super().visitPrograma(ctx)
+        self.archivoCodigoIntermedio.close()
+        
       
     def visitReturn(self, ctx):
         super().visitReturn(ctx)

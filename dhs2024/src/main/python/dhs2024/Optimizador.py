@@ -7,20 +7,20 @@ class Optimizador:
     
     def optimizar(self):
         self.acomodar_entrada()
-        with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "r") as src:
+        with open("./output/archivoTemporalOptimizador.txt", "r") as src:
             lineasCodigoIntermedio = src.readlines()
             self.generadorDeBloques(lineasCodigoIntermedio)
             src.seek(0)
             lineasCodigoIntermedio = src.readlines()
 
-        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'w') as dest:
+        with open('./output/CodigoIntermedioOptimizado.txt', 'w') as dest:
             self.propagacionDeConstantes(lineasCodigoIntermedio,dest)
         
-        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'r') as destino:
+        with open('./output/CodigoIntermedioOptimizado.txt', 'r') as destino:
             destino.seek(0)
             lineasConPropagacionDeConstantes = destino.readlines()
-            
-        with open('DHS/dhs2024/output/CodigoIntermedioOptimizado.txt', 'w') as dest:
+        
+        with open('./output/CodigoIntermedioOptimizado.txt', 'w') as dest:
             self.optimizacionExpresionesComunes(lineasConPropagacionDeConstantes, dest)
 
             #dest.seek(0)
@@ -28,24 +28,25 @@ class Optimizador:
             # self.eliminacionCodigoInnecesario(lineasConOptimizacionExpresionesComunes, dest)
         
     def acomodar_entrada (self):
-        with open("DHS/dhs2024/output/codigoIntermedio.txt", "r") as src:
+    
+        with open("./output/codigoIntermedio.txt", "r") as src:
             # quitamos espacios en blanco del archivo
             lineas = src.readlines()
             lineas_limpias = [linea.strip() for linea in lineas if linea.strip() != ""]
             operadores = ['>=', '<=', '==', '!=', '++', '--', '&&', '||', '+', '-', '*', '/', '>', '<',  '=',  '%', '!' ]
-
-
-            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "w") as f:
+                
+            
+            with open("./output/archivoTemporalOptimizador.txt", "w") as f:
                 for linea in lineas_limpias:
                     f.write(linea + "\n")
             
-            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "r") as f:
+            with open("./output/archivoTemporalOptimizador.txt", "r") as f:
                 self.bloques = []
                 lineasCodigoIntermedio = f.readlines()
                 lineasCodigoIntermedio = self.agregar_espacios(lineasCodigoIntermedio, operadores)
                 print(lineasCodigoIntermedio)
 
-            with open("DHS/dhs2024/output/archivoTemporalOptimizador.txt", "w") as f:
+            with open("./output/archivoTemporalOptimizador.txt", "w") as f:
                 for i, linea in enumerate(lineasCodigoIntermedio):
                     if i == len(lineasCodigoIntermedio) - 1:
                         f.write(linea.rstrip('\n'))  # Última línea, sin \n
